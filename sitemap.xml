@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- TODO: replace YOUR-DOMAIN-HERE.com with the real production domain once live -->
+<!-- Update to a custom domain if one is connected later -->
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>https://YOUR-DOMAIN-HERE.com/</loc></url>
-  <url><loc>https://YOUR-DOMAIN-HERE.com/about.html</loc></url>
-  <url><loc>https://YOUR-DOMAIN-HERE.com/ministries.html</loc></url>
-  <url><loc>https://YOUR-DOMAIN-HERE.com/sermons.html</loc></url>
-  <url><loc>https://YOUR-DOMAIN-HERE.com/events.html</loc></url>
-  <url><loc>https://YOUR-DOMAIN-HERE.com/give.html</loc></url>
-  <url><loc>https://YOUR-DOMAIN-HERE.com/visit.html</loc></url>
-  <url><loc>https://YOUR-DOMAIN-HERE.com/prayer.html</loc></url>
+  <url><loc>https://selah-church.thyratechllc.workers.dev/</loc></url>
+  <url><loc>https://selah-church.thyratechllc.workers.dev/about.html</loc></url>
+  <url><loc>https://selah-church.thyratechllc.workers.dev/ministries.html</loc></url>
+  <url><loc>https://selah-church.thyratechllc.workers.dev/sermons.html</loc></url>
+  <url><loc>https://selah-church.thyratechllc.workers.dev/events.html</loc></url>
+  <url><loc>https://selah-church.thyratechllc.workers.dev/give.html</loc></url>
+  <url><loc>https://selah-church.thyratechllc.workers.dev/visit.html</loc></url>
+  <url><loc>https://selah-church.thyratechllc.workers.dev/prayer.html</loc></url>
 </urlset>

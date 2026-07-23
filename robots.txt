@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://YOUR-DOMAIN-HERE.com/sitemap.xml
+Sitemap: https://selah-church.thyratechllc.workers.dev/sitemap.xml
