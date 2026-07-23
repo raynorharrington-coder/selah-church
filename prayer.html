@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prayer Request | Selah Church — Fredericksburg, VA</title>
+<meta name="description" content="Submit a prayer request to the Selah Church team — private and cared for.">
+
+<!-- TODO: replace with the real production domain once live -->
+<link rel="canonical" href="https://YOUR-DOMAIN-HERE.com/prayer.html">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Selah Church">
+<meta property="og:url" content="https://YOUR-DOMAIN-HERE.com/prayer.html">
+<meta property="og:title" content="Prayer Request | Selah Church — Fredericksburg, VA">
+<meta property="og:description" content="Submit a prayer request to the Selah Church team — private and cared for.">
+<meta property="og:image" content="https://images.unsplash.com/photo-1699974627167-005175582723?fm=jpg&q=80&w=1200&auto=format&fit=crop">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Prayer Request | Selah Church">
+<meta name="twitter:description" content="Submit a prayer request to the Selah Church team — private and cared for.">
+<meta name="twitter:image" content="https://images.unsplash.com/photo-1699974627167-005175582723?fm=jpg&q=80&w=1200&auto=format&fit=crop">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Manrope:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="site-header"></div>
+
+<section class="page-hero">
+  <div class="container">
+    <span class="eyebrow">Selah: pause, reflect, praise.</span>
+    <h1>You don't have to carry it alone.</h1>
+    <p>Whatever you're walking through, our team would be honored to pray with you. This is read only by our pastoral team, and held in confidence.</p>
+  </div>
+</section>
+
+<section class="section section--paper">
+  <div class="container">
+    <form class="form-card" data-inline-confirm>
+      <div class="form-field">
+        <label for="p-name">Name</label>
+        <input type="text" id="p-name" name="name" required>
+      </div>
+      <div class="form-field">
+        <label for="p-email">Email <span style="text-transform:none; opacity:.7;">(optional, if you'd like a response)</span></label>
+        <input type="email" id="p-email" name="email">
+      </div>
+      <div class="form-field">
+        <label for="p-request">Your prayer request</label>
+        <textarea id="p-request" name="request" required placeholder="Share as much or as little as you're comfortable with."></textarea>
+      </div>
+      <div class="checkbox-field">
+        <input type="checkbox" id="p-confidential" name="confidential">
+        <label for="p-confidential">Please keep this request confidential, shared only with the pastoral team.</label>
+      </div>
+      <button type="submit" class="btn btn-gold">Submit Prayer Request</button>
+      <p class="form-note">This goes directly to our pastoral team — we'll be praying for you.</p>
+    </form>
+    <p class="dev-note">Form currently shows an inline confirmation only — wire up to Formspree (or similar) before launch.</p>
+  </div>
+</section>
+
+<div id="site-footer"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="header.js"></script>
+<script src="footer.js"></script>
+<script src="script.js"></script>
+</body>
+</html>
