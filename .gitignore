@@ -9,3 +9,10 @@ SHAPE-warmth-refinement.md
 TODOS.md
 button-radius-preview.html
 photo-placement-preview.html
+
+# wrangler files
+.wrangler
+.dev.vars*
+!.dev.vars.example
+.env*
+!.env.example
