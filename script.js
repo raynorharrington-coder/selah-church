@@ -105,7 +105,7 @@ function initHeroEntrance(reduceMotion) {
 
 /* ---------- Generic scroll-reveal (IntersectionObserver) ---------- */
 function initScrollReveal(reduceMotion) {
-  const revealTargets = document.querySelectorAll('.reveal, .reveal-photo, .route-card, .ministry-card, .pause-divider, .sermon-card, .event-card, .give-card');
+  const revealTargets = document.querySelectorAll('.reveal, .reveal-photo, .route-card, .ministry-card, .sermon-card, .event-card, .give-card');
   if (reduceMotion) {
     revealTargets.forEach(el => el.classList.add('in-view'));
   } else {
