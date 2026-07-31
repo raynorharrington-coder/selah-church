@@ -30,7 +30,7 @@
 
 <div id="site-header"></div>
 
-<section class="page-hero">
+<section class="page-hero" id="main-content" tabindex="-1">
   <div class="container">
     <span class="eyebrow">New Here?</span>
     <h1>Come as you are — we'll save you a seat.</h1>
@@ -46,7 +46,7 @@
         <h2 style="margin:1rem 0 1.6rem;">Join us Sunday</h2>
         <div class="visit-details">
           <div class="item"><strong>Address</strong>316 Forbes Street<br>Fredericksburg, VA</div>
-          <div class="item"><strong>Service Time</strong>Sundays &middot; [confirm time]</div>
+          <div class="item"><strong>Service Time</strong>Sundays &middot; 10:30 AM</div>
         </div>
         <a href="https://www.google.com/maps/search/?api=1&query=316+Forbes+Street+Fredericksburg+VA" target="_blank" rel="noopener" class="btn btn-outline-dark" style="margin-top:2rem;">Get Directions</a>
       </div>
@@ -72,7 +72,7 @@
       </div>
       <div class="step-item reveal">
         <div class="step-num">3</div>
-        <div><h3>Worship &amp; the message</h3><p>Expect a relaxed, come-as-you-are atmosphere — casual dress, real worship, and a practical message from scripture.</p></div>
+        <div><h3>Worship &amp; the message</h3><p>Expect a relaxed, come-as-you-are atmosphere — casual dress, worship that isn't rushed through a set list, and a practical message from scripture. Prayer is often offered right in the room as people need it, and our team is always glad to <a href="prayer.html">pray with you</a> anytime, before or after.</p></div>
       </div>
       <div class="step-item reveal">
         <div class="step-num">4</div>
@@ -88,25 +88,25 @@
       <h2>Get in touch</h2>
       <p>Questions before you visit? Send us a message.</p>
     </div>
-    <form class="form-card" data-inline-confirm>
+    <form class="form-card" data-inline-confirm novalidate>
       <div class="form-row">
         <div class="form-field">
-          <label for="name">Name</label>
+          <label for="name">Name<span class="required-mark" aria-hidden="true">*</span></label>
           <input type="text" id="name" name="name" required>
         </div>
         <div class="form-field">
-          <label for="email">Email</label>
+          <label for="email">Email<span class="required-mark" aria-hidden="true">*</span></label>
           <input type="email" id="email" name="email" required>
         </div>
       </div>
       <div class="form-field">
-        <label for="message">Message</label>
+        <label for="message">Message<span class="required-mark" aria-hidden="true">*</span></label>
         <textarea id="message" name="message" required></textarea>
       </div>
       <button type="submit" class="btn btn-gold">Send Message</button>
       <p class="form-note">We typically respond within a couple of days.</p>
     </form>
-    <p class="dev-note">Form currently shows an inline confirmation only — wire up to Formspree (or similar) before launch, same as the Anchored site.</p>
+    <p class="dev-note">PRE-LAUNCH BLOCKER: this form does not send anywhere yet. It now tells the submitter that honestly instead of a fake success message, but it still needs a real backend (endpoint TBD) wired in before this page goes live.</p>
   </div>
 </section>
 

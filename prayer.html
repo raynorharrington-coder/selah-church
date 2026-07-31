@@ -30,7 +30,7 @@
 
 <div id="site-header"></div>
 
-<section class="page-hero">
+<section class="page-hero" id="main-content" tabindex="-1">
   <div class="container">
     <span class="eyebrow">Selah: pause, reflect, praise.</span>
     <h1>You don't have to carry it alone.</h1>
@@ -40,9 +40,9 @@
 
 <section class="section section--paper">
   <div class="container">
-    <form class="form-card" data-inline-confirm>
+    <form class="form-card" data-inline-confirm novalidate>
       <div class="form-field">
-        <label for="p-name">Name</label>
+        <label for="p-name">Name<span class="required-mark" aria-hidden="true">*</span></label>
         <input type="text" id="p-name" name="name" required>
       </div>
       <div class="form-field">
@@ -50,7 +50,7 @@
         <input type="email" id="p-email" name="email">
       </div>
       <div class="form-field">
-        <label for="p-request">Your prayer request</label>
+        <label for="p-request">Your prayer request<span class="required-mark" aria-hidden="true">*</span></label>
         <textarea id="p-request" name="request" required placeholder="Share as much or as little as you're comfortable with."></textarea>
       </div>
       <div class="checkbox-field">
@@ -60,7 +60,7 @@
       <button type="submit" class="btn btn-gold">Submit Prayer Request</button>
       <p class="form-note">This goes directly to our pastoral team — we'll be praying for you.</p>
     </form>
-    <p class="dev-note">Form currently shows an inline confirmation only — wire up to Formspree (or similar) before launch.</p>
+    <p class="dev-note">PRE-LAUNCH BLOCKER: this form does not send anywhere yet. It now tells the submitter that honestly instead of a fake success message, but it still needs a real backend (endpoint TBD) wired in before this page goes live.</p>
   </div>
 </section>
 

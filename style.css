@@ -1,8 +1,10 @@
 /* ==========================================================================
    SELAH CHURCH — DESIGN SYSTEM
-   Signature concept: "Selah" (a musical/scriptural pause) is rendered as a
-   literal pause-mark glyph (‖—) used throughout as a structural signature —
-   in the wordmark, as section dividers, and as scroll-reveal accents.
+   Primary identity: Selah's real logo (assets/branding/), inlined as SVG in
+   the header, footer, and favicon. "Selah" (a musical/scriptural pause) is
+   also rendered as a literal pause-mark glyph (‖—), kept as a secondary
+   decorative accent — the hero eyebrow icon and scroll-reveal accents, not
+   the primary brand mark.
    ========================================================================== */
 
 :root {
@@ -16,7 +18,7 @@
   --rust: #A8462E;        /* muted brick accent */
   --sage: #6B8F71;        /* soft green, tertiary */
   --stone: #635D4F;       /* warm neutral for body text on paper (darkened for AA contrast: 5.35:1 on --paper-2, was 4.47:1) */
-  --stone-light: #A39D8E;
+  --stone-light: #6B6555;   /* darkened for AA contrast: 5.20:1 on --paper, 4.75:1 on --paper-2 (was #A39D8E, ~2.2-2.4:1 — failed on dev-notes, form-notes, event meta, sermon dates) */
 
   /* Type */
   --font-display: 'Instrument Serif', Georgia, serif;
@@ -24,6 +26,12 @@
   --font-mono: 'Space Mono', monospace;
 
   --container: 1200px;
+
+  /* Shape: subtle rounded scale, retiring the old sharp-or-circle-only rule
+     (see DESIGN.md "Shapes" — SHAPE-warmth-refinement.md decision #1/#5).
+     Circles stay circles (play buttons, step markers); everything else
+     rectangular now takes this one radius instead of 2px. */
+  --radius: 10px;
 
   /* Accessibility tokens */
   --focus-ring: 2px solid var(--gold-bright);
@@ -74,7 +82,9 @@ h1, h2, h3 {
 }
 
 .section {
-  padding: clamp(4rem, 9vw, 8rem) 0;
+  /* Loosened per SHAPE-warmth-refinement.md's spacing decision — more
+     breathing room between blocks, sitewide via this one shared value. */
+  padding: clamp(4.5rem, 10vw, 9rem) 0;
 }
 .section--ink { background: var(--ink); color: var(--paper); }
 .section--paper { background: var(--paper); }
@@ -94,6 +104,12 @@ h1, h2, h3 {
   fill: none;
   stroke-linecap: round;
 }
+/* Quiet Confidence: the hero eyebrow's pause-mark breathes slowly — a small
+   discovery detail grounded in the product itself, since "Selah" means
+   pause. Reduced-motion is already handled by the global animation-duration
+   override above. */
+.pause-mark.breathing { animation: breathe 4.5s ease-in-out infinite; }
+@keyframes breathe { 0%,100% { transform: scale(1); opacity: 0.85; } 50% { transform: scale(1.12); opacity: 1; } }
 
 .pause-divider {
   display: flex;
@@ -132,7 +148,7 @@ h1, h2, h3 {
   font-weight: 600;
   font-size: 0.95rem;
   padding: 0.95rem 1.8rem;
-  border-radius: 2px;
+  border-radius: var(--radius);
   border: 1px solid transparent;
   cursor: pointer;
   transition: transform 0.35s cubic-bezier(.25,.8,.25,1), box-shadow 0.35s ease, background 0.3s ease, color 0.3s ease;
@@ -171,12 +187,7 @@ h1, h2, h3 {
   color: var(--paper);
 }
 .brand { display: flex; align-items: center; gap: 0.6rem; }
-.brand-word {
-  font-family: var(--font-mono);
-  font-size: 1rem;
-  letter-spacing: 0.32em;
-  font-weight: 700;
-}
+.brand-logo { height: 38px; width: auto; display: block; }
 .main-nav { display: flex; gap: 2.2rem; font-size: 0.92rem; }
 .main-nav a { position: relative; padding: 0.2rem 0; opacity: 0.92; }
 .main-nav a::after {
@@ -273,17 +284,20 @@ h1, h2, h3 {
 }
 .hero-eyebrow { margin-bottom: 1.6rem; opacity: 0; }
 .hero h1 {
-  font-size: clamp(2.6rem, 7vw, 5.4rem);
+  /* Display role scaled 1.2x — confirmed via the live tweak-bar preview */
+  font-size: clamp(3.12rem, 8.4vw, 6.48rem);
   max-width: 16ch;
   opacity: 0;
 }
 .hero h1 em { color: var(--gold-bright); font-style: italic; }
 .hero-sub {
-  font-size: clamp(1.05rem, 1.6vw, 1.25rem);
+  /* Body role scaled 1.05x — confirmed via the live tweak-bar preview */
+  font-size: clamp(1.1rem, 1.68vw, 1.31rem);
   max-width: 46ch;
   color: rgba(247,242,230,0.82);
   margin: 1.6rem 0 2.4rem;
   opacity: 0;
+  font-weight: 500; line-height: 1.68; letter-spacing: 0.005em;
 }
 .hero-ctas { display: flex; flex-wrap: wrap; gap: 1rem; opacity: 0; }
 
@@ -317,12 +331,13 @@ h1, h2, h3 {
 .route-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 1.5rem;
-  margin-top: 3rem;
+  gap: 1.75rem;
+  margin-top: 3.5rem;
 }
 .route-card {
   background: var(--paper-2);
   border: 1px solid rgba(22,35,28,0.08);
+  border-radius: var(--radius);
   padding: 2.2rem 1.8rem;
   transition: transform 0.4s cubic-bezier(.25,.8,.25,1), box-shadow 0.4s ease, background 0.4s ease;
   opacity: 0;
@@ -338,7 +353,7 @@ h1, h2, h3 {
 .route-card:hover .route-arrow, .route-card:focus-visible .route-arrow { transform: translateX(4px); color: var(--gold-bright); }
 .route-icon { color: var(--gold); margin-bottom: 1.4rem; }
 .route-card h3 { font-size: 1.3rem; margin-bottom: 0.6rem; }
-.route-card p { font-size: 0.92rem; color: var(--stone); margin: 0 0 1.4rem; transition: color 0.4s ease; }
+.route-card p { font-size: 0.97rem; color: var(--stone); margin: 0 0 1.4rem; transition: color 0.4s ease; }
 .route-card:hover p, .route-card:focus-visible p { color: rgba(247,242,230,0.75); }
 .route-arrow { font-family: var(--font-mono); font-size: 0.8rem; display: inline-flex; align-items: center; gap: 0.4rem; transition: transform 0.3s ease, color 0.3s ease; }
 
@@ -350,8 +365,8 @@ h1, h2, h3 {
 }
 
 /* ===================== SECTION HEADINGS ===================== */
-.section-head { text-align: center; max-width: 640px; margin: 0 auto 3rem; }
-.section-head h2 { font-size: clamp(2.2rem, 4.5vw, 3.4rem); }
+.section-head { text-align: center; max-width: 640px; margin: 0 auto 3.5rem; }
+.section-head h2 { font-size: clamp(2.64rem, 5.4vw, 4.08rem); }
 .section-head p { color: var(--stone); font-size: 1.05rem; margin-top: 1rem; }
 .section--ink .section-head p { color: rgba(247,242,230,0.7); }
 
@@ -363,6 +378,7 @@ h1, h2, h3 {
   align-items: center;
   background: var(--ink-2);
   border: 1px solid rgba(247,242,230,0.08);
+  border-radius: var(--radius);
   padding: clamp(1.5rem, 4vw, 3rem);
 }
 .sermon-media {
@@ -370,14 +386,20 @@ h1, h2, h3 {
   aspect-ratio: 16/10;
   overflow: hidden;
   cursor: pointer;
+  /* Organic asymmetry at this key moment (SHAPE-warmth-refinement.md
+     decision #2) — the featured photo breaks from the uniform --radius
+     used everywhere else, while the hero (already full-bleed, already
+     breaking the grid) is left alone rather than forcing a second effect. */
+  border-radius: 42px 10px 42px 10px;
 }
-.sermon-media img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s cubic-bezier(.25,.8,.25,1); filter: brightness(0.75); }
+.sermon-media img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s cubic-bezier(.25,.8,.25,1); filter: saturate(1.04) brightness(0.98); }
 .sermon-media:hover img { transform: scale(1.06); }
 .play-button {
   position: absolute; inset: 0;
   display: flex; align-items: center; justify-content: center;
 }
 .play-button span {
+  position: relative;
   width: 74px; height: 74px;
   border-radius: 50%;
   background: rgba(247,242,230,0.14);
@@ -389,8 +411,26 @@ h1, h2, h3 {
 .sermon-media:hover .play-button span { transform: scale(1.1); background: var(--gold); }
 .play-button svg { width: 20px; height: 20px; fill: var(--paper); margin-left: 3px; }
 .sermon-copy .eyebrow { margin-bottom: 1.2rem; }
-.sermon-copy h3 { font-size: clamp(1.8rem, 3vw, 2.6rem); color: var(--paper); margin-bottom: 1rem; }
-.sermon-copy p { color: rgba(247,242,230,0.72); margin-bottom: 1.8rem; }
+.sermon-copy h3 { font-size: clamp(2.16rem, 3.6vw, 3.12rem); color: var(--paper); margin-bottom: 1rem; }
+.sermon-copy p { color: rgba(247,242,230,0.72); margin-bottom: 1.8rem; font-size: 1.05rem; }
+
+/* Warm Detail: a single acknowledgment pulse when reaching for a play
+   button, not a loop — confirmed via the tweak-bar preview. */
+.sermon-media:hover .play-button span::after,
+.sermon-card:hover .play-button span::after {
+  content: ''; position: absolute; inset: -6px; border-radius: 50%;
+  border: 1px solid var(--gold-bright); opacity: 0.9;
+  animation: pulse-once 0.7s cubic-bezier(.25,.8,.25,1) forwards;
+}
+@keyframes pulse-once { from { transform: scale(0.85); opacity: 0.9; } to { transform: scale(1.5); opacity: 0; } }
+
+/* Quiet Confidence: dark-section body copy tuned on weight/leading rather
+   than opacity alone, per typeset.md's guidance for light text on dark
+   surfaces (also applied to .hero-sub above). */
+.section--ink .sermon-copy p,
+.section--ink .about-copy p {
+  font-weight: 500; line-height: 1.68; letter-spacing: 0.005em;
+}
 
 @media (max-width: 900px) {
   .sermon-feature { grid-template-columns: 1fr; }
@@ -400,12 +440,13 @@ h1, h2, h3 {
 .ministry-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 1.5rem;
+  gap: 1.75rem;
 }
 .ministry-card {
   position: relative;
   aspect-ratio: 3/4;
   overflow: hidden;
+  border-radius: var(--radius);
   opacity: 0;
   transform: translateY(28px);
 }
@@ -452,12 +493,47 @@ h1, h2, h3 {
   gap: 4rem;
   align-items: center;
 }
-.about-copy p { color: var(--stone); font-size: 1.05rem; margin: 1.4rem 0 2rem; max-width: 48ch; }
+.about-copy p { color: var(--stone); font-size: 1.1rem; margin: 1.4rem 0 2rem; max-width: 48ch; }
+
+/* Quiet Confidence: the site's own existing copy re-set as a large italic
+   pull-quote — not a new invented testimonial (see PRODUCT.md's
+   no-fabrication rule). */
+.pull-quote {
+  display: block; font-family: var(--font-display); font-style: italic;
+  font-size: clamp(1.5rem, 3.2vw, 2.4rem); line-height: 1.3; color: var(--ink);
+  text-align: center; max-width: 20ch; margin: 0 auto 2.5rem;
+}
+.section--ink .pull-quote { color: var(--paper); }
 .about-media {
   position: relative;
   aspect-ratio: 4/5;
+  overflow: hidden;
+  border-radius: var(--radius);
 }
 .about-media .ministry-placeholder { border: 1px solid rgba(22,35,28,0.12); }
+.about-media img { filter: saturate(1.04) brightness(0.98); }
+
+/* Living: the two most load-bearing photo moments (this and the sermon
+   feature panel) resolve into place unhurriedly on scroll instead of
+   snapping in, echoing Selah's own worship not running on a fixed
+   schedule. Reduced-motion falls back to the global override above, and
+   script.js adds .in-view immediately when reduceMotion is set. */
+.reveal-photo {
+  opacity: 0;
+  clip-path: inset(8% round 10px);
+  transform: scale(1.06);
+  filter: saturate(1.04) brightness(0.98) blur(6px);
+  transition:
+    opacity 900ms cubic-bezier(0.16,1,0.3,1),
+    clip-path 900ms cubic-bezier(0.16,1,0.3,1),
+    transform 900ms cubic-bezier(0.16,1,0.3,1),
+    filter 900ms cubic-bezier(0.16,1,0.3,1);
+}
+.reveal-photo.in-view {
+  opacity: 1; clip-path: inset(0% round 10px); transform: scale(1);
+  filter: saturate(1.04) brightness(0.98) blur(0px);
+}
+.reveal-photo.is-organic.in-view { clip-path: inset(0% round 42px 10px 42px 10px); }
 
 @media (max-width: 900px) {
   .about-teaser { grid-template-columns: 1fr; gap: 2.5rem; }
@@ -498,7 +574,17 @@ h1, h2, h3 {
   gap: 3rem;
   align-items: center;
 }
-.visit-copy p { color: rgba(247,242,230,0.72); margin: 1.4rem 0 2rem; max-width: 46ch; }
+.visit-copy p { color: rgba(247,242,230,0.72); margin: 1.4rem 0 2rem; max-width: 46ch; font-size: 1.05rem; }
+
+/* Warm Detail: hovering/focusing the Service Time reveals a pause-mark —
+   the one fact a first-time visitor is there for. */
+.visit-details .item.has-pause { position: relative; padding-right: 1.6rem; }
+.visit-details .item.has-pause .pause-reveal {
+  display: inline-flex; margin-left: 0.5rem; opacity: 0; transform: translateX(-4px);
+  transition: opacity 0.5s cubic-bezier(.25,.8,.25,1), transform 0.5s cubic-bezier(.25,.8,.25,1);
+}
+.visit-details .item.has-pause:hover .pause-reveal,
+.visit-details .item.has-pause:focus-within .pause-reveal { opacity: 1; transform: translateX(0); }
 .visit-details {
   display: flex; gap: 2.5rem; margin-top: 2rem; flex-wrap: wrap;
 }
@@ -508,6 +594,7 @@ h1, h2, h3 {
   aspect-ratio: 4/3;
   background: linear-gradient(160deg, #22352a, #0F1A14 70%);
   border: 1px solid rgba(247,242,230,0.12);
+  border-radius: var(--radius);
   display: flex; align-items: center; justify-content: center;
   color: rgba(247,242,230,0.4);
   font-family: var(--font-mono);
@@ -536,8 +623,7 @@ h1, h2, h3 {
   padding-bottom: 3rem;
 }
 .footer-brand { color: var(--paper); }
-.footer-brand .brand-word { display: block; margin: 0.6rem 0 1rem; }
-.footer-tagline { font-family: var(--font-display); font-size: 1.3rem; font-style: italic; color: var(--gold-bright); max-width: 20ch; }
+.brand-logo--footer { height: 96px; margin-bottom: 0.5rem; }
 .footer-heading {
   display: block;
   font-family: var(--font-mono);
@@ -608,9 +694,9 @@ h1, h2, h3 {
   gap: 2.5rem;
 }
 .team-card { display: grid; grid-template-columns: 180px 1fr; gap: 1.6rem; align-items: start; }
-.team-photo { aspect-ratio: 1/1; }
+.team-photo { aspect-ratio: 1/1; overflow: hidden; border-radius: var(--radius); }
 .team-card h3 { font-size: 1.4rem; margin-bottom: 0.2rem; }
-.team-role { font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--gold); display: block; margin-bottom: 0.8rem; }
+.team-role { font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--rust); display: block; margin-bottom: 0.8rem; } /* rust not gold: this label always sits on a light background — gold fails AA here (The Accessible Accent Rule, DESIGN.md) */
 .team-card p { color: var(--stone); font-size: 0.94rem; margin: 0; }
 @media (max-width: 720px) {
   .team-grid { grid-template-columns: 1fr; }
@@ -624,6 +710,7 @@ h1, h2, h3 {
   font-size: 0.78rem;
   letter-spacing: 0.04em;
   padding: 0.6rem 1.2rem;
+  border-radius: var(--radius);
   border: 1px solid rgba(22,35,28,0.18);
   background: transparent;
   color: var(--ink);
@@ -632,7 +719,7 @@ h1, h2, h3 {
 }
 .filter-tab.active, .filter-tab:hover { background: var(--ink); color: var(--paper); border-color: var(--ink); }
 
-.sermon-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.8rem; }
+.sermon-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; }
 .sermon-card {
   display: block;
   opacity: 0; transform: translateY(24px);
@@ -640,8 +727,8 @@ h1, h2, h3 {
   cursor: pointer;
 }
 .sermon-card.in-view { opacity: 1; transform: translateY(0); }
-.sermon-card .thumb { position: relative; aspect-ratio: 16/10; overflow: hidden; margin-bottom: 1rem; }
-.sermon-card .thumb img { width: 100%; height: 100%; object-fit: cover; filter: brightness(0.8); transition: transform 0.5s ease; }
+.sermon-card .thumb { position: relative; aspect-ratio: 16/10; overflow: hidden; border-radius: var(--radius); margin-bottom: 1rem; }
+.sermon-card .thumb img { width: 100%; height: 100%; object-fit: cover; filter: saturate(1.04) brightness(0.98); transition: transform 0.5s ease; }
 .sermon-card:hover .thumb img { transform: scale(1.06); }
 .sermon-card .thumb .play-button span { width: 52px; height: 52px; }
 .sermon-card .thumb .play-button svg { width: 14px; height: 14px; }
@@ -654,7 +741,7 @@ h1, h2, h3 {
 @media (max-width: 620px) { .sermon-grid { grid-template-columns: 1fr; } }
 
 /* ===================== EVENTS ===================== */
-.event-list { display: flex; flex-direction: column; gap: 1.2rem; }
+.event-list { display: flex; flex-direction: column; gap: 1.4rem; }
 .event-card {
   display: grid;
   grid-template-columns: 110px 1fr auto;
@@ -662,6 +749,7 @@ h1, h2, h3 {
   align-items: center;
   background: var(--paper-2);
   border: 1px solid rgba(22,35,28,0.08);
+  border-radius: var(--radius);
   padding: 1.6rem 1.8rem;
   opacity: 0; transform: translateY(20px);
   transition: opacity 0.6s ease, transform 0.6s ease, box-shadow 0.3s ease;
@@ -674,7 +762,7 @@ h1, h2, h3 {
   border-right: 1px solid rgba(22,35,28,0.12);
   padding-right: 1.6rem;
 }
-.event-date .month { display: block; font-size: 0.7rem; letter-spacing: 0.1em; color: var(--gold); text-transform: uppercase; }
+.event-date .month { display: block; font-size: 0.7rem; letter-spacing: 0.1em; color: var(--rust); text-transform: uppercase; } /* rust not gold: .event-card is always paper-2 — gold fails AA here (The Accessible Accent Rule, DESIGN.md) */
 .event-date .day { display: block; font-size: 2rem; font-family: var(--font-display); line-height: 1; }
 .event-info h3 { font-size: 1.2rem; margin-bottom: 0.3rem; }
 .event-info p { color: var(--stone); font-size: 0.92rem; margin: 0; }
@@ -686,10 +774,11 @@ h1, h2, h3 {
 }
 
 /* ===================== GIVE ===================== */
-.give-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.6rem; }
+.give-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.8rem; }
 .give-card {
   background: var(--ink-2);
   border: 1px solid rgba(247,242,230,0.08);
+  border-radius: var(--radius);
   padding: 2.4rem 2rem;
   text-align: center;
   opacity: 0; transform: translateY(24px);
@@ -718,6 +807,9 @@ h1, h2, h3 {
 .step-item h3 { font-size: 1.15rem; margin-bottom: 0.3rem; }
 .step-item p { color: var(--stone); margin: 0; font-size: 0.94rem; }
 .section--ink .step-item p { color: rgba(247,242,230,0.7); }
+.step-item p a { color: var(--gold-bright); text-decoration: underline; text-underline-offset: 2px; }
+.step-item p a:hover { color: var(--paper); }
+.step-item p a:focus-visible { outline: var(--focus-ring); outline-offset: 2px; }
 
 .visit-info-grid {
   display: grid;
@@ -733,6 +825,7 @@ h1, h2, h3 {
   margin: 0 auto;
   background: var(--paper-2);
   border: 1px solid rgba(22,35,28,0.08);
+  border-radius: var(--radius);
   padding: clamp(1.8rem, 4vw, 3rem);
 }
 .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; margin-bottom: 1.2rem; }
@@ -743,6 +836,7 @@ h1, h2, h3 {
   font-size: 1rem;
   padding: 0.85rem 1rem;
   border: 1px solid rgba(22,35,28,0.2);
+  border-radius: var(--radius);
   background: var(--paper);
   color: var(--ink);
   transition: border-color 0.3s ease;
@@ -753,6 +847,13 @@ h1, h2, h3 {
   box-shadow: 0 0 0 3px rgba(201,162,39,0.25);
 }
 .form-field textarea { resize: vertical; min-height: 120px; }
+.required-mark { color: var(--rust); margin-left: 0.15em; }
+.form-field.has-error input,
+.form-field.has-error textarea { border-color: var(--rust); }
+.form-field.has-error input:focus,
+.form-field.has-error textarea:focus { border-color: var(--rust); box-shadow: 0 0 0 3px rgba(168,70,46,0.25); }
+.field-error { display: block; color: var(--rust); font-family: var(--font-mono); font-size: 0.78rem; margin-top: -0.15rem; }
+.field-error:empty { display: none; }
 .form-note { font-size: 0.85rem; color: var(--stone-light); margin-top: 1rem; text-align: center; }
 .checkbox-field { display: flex; align-items: flex-start; gap: 0.6rem; font-size: 0.88rem; color: var(--stone); margin-bottom: 1.4rem; }
 .checkbox-field input { margin-top: 0.25rem; }
@@ -768,6 +869,7 @@ h1, h2, h3 {
   font-size: 0.8rem;
 }
 .section--ink .dev-note { color: rgba(247,242,230,0.5); }
+.about-copy .dev-note { color: var(--stone-light); } /* .about-copy p's higher specificity was silently overriding this when dev-note is nested inside it */
 
 /* Visually-hidden heading for screen-reader heading hierarchy (kept out of view visually) */
 .sr-only {
@@ -786,6 +888,7 @@ h1, h2, h3 {
 .section--ink .about-copy p { color: rgba(247,242,230,0.75); }
 .section--ink .belief-item h3,
 .section--ink .step-item h3 { color: var(--paper); }
+.section--ink .belief-item p { color: rgba(247,242,230,0.75); } /* heading had a dark-section override, body text didn't — was Warm Stone on Ink at 2.5:1 */
 .section--paper .visit-details .item { color: var(--stone); }
 .section--paper .visit-details .item strong { color: var(--ink); }
 .map-placeholder.is-light {
