@@ -11,6 +11,12 @@
       "title": "Test Event 2",
       "meta": "6:30 PM at church",
       "description": "Test Event 2"
+    },
+    {
+      "date": "",
+      "title": "Test event 3",
+      "meta": "Tomorrow ",
+      "description": "T3"
     }
   ]
 }
