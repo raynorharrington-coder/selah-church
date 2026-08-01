@@ -1,0 +1,56 @@
+
+# Selah Church staff dashboard config (Decap CMS)
+# See STEP-BY-STEP.md "Setting up the staff dashboard" before changing
+# anything here — most of this only needs to be touched once, when a new
+# type of content (beyond Events) gets added.
+
+backend:
+  name: github
+  repo: raynorharrington-coder/selah-church
+  branch: main
+  # This site's own Worker handles the GitHub login handshake — see
+  # worker/index.js's /oauth/authorize and /oauth/callback routes.
+  base_url: https://selah-church.thyratechllc.workers.dev
+  auth_endpoint: oauth/authorize
+
+# Where files uploaded through the dashboard (e.g. an event photo) get
+# saved in the repo, and the URL prefix the site serves them from.
+media_folder: "assets/uploads"
+public_folder: "/assets/uploads"
+
+collections:
+  - name: "events"
+    label: "Events"
+    # A single-file collection: every event lives as one entry inside one
+    # JSON file (content/events.json), which events.html fetches directly
+    # at page load — no build step, matching how the rest of this site
+    # works. Add a new top-level entry here (with its own `files:` block)
+    # the same way if another content type needs to move to the dashboard.
+    files:
+      - file: "content/events.json"
+        label: "Upcoming Events"
+        name: "events"
+        format: "json"
+        fields:
+          - label: "Events"
+            name: "items"
+            widget: "list"
+            summary: "{{fields.title}} — {{fields.date}}"
+            fields:
+              - label: "Title"
+                name: "title"
+                widget: "string"
+              - label: "Date"
+                name: "date"
+                widget: "date"
+                format: "YYYY-MM-DD"
+                required: false
+                hint: "Leave blank if the date isn't set yet — the site will show \"TBD\"."
+              - label: "Time / Location"
+                name: "meta"
+                widget: "string"
+                required: false
+                hint: "e.g. \"6:30 PM · Fellowship Hall\". Leave blank to show \"Time & location — TBD\"."
+              - label: "Description"
+                name: "description"
+                widget: "text"

@@ -14,6 +14,7 @@ document.getElementById('site-header').innerHTML = `
       <a href="ministries.html">Ministries</a>
       <a href="sermons.html">Sermons</a>
       <a href="events.html">Events</a>
+      <a href="shop.html">Shop</a>
       <a href="visit.html">Plan a Visit</a>
     </nav>
 
@@ -30,6 +31,7 @@ document.getElementById('site-header').innerHTML = `
     <a href="ministries.html">Ministries</a>
     <a href="sermons.html">Sermons</a>
     <a href="events.html">Events</a>
+    <a href="shop.html">Shop</a>
     <a href="visit.html">Plan a Visit</a>
     <a href="give.html" class="btn btn-gold">Give</a>
   </nav>

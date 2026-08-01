@@ -17,6 +17,7 @@ document.getElementById('site-footer').innerHTML = `
       <a href="about.html">About</a>
       <a href="ministries.html">Ministries</a>
       <a href="sermons.html">Sermons</a>
+      <a href="shop.html">Shop</a>
       <a href="give.html">Give</a>
       <a href="prayer.html">Prayer Request</a>
     </div>

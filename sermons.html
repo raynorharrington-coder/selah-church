@@ -42,16 +42,16 @@
 <section class="section section--ink">
   <div class="container">
     <h2 class="sr-only">Latest Sermon</h2>
-    <div class="sermon-feature">
+    <div class="sermon-feature" id="sermonFeature" data-fallback-thumb="assets/photos/JM_A0845.jpg">
       <a href="https://www.youtube.com/@SelahChurchfxbg/featured" target="_blank" rel="noopener" class="sermon-media reveal-photo is-organic">
         <img src="assets/photos/JM_A0845.jpg" alt="Speaker teaching on stage with a sermon slide behind him" loading="lazy">
         <div class="play-button"><span><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7L8 5Z"/></svg></span></div>
       </a>
       <div class="sermon-copy">
-        <span class="eyebrow">Latest Message &middot; Just Jesus</span>
-        <h3>Stripped Down</h3>
-        <p>The first message in a short series about getting back to what actually matters — Jesus, without the noise. <span style="opacity:.6;">(Placeholder — swap for current week's title, video embed, and date.)</span></p>
-        <a href="https://www.youtube.com/@SelahChurchfxbg/featured" target="_blank" rel="noopener" class="btn btn-outline">Watch now</a>
+        <span class="eyebrow">Latest Message</span>
+        <h3>Loading the latest message&hellip;</h3>
+        <p>New messages are added automatically from our YouTube channel once a day.</p>
+        <a href="https://www.youtube.com/@SelahChurchfxbg/featured" target="_blank" rel="noopener" class="btn btn-outline">Watch on YouTube</a>
       </div>
     </div>
   </div>
@@ -75,52 +75,11 @@
       <button type="button" class="filter-tab" data-series="corinthians">1 Corinthians</button>
     </div>
 
-    <div class="sermon-grid">
-      <a href="https://www.youtube.com/@SelahChurchfxbg/featured" target="_blank" rel="noopener" class="sermon-card" data-series="just-jesus">
-        <div class="thumb"><img src="https://images.unsplash.com/photo-1699974627167-005175582723?fm=jpg&q=70&w=900&auto=format&fit=crop" alt="" loading="lazy"><div class="play-button"><span><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7L8 5Z"/></svg></span></div></div>
-        <span class="series-tag">Just Jesus</span>
-        <h3>Stripped Down</h3>
-        <span class="date">Placeholder date</span>
-      </a>
-      <a href="https://www.youtube.com/@SelahChurchfxbg/featured" target="_blank" rel="noopener" class="sermon-card" data-series="design">
-        <div class="thumb"><img src="https://images.unsplash.com/photo-1663162550932-f67b561e656f?fm=jpg&q=70&w=900&auto=format&fit=crop" alt="" loading="lazy"><div class="play-button"><span><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7L8 5Z"/></svg></span></div></div>
-        <span class="series-tag">Design: A Life of Order</span>
-        <h3>Order From Chaos</h3>
-        <span class="date">Placeholder date</span>
-      </a>
-      <a href="https://www.youtube.com/@SelahChurchfxbg/featured" target="_blank" rel="noopener" class="sermon-card" data-series="design">
-        <div class="thumb"><img src="https://images.unsplash.com/photo-1740650511388-f693ce80016c?fm=jpg&q=70&w=900&auto=format&fit=crop" alt="" loading="lazy"><div class="play-button"><span><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7L8 5Z"/></svg></span></div></div>
-        <span class="series-tag">Design: A Life of Order</span>
-        <h3>Building on Rock</h3>
-        <span class="date">Placeholder date</span>
-      </a>
-      <a href="https://www.youtube.com/@SelahChurchfxbg/featured" target="_blank" rel="noopener" class="sermon-card" data-series="blueprints">
-        <div class="thumb"><img src="assets/photos/JM_A0834.jpg" alt="" loading="lazy"><div class="play-button"><span><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7L8 5Z"/></svg></span></div></div>
-        <span class="series-tag">The Blueprints</span>
-        <h3>Foundations</h3>
-        <span class="date">Placeholder date</span>
-      </a>
-      <a href="https://www.youtube.com/@SelahChurchfxbg/featured" target="_blank" rel="noopener" class="sermon-card" data-series="acts">
-        <div class="thumb"><img src="assets/photos/JM_A0855.jpg" alt="" loading="lazy"><div class="play-button"><span><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7L8 5Z"/></svg></span></div></div>
-        <span class="series-tag">Acts</span>
-        <h3>The Early Church</h3>
-        <span class="date">Placeholder date</span>
-      </a>
-      <a href="https://www.youtube.com/@SelahChurchfxbg/featured" target="_blank" rel="noopener" class="sermon-card" data-series="galatians">
-        <div class="thumb"><img src="https://images.unsplash.com/photo-1740650511388-f693ce80016c?fm=jpg&q=70&w=900&auto=format&fit=crop" alt="" loading="lazy"><div class="play-button"><span><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7L8 5Z"/></svg></span></div></div>
-        <span class="series-tag">Galatians</span>
-        <h3>Freedom in Christ</h3>
-        <span class="date">Placeholder date</span>
-      </a>
-      <a href="https://www.youtube.com/@SelahChurchfxbg/featured" target="_blank" rel="noopener" class="sermon-card" data-series="corinthians">
-        <div class="thumb"><img src="https://images.unsplash.com/photo-1699974627167-005175582723?fm=jpg&q=70&w=900&auto=format&fit=crop" alt="" loading="lazy"><div class="play-button"><span><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7L8 5Z"/></svg></span></div></div>
-        <span class="series-tag">1 Corinthians</span>
-        <h3>Love One Another</h3>
-        <span class="date">Placeholder date</span>
-      </a>
+    <div class="sermon-grid" id="sermonGrid" aria-live="polite">
+      <p class="sermon-loading-note">Loading messages&hellip;</p>
     </div>
     <p class="sermon-empty">No messages in this series yet — check back soon, or <button type="button" class="sermon-empty-reset">browse all sermons</button>.</p>
-    <p class="dev-note">Titles/dates/thumbnails are still placeholders and every card currently opens the YouTube channel rather than the specific video — once Luke sends real sermon details, these become individual embeds, and staff-editable once Decap CMS is wired in.</p>
+    <p class="dev-note" id="sermonSyncNote">Messages sync automatically from YouTube once a day — see PRODUCT.md / STEP-BY-STEP.md if this note is showing stale data or an error.</p>
   </div>
 </section>
 

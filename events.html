@@ -41,7 +41,7 @@
 <section class="section section--paper">
   <div class="container">
     <h2 class="sr-only">Upcoming Events</h2>
-    <div class="event-list">
+    <div class="event-list" id="eventList">
       <div class="event-card">
         <div class="event-date"><span class="month">Placeholder</span><span class="day">TBD</span></div>
         <div class="event-info">
@@ -69,7 +69,7 @@
         </div>
       </div>
     </div>
-    <p class="dev-note">Placeholder events — real dates/details go here, and this list becomes staff-editable through the same admin dashboard as Sermons. "Details" buttons removed for now since there's nowhere for them to lead yet; add them back once real event pages exist.</p>
+    <p class="dev-note">Events are staff-editable through the dashboard at /admin (Luke's team) — this list loads live from <code>content/events.json</code>. The 3 cards above are a static fallback shown only if that fetch fails; "Details" buttons stay removed until real per-event pages exist.</p>
   </div>
 </section>
 

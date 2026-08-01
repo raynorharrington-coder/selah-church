@@ -105,7 +105,7 @@ function initHeroEntrance(reduceMotion) {
 
 /* ---------- Generic scroll-reveal (IntersectionObserver) ---------- */
 function initScrollReveal(reduceMotion) {
-  const revealTargets = document.querySelectorAll('.reveal, .reveal-photo, .route-card, .ministry-card, .sermon-card, .event-card, .give-card');
+  const revealTargets = document.querySelectorAll('.reveal, .reveal-photo, .route-card, .ministry-card, .sermon-card, .event-card, .give-card, .shop-card');
   if (reduceMotion) {
     revealTargets.forEach(el => el.classList.add('in-view'));
   } else {
@@ -151,6 +151,195 @@ function initSermonFilter() {
       const allTab = Array.from(filterTabs).find(t => t.dataset.series === 'all');
       if (allTab) allTab.click();
     });
+  }
+}
+
+/* ---------- Sermon data: fetched from the Worker's daily YouTube sync ----------
+   /api/sermons is served by worker/index.js from a KV cache that a Cron
+   Trigger refreshes once a day — see STEP-BY-STEP.md. This runs on both
+   index.html (a small teaser linking to sermons.html) and sermons.html
+   (the full featured panel + filterable grid), detected by which
+   containers exist on the page. Never fake a result: if the fetch fails
+   or KV hasn't synced yet, every render path falls back to an honest
+   message linking straight to the YouTube channel. */
+const YOUTUBE_CHANNEL_URL = 'https://www.youtube.com/@SelahChurchfxbg/featured';
+
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str == null ? '' : str;
+  return div.innerHTML;
+}
+
+function formatSermonDate(iso) {
+  if (!iso) return '';
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return '';
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
+function watchUrlFor(videoId) {
+  return `https://www.youtube.com/watch?v=${encodeURIComponent(videoId)}`;
+}
+
+function renderHomeSermonFeature(data) {
+  const container = document.getElementById('homeSermonFeature');
+  if (!container) return;
+  const latest = data && data.latest;
+  if (!latest) return; // static fallback markup already in the page is fine here
+
+  const img = container.querySelector('.sermon-media img');
+  const link = container.querySelector('.sermon-media');
+  const eyebrow = container.querySelector('.sermon-copy .eyebrow');
+  const heading = container.querySelector('.sermon-copy h3');
+  const desc = container.querySelector('.sermon-copy p');
+  if (img && latest.thumbnail) { img.src = latest.thumbnail; img.alt = latest.title; }
+  if (link) link.href = 'sermons.html';
+  if (eyebrow) eyebrow.textContent = `Latest Series · ${latest.seriesLabel}`;
+  if (heading) heading.textContent = latest.title;
+  if (desc) desc.textContent = `Posted ${formatSermonDate(latest.publishedAt)} — watch it or browse the full library.`;
+}
+
+function renderSermonFeaturePanel(data) {
+  const container = document.getElementById('sermonFeature');
+  if (!container) return;
+  const latest = data && data.latest;
+
+  if (!latest) {
+    container.innerHTML = `
+      <div class="sermon-copy">
+        <span class="eyebrow">Latest Message</span>
+        <h3>Couldn't load the latest message</h3>
+        <p>Something went wrong pulling from YouTube just now — <a href="${YOUTUBE_CHANNEL_URL}" target="_blank" rel="noopener">watch on our channel</a> instead.</p>
+        <a href="${YOUTUBE_CHANNEL_URL}" target="_blank" rel="noopener" class="btn btn-outline">Watch on YouTube</a>
+      </div>`;
+    return;
+  }
+
+  const url = watchUrlFor(latest.videoId);
+  container.innerHTML = `
+    <a href="${url}" target="_blank" rel="noopener" class="sermon-media reveal-photo is-organic">
+      <img src="${latest.thumbnail || ''}" alt="${escapeHtml(latest.title)}" loading="lazy">
+      <div class="play-button"><span><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7L8 5Z"/></svg></span></div>
+    </a>
+    <div class="sermon-copy">
+      <span class="eyebrow">Latest Message &middot; ${escapeHtml(latest.seriesLabel)}</span>
+      <h3>${escapeHtml(latest.title)}</h3>
+      <p>Posted ${formatSermonDate(latest.publishedAt)}.</p>
+      <a href="${url}" target="_blank" rel="noopener" class="btn btn-outline">Watch now</a>
+    </div>`;
+}
+
+function sermonCardHTML(video) {
+  const url = watchUrlFor(video.videoId);
+  return `
+    <a href="${url}" target="_blank" rel="noopener" class="sermon-card" data-series="${escapeHtml(video.seriesSlug)}">
+      <div class="thumb">
+        <img src="${video.thumbnail || ''}" alt="" loading="lazy">
+        <div class="play-button"><span><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7L8 5Z"/></svg></span></div>
+      </div>
+      <span class="series-tag">${escapeHtml(video.seriesLabel)}</span>
+      <h3>${escapeHtml(video.title)}</h3>
+      <span class="date">${formatSermonDate(video.publishedAt)}</span>
+    </a>`;
+}
+
+function renderSermonGrid(data) {
+  const grid = document.getElementById('sermonGrid');
+  if (!grid) return;
+
+  const allVideos = (data && data.series ? data.series : [])
+    .flatMap((s) => s.videos.map((v) => ({ ...v, seriesSlug: s.slug, seriesLabel: s.label })))
+    .sort((a, b) => new Date(b.publishedAt) - new Date(a.publishedAt));
+
+  if (!allVideos.length) {
+    grid.innerHTML = `<p class="sermon-loading-note">Couldn't load messages right now — <a href="${YOUTUBE_CHANNEL_URL}" target="_blank" rel="noopener">visit our YouTube channel</a> instead.</p>`;
+    return;
+  }
+
+  grid.innerHTML = allVideos.map(sermonCardHTML).join('');
+
+  // These cards didn't exist when initScrollReveal/initSermonFilter first
+  // ran at DOMContentLoaded — wire both up now for the freshly-inserted markup.
+  initSermonFilter();
+  const reduceMotion = getReducedMotionPreference();
+  const newCards = grid.querySelectorAll('.sermon-card');
+  if (reduceMotion) {
+    newCards.forEach((el) => el.classList.add('in-view'));
+  } else {
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('in-view');
+          io.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.18 });
+    newCards.forEach((el, i) => {
+      el.style.transitionDelay = `${(i % 4) * 90}ms`;
+      io.observe(el);
+    });
+  }
+}
+
+async function initSermonData() {
+  const needsHomeFeature = document.getElementById('homeSermonFeature');
+  const needsFullPage = document.getElementById('sermonFeature') || document.getElementById('sermonGrid');
+  if (!needsHomeFeature && !needsFullPage) return;
+
+  let data = null;
+  try {
+    const res = await fetch('/api/sermons');
+    if (res.ok) data = await res.json();
+  } catch (e) {
+    console.error('sermon data fetch failed', e);
+  }
+
+  try {
+    if (needsHomeFeature) renderHomeSermonFeature(data);
+    if (document.getElementById('sermonFeature')) renderSermonFeaturePanel(data);
+    if (document.getElementById('sermonGrid')) renderSermonGrid(data);
+  } catch (e) {
+    console.error('sermon data render failed', e);
+  }
+}
+
+/* ---------- Events: staff-editable via /admin (Decap CMS) ----------
+   content/events.json is edited through the dashboard, not by hand — see
+   STEP-BY-STEP.md and the USER-GUIDE.md handed to Luke's team. The static
+   cards already in events.html's markup are the fallback: they're only
+   left on screen if this fetch fails, never silently replaced with
+   something misleading. */
+function eventCardHTML(ev) {
+  const hasDate = ev.date && !Number.isNaN(new Date(`${ev.date}T00:00:00`).getTime());
+  const d = hasDate ? new Date(`${ev.date}T00:00:00`) : null;
+  const month = d ? d.toLocaleDateString('en-US', { month: 'short' }).toUpperCase() : 'TBD';
+  const day = d ? String(d.getDate()) : '—';
+  return `
+    <div class="event-card">
+      <div class="event-date"><span class="month">${escapeHtml(month)}</span><span class="day">${escapeHtml(day)}</span></div>
+      <div class="event-info">
+        <h3>${escapeHtml(ev.title)}</h3>
+        <p>${escapeHtml(ev.description)}</p>
+        <span class="event-meta">${escapeHtml(ev.meta || 'Time & location — TBD')}</span>
+      </div>
+    </div>`;
+}
+
+async function initEventsData() {
+  const list = document.getElementById('eventList');
+  if (!list) return;
+  try {
+    const res = await fetch('content/events.json', { cache: 'no-store' });
+    if (!res.ok) throw new Error(`status ${res.status}`);
+    const data = await res.json();
+    const items = Array.isArray(data.items) ? data.items : [];
+    if (!items.length) {
+      list.innerHTML = '<p class="sermon-loading-note">No events posted right now — check back soon.</p>';
+      return;
+    }
+    list.innerHTML = items.map(eventCardHTML).join('');
+  } catch (e) {
+    console.error('events fetch failed — leaving the static fallback cards in place', e);
   }
 }
 
@@ -251,6 +440,8 @@ document.addEventListener('DOMContentLoaded', () => {
     ['scroll reveal', () => initScrollReveal(reduceMotion)],
     ['sermon filter', initSermonFilter],
     ['form confirm', initFormConfirm],
+    ['sermon data', initSermonData],
+    ['events data', initEventsData],
   ];
 
   features.forEach(([name, init]) => {
