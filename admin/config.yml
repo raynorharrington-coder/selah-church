@@ -35,7 +35,7 @@ collections:
           - label: "Events"
             name: "items"
             widget: "list"
-            summary: "{{fields.title}} — {{fields.date}}"
+            summary: "{{fields.title}}"
             fields:
               - label: "Title"
                 name: "title"
@@ -45,6 +45,7 @@ collections:
                 widget: "date"
                 format: "YYYY-MM-DD"
                 required: false
+                default: ""
                 hint: "Leave blank if the date isn't set yet — the site will show \"TBD\"."
               - label: "Time / Location"
                 name: "meta"
