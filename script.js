@@ -338,6 +338,28 @@ async function initEventsData() {
       return;
     }
     list.innerHTML = items.map(eventCardHTML).join('');
+
+    // These cards didn't exist when initScrollReveal first ran at
+    // DOMContentLoaded — wire the reveal observer up now for the
+    // freshly-inserted markup (same pattern as renderSermonGrid).
+    const reduceMotion = getReducedMotionPreference();
+    const newCards = list.querySelectorAll('.event-card');
+    if (reduceMotion) {
+      newCards.forEach((el) => el.classList.add('in-view'));
+    } else {
+      const io = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('in-view');
+            io.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.18 });
+      newCards.forEach((el, i) => {
+        el.style.transitionDelay = `${(i % 4) * 90}ms`;
+        io.observe(el);
+      });
+    }
   } catch (e) {
     console.error('events fetch failed — leaving the static fallback cards in place', e);
   }
