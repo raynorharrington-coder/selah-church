@@ -2,16 +2,15 @@
  * Selah Church website form handler.
  *
  * Receives POSTs from prayer.html and visit.html (via fetch in script.js),
- * logs each submission to a tab in this script's bound Google Sheet, and
- * emails a notification to NOTIFY_EMAIL.
+ * logs each submission to a tab in the "Selah Website Forms" Google Sheet
+ * (SHEET_ID below), and emails a notification to NOTIFY_EMAIL.
  *
  * Deploy as: Web App, execute as "Me", access "Anyone".
  * See ../google-apps-script/README.md for full setup steps.
  */
 
 // ===== CONFIG =====
-// Testing address for now — switch to info@selahchurchfxbg.com before launch.
-var NOTIFY_EMAIL = 'thyratechllc@gmail.com';
+var NOTIFY_EMAIL = 'info@selahchurchfxbg.com';
 
 // "Selah Website Forms" — https://docs.google.com/spreadsheets/d/1bxb9EaJzvQlyI89n2_0P7b1Z9lOtYsB6okvoUSBszuk/edit
 // This is a standalone script (not bound to the sheet), so it must open the

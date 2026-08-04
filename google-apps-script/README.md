@@ -57,44 +57,49 @@ account as **Editor** first, or the writes will fail.
   Messages" tabs of the Google Sheet (created automatically on first
   submission of each type).
 - Check that a notification email arrives at the address set in
-  `NOTIFY_EMAIL` inside `Code.gs` (currently `thyratechllc@gmail.com` for
-  testing).
+  `NOTIFY_EMAIL` inside `Code.gs`.
 
-## Before real launch
+## Launch status (as of 2026-08-04)
 
-- In `Code.gs`, change `NOTIFY_EMAIL` to `info@selahchurchfxbg.com`, save,
-  and **Deploy → Manage deployments → edit (pencil) → New version → Deploy**.
-  Editing the code alone does not update the live `/exec` URL — you must
-  push a new version for changes to take effect. The `/exec` URL itself
-  stays the same across versions, so `script.js` does not need to change.
+- `NOTIFY_EMAIL` is now set to `info@selahchurchfxbg.com` — the testing
+  address (`thyratechllc@gmail.com`) is no longer used. Whoever pastes an
+  updated `Code.gs` in the future must **Deploy → Manage deployments →
+  edit (pencil) → New version → Deploy** to make code changes live —
+  editing the code alone does not update the running `/exec` URL. The
+  `/exec` URL itself stays the same across versions, so `script.js` never
+  needs to change for a code-only update.
 - Confirm someone on the pastoral team actually has access to
   `info@selahchurchfxbg.com` and knows to watch it (or forward it) for
   prayer requests, since these are meant to reach real people quickly.
+- Clear the test rows from the Sheet (accumulated during development)
+  before real visitor submissions start arriving, so they don't get
+  confused with real ones.
 
-## Known quirk: occasional false "failed" message
+## Resolved quirk: occasional false "failed" message
 
-During testing, one submission out of several showed `Failed to fetch` in
-the browser console **even though the row was written and the email sent
-successfully** — confirmed by a duplicate row in the sheet. This happens
-because Apps Script web apps respond to POST with a redirect to a
+Earlier in development, one submission out of several showed `Failed to
+fetch` in the browser console **even though the row was written and the
+email sent successfully** — confirmed by a duplicate row in the sheet.
+Root cause: Apps Script web apps respond to POST with a redirect to a
 `script.googleusercontent.com` URL, and the browser's `fetch` occasionally
-fails to read that second hop even after the script already ran to
+failed to read that second hop even after the script already ran to
 completion server-side.
 
-Practical effect: a visitor might occasionally see "something went wrong"
-and resubmit, creating a duplicate row/email. It's not silent data loss
-(the opposite — the original submission did go through), just a
-possible duplicate. If duplicates in the sheet become a real annoyance,
-the fix is de-duplicating by matching name+message within a short time
-window before emailing, but that's not implemented — flagging it here
-rather than adding complexity that may not be needed in practice.
+Fixed by sending the request with `mode: 'no-cors'` (see `script.js`) —
+matching the pattern already proven live on the Anchored Accounting site.
+This means the client never reads a real success/failure status back (any
+resolved fetch is treated as success, right or wrong), but it sidesteps
+the flaky read entirely. Re-tested after the switch: no false failures, no
+duplicate rows, on both forms. The tradeoff: if `Code.gs` itself throws
+(e.g. a Gmail send-quota error), the visitor still sees "sent
+successfully" with no way to know it failed server-side — worth keeping in
+mind if submissions seem to go quiet without anyone reporting an error.
 
 ## Notes
 
 - Submissions are also logged to the Google Sheet as a backup in case an
-  email notification is missed — see the "Delivery" decision recorded for
-  this build (2026-08-04): email + sheet log, same address for both forms
-  during testing.
+  email notification is missed — email + sheet log, same address for both
+  forms, was the delivery decision for this build (2026-08-04).
 - A hidden honeypot field (`_gotcha`) in both forms silently drops bot
   submissions without saving or emailing them.
 - The client sends `Content-Type: text/plain` on purpose (not
