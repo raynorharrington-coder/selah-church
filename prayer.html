@@ -43,7 +43,8 @@
     <div class="reveal" style="max-width:520px;margin:0 auto 3rem;border-radius:var(--radius);overflow:hidden;">
       <img src="assets/photos/prayer-photo.jpg" alt="" style="width:100%;aspect-ratio:1/1;object-fit:cover;" loading="lazy">
     </div>
-    <form class="form-card" data-inline-confirm novalidate>
+    <form class="form-card" data-inline-confirm data-form-type="prayer" novalidate>
+      <input type="text" name="_gotcha" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden;">
       <div class="form-field">
         <label for="p-name">Name<span class="required-mark" aria-hidden="true">*</span></label>
         <input type="text" id="p-name" name="name" required>
@@ -63,7 +64,6 @@
       <button type="submit" class="btn btn-gold">Submit Prayer Request</button>
       <p class="form-note">This goes directly to our pastoral team — we'll be praying for you.</p>
     </form>
-    <p class="dev-note">PRE-LAUNCH BLOCKER: this form does not send anywhere yet. It now tells the submitter that honestly instead of a fake success message, but it still needs a real backend (endpoint TBD) wired in before this page goes live.</p>
   </div>
 </section>
 

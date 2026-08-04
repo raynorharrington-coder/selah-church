@@ -91,7 +91,8 @@
       <h2>Get in touch</h2>
       <p>Questions before you visit? Send us a message.</p>
     </div>
-    <form class="form-card" data-inline-confirm novalidate>
+    <form class="form-card" data-inline-confirm data-form-type="contact" novalidate>
+      <input type="text" name="_gotcha" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden;">
       <div class="form-row">
         <div class="form-field">
           <label for="name">Name<span class="required-mark" aria-hidden="true">*</span></label>
@@ -109,7 +110,6 @@
       <button type="submit" class="btn btn-gold">Send Message</button>
       <p class="form-note">We typically respond within a couple of days.</p>
     </form>
-    <p class="dev-note">PRE-LAUNCH BLOCKER: this form does not send anywhere yet. It now tells the submitter that honestly instead of a fake success message, but it still needs a real backend (endpoint TBD) wired in before this page goes live.</p>
   </div>
 </section>
 

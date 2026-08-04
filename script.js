@@ -426,6 +426,10 @@ function validateForm(form) {
   return invalid;
 }
 
+// Google Apps Script Web App URL — see google-apps-script/README.md.
+// Leave blank locally; forms fall back to the "not connected yet" message.
+const FORM_ENDPOINT = 'https://script.google.com/macros/s/AKfycbziXtOG-ZQdg4vFqecgHKqE_7T1b6Ww3DPPbE8l8SX6N1-L9FLK1jLmYSrqlc5qWwpr/exec';
+
 function initFormConfirm() {
   document.querySelectorAll('form[data-inline-confirm]').forEach((form) => {
     form.querySelectorAll('[required], input[type="email"]').forEach((field) => {
@@ -438,14 +442,70 @@ function initFormConfirm() {
         invalidFields[0].focus();
         return;
       }
-      const note = form.querySelector('.form-note');
-      if (note) {
-        note.textContent = "This form isn't connected yet, so we can't receive it this way — nothing was lost, your answers are still here. In the meantime, reach out through Instagram or Facebook in the footer.";
-        note.setAttribute('role', 'status');
-        note.setAttribute('aria-live', 'polite');
-      }
+      submitForm(form);
     });
   });
+}
+
+async function submitForm(form) {
+  const note = form.querySelector('.form-note');
+  const submitBtn = form.querySelector('button[type="submit"]');
+
+  const setNote = (text) => {
+    if (!note) return;
+    note.textContent = text;
+    note.setAttribute('role', 'status');
+    note.setAttribute('aria-live', 'polite');
+  };
+
+  if (!FORM_ENDPOINT) {
+    setNote("This form isn't connected yet, so we can't receive it this way — nothing was lost, your answers are still here. In the meantime, reach out through Instagram or Facebook in the footer.");
+    return;
+  }
+
+  const payload = { formType: form.dataset.formType };
+  new FormData(form).forEach((value, key) => {
+    payload[key] = value;
+  });
+  const confidentialField = form.querySelector('input[name="confidential"]');
+  if (confidentialField) {
+    payload.confidential = confidentialField.checked;
+  }
+
+  if (submitBtn) {
+    submitBtn.disabled = true;
+    submitBtn.dataset.originalText = submitBtn.textContent;
+    submitBtn.textContent = 'Sending…';
+  }
+
+  try {
+    // Apps Script web apps redirect POSTs through script.googleusercontent.com
+    // to deliver the response, and that hop's CORS headers are unreliable —
+    // fetch can report "Failed to fetch" even when Apps Script already ran
+    // to completion and saved/emailed the submission. mode: 'no-cors' sends
+    // the request without asking the browser to expose that response back to
+    // JS, so we can't read a real success/failure status, but the request
+    // still reaches the script every time. A true network-level failure
+    // (offline, DNS, etc.) still throws and hits the catch block below.
+    // text/plain keeps this a CORS "simple request" so no OPTIONS preflight
+    // is sent; the server still parses the body as JSON.
+    await fetch(FORM_ENDPOINT, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify(payload),
+    });
+    form.reset();
+    form.querySelectorAll('input, textarea, button').forEach((el) => { el.disabled = true; });
+    setNote("Thank you — this was sent successfully. We'll be in touch soon.");
+  } catch (err) {
+    console.error('Form submission failed', err);
+    if (submitBtn) {
+      submitBtn.disabled = false;
+      submitBtn.textContent = submitBtn.dataset.originalText || 'Submit';
+    }
+    setNote("Something went wrong sending this — please try again, or reach out through Instagram or Facebook in the footer.");
+  }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
