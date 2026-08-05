@@ -237,15 +237,19 @@ h1, h2, h3 {
   margin: 1.5rem clamp(1.25rem, 4vw, 2.5rem);
   padding: 1rem 1.8rem;
 }
-/* Drawer is solid ink — the header above it has to match, even before the page is scrolled */
-.site-header:has(.mobile-nav.open) { background: rgba(22,35,28,0.96); backdrop-filter: blur(10px); }
-
 @media (max-width: 860px) {
   .main-nav { display: none; }
   .nav-toggle { display: flex; }
   .mobile-nav { display: flex; }
-  /* .btn-small's padding alone lands at ~39px — under the project's own --tap-target-min on touch */
+  /* Drawer is solid ink — the header above it has to match, even before the page is scrolled.
+     Scoped inside this query: .open survives a resize past 860px, and outside it the drawer
+     is display:none, so an unscoped :has() would leave the desktop header opaque at the top. */
+  .site-header:has(.mobile-nav.open) { background: rgba(22,35,28,0.96); backdrop-filter: blur(10px); }
+  /* Padding alone leaves these under --tap-target-min on touch:
+     .btn-small ~39px, .filter-tab ~41px, .footer-col a ~40px. */
   .btn-small { min-height: var(--tap-target-min); }
+  .filter-tab { min-height: var(--tap-target-min); }
+  .footer-col a { padding: 0.6rem 0; }
 }
 
 /* ===================== HERO ===================== */
@@ -648,7 +652,7 @@ h1, h2, h3 {
   color: var(--gold);
   margin-bottom: 1rem;
 }
-.footer-col a { display: block; padding: 0.45rem 0; margin-bottom: 0.1rem; opacity: 0.82; } /* padding widens tap target to ~44px for mobile */
+.footer-col a { display: block; padding: 0.45rem 0; margin-bottom: 0.1rem; opacity: 0.82; } /* 40px here; bumped to 44px under 860px — see the touch block above */
 .footer-col a:hover { opacity: 1; color: var(--gold-bright); }
 .footer-times .tbd { display: block; font-size: 0.72rem; opacity: 0.5; font-family: var(--font-mono); }
 .footer-bottom {
