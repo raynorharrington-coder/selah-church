@@ -227,6 +227,27 @@ function renderSermonFeaturePanel(data) {
       <p>Posted ${formatSermonDate(latest.publishedAt)}.</p>
       <a href="${url}" target="_blank" rel="noopener" class="btn btn-outline">Watch now</a>
     </div>`;
+
+  // This .reveal-photo didn't exist when initScrollReveal ran at
+  // DOMContentLoaded (the panel was still showing "Loading..." then), so
+  // it was never observed and would otherwise sit at opacity:0 forever —
+  // same fix as renderSermonGrid applies to its freshly-inserted cards.
+  const media = container.querySelector('.reveal-photo');
+  if (media) {
+    if (getReducedMotionPreference()) {
+      media.classList.add('in-view');
+    } else {
+      const io = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('in-view');
+            io.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.18 });
+      io.observe(media);
+    }
+  }
 }
 
 function sermonCardHTML(video) {
