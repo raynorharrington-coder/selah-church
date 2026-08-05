@@ -1,16 +1,17 @@
 .claude/
 .gstack/
 .impeccable/
+
+# Internal docs — this repo is PUBLIC, so project notes stay local-only.
+# OneDrive is their only backup; there is no git history for these files.
+README.md
 DESIGN.md
-PLAN-logo-integration.md
 PRODUCT.md
-SESSION-SUMMARY.md
-SHAPE-warmth-refinement.md
 TODOS.md
 STEP-BY-STEP.md
 USER-GUIDE.md
-button-radius-preview.html
-photo-placement-preview.html
+docs/
+archive/
 
 # wrangler files
 .wrangler

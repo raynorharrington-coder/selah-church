@@ -4,6 +4,42 @@
    the header, footer, and favicon.
    ========================================================================== */
 
+/* Self-hosted fonts — no fonts.googleapis.com / fonts.gstatic.com link, so no
+   visitor IP is handed to Google on page load (house standard, GDPR exposure).
+   Sourced from gwfh.mranftl.com, "modern browsers" (woff2, latin) preset. */
+@font-face {
+  font-family: 'Instrument Serif'; font-style: normal; font-weight: 400; font-display: swap;
+  src: url('assets/fonts/instrument-serif-v5-latin-regular.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Instrument Serif'; font-style: italic; font-weight: 400; font-display: swap;
+  src: url('assets/fonts/instrument-serif-v5-latin-italic.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Manrope'; font-style: normal; font-weight: 400; font-display: swap;
+  src: url('assets/fonts/manrope-v20-latin-regular.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Manrope'; font-style: normal; font-weight: 500; font-display: swap;
+  src: url('assets/fonts/manrope-v20-latin-500.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Manrope'; font-style: normal; font-weight: 600; font-display: swap;
+  src: url('assets/fonts/manrope-v20-latin-600.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Manrope'; font-style: normal; font-weight: 700; font-display: swap;
+  src: url('assets/fonts/manrope-v20-latin-700.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Space Mono'; font-style: normal; font-weight: 400; font-display: swap;
+  src: url('assets/fonts/space-mono-v17-latin-regular.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Space Mono'; font-style: normal; font-weight: 700; font-display: swap;
+  src: url('assets/fonts/space-mono-v17-latin-700.woff2') format('woff2');
+}
+
 :root {
   /* Color tokens */
   --ink: #16231C;         /* deep forest-charcoal — dominant dark */
@@ -165,7 +201,7 @@ h1, h2, h3 {
 .main-nav a:hover::after { transform: scaleX(1); }
 .main-nav a.active { opacity: 1; }
 .main-nav a.active::after { transform: scaleX(1); background: var(--gold-bright); }
-.mobile-nav a.active { color: var(--gold-bright); }
+.mobile-nav a:not(.btn).active { color: var(--gold-bright); }
 .header-actions { display: flex; align-items: center; gap: 1.2rem; }
 
 .nav-toggle {
@@ -191,14 +227,25 @@ h1, h2, h3 {
   overflow: hidden;
   transition: max-height 0.4s ease;
 }
-.mobile-nav.open { max-height: 400px; }
-.mobile-nav a { padding: 1rem clamp(1.25rem, 4vw, 2.5rem); color: var(--paper); border-top: 1px solid rgba(247,242,230,0.1); }
-.mobile-nav .btn { margin: 1rem clamp(1.25rem, 4vw, 2.5rem); width: fit-content; }
+/* Tall enough for the full link list + CTA on any phone; scrolls internally on short viewports. */
+.mobile-nav.open { max-height: calc(100svh - 5rem); overflow-y: auto; overscroll-behavior: contain; }
+/* :not(.btn) so the Give CTA keeps its own button padding/colour instead of inheriting the link rule */
+.mobile-nav a:not(.btn) { padding: 1rem clamp(1.25rem, 4vw, 2.5rem); color: var(--paper); border-top: 1px solid rgba(247,242,230,0.1); }
+.mobile-nav .btn {
+  display: flex;
+  justify-content: center;
+  margin: 1.5rem clamp(1.25rem, 4vw, 2.5rem);
+  padding: 1rem 1.8rem;
+}
+/* Drawer is solid ink — the header above it has to match, even before the page is scrolled */
+.site-header:has(.mobile-nav.open) { background: rgba(22,35,28,0.96); backdrop-filter: blur(10px); }
 
 @media (max-width: 860px) {
   .main-nav { display: none; }
   .nav-toggle { display: flex; }
   .mobile-nav { display: flex; }
+  /* .btn-small's padding alone lands at ~39px — under the project's own --tap-target-min on touch */
+  .btn-small { min-height: var(--tap-target-min); }
 }
 
 /* ===================== HERO ===================== */
@@ -269,6 +316,7 @@ h1, h2, h3 {
   bottom: 2rem; left: 50%;
   transform: translateX(-50%);
   z-index: 1;
+  pointer-events: none; /* purely decorative — must never intercept a tap on a hero CTA */
   color: rgba(247,242,230,0.6);
   display: flex; flex-direction: column; align-items: center; gap: 0.5rem;
   font-family: var(--font-mono);
@@ -289,6 +337,12 @@ h1, h2, h3 {
   animation: scrollcue 2.2s ease-in-out infinite;
 }
 @keyframes scrollcue { 0% { top: -100%; } 60% { top: 100%; } 100% { top: 100%; } }
+
+/* Below ~1024px the left-aligned hero CTA row reaches the horizontal centre, where the cue sits.
+   The cue is decorative and mobile users already expect to scroll, so drop it rather than crowd the buttons. */
+@media (max-width: 1024px) {
+  .scroll-cue { display: none; }
+}
 
 /* ===================== VISITOR ROUTING CARDS ===================== */
 .route-grid {
@@ -644,6 +698,11 @@ h1, h2, h3 {
   border-top: 1px solid rgba(22,35,28,0.1);
 }
 .belief-item:last-child { border-bottom: 1px solid rgba(22,35,28,0.1); }
+/* The fixed 90px number column took ~28% of the row on a 360px phone — stack it instead */
+@media (max-width: 560px) {
+  .belief-item { grid-template-columns: 1fr; gap: 0.5rem; padding: 1.8rem 0; }
+  .belief-num { padding-top: 0; }
+}
 .belief-num { font-family: var(--font-mono); color: var(--gold); font-size: 0.85rem; padding-top: 0.3rem; }
 .belief-item h3 { font-size: 1.35rem; margin-bottom: 0.6rem; }
 .belief-item p { color: var(--stone); margin: 0; }
@@ -731,7 +790,9 @@ h1, h2, h3 {
 .event-meta { font-family: var(--font-mono); font-size: 0.78rem; color: var(--stone-light); margin-top: 0.4rem; display: block; }
 
 @media (max-width: 640px) {
-  .event-card { grid-template-columns: 70px 1fr; }
+  /* The 1.8rem gap + 1.8rem side padding left the title column ~160px on a 360px phone */
+  .event-card { grid-template-columns: 70px 1fr; gap: 1.1rem; padding: 1.4rem 1.2rem; }
+  .event-date { padding-right: 1.1rem; }
   .event-card .btn { grid-column: 1 / -1; width: fit-content; }
 }
 

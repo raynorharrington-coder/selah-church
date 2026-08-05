@@ -8,14 +8,16 @@ worker/
 .claude/
 .impeccable/
 .gstack/
+google-apps-script/
+
+# Internal docs — never served
+README.md
 DESIGN.md
-PLAN-logo-integration.md
 PRODUCT.md
-SESSION-SUMMARY.md
-SHAPE-warmth-refinement.md
 TODOS.md
 STEP-BY-STEP.md
 USER-GUIDE.md
-button-radius-preview.html
-photo-placement-preview.html
+docs/
+archive/
+
 assets/branding/
