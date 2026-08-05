@@ -237,7 +237,15 @@ async function fetchPlaylistVideos(playlistId, apiKey) {
     .map((item) => ({
       title: item.snippet.title,
       videoId: item.contentDetails.videoId,
+      // Prefer the sharpest source YouTube actually generated for this video.
+      // maxres (1280x720) isn't guaranteed on every upload, so this falls
+      // through standard/high before landing on the old medium/default pair
+      // — those two were the only options tried before, capping every
+      // thumbnail at 320x180 even when a 720p version existed.
       thumbnail:
+        item.snippet.thumbnails?.maxres?.url ||
+        item.snippet.thumbnails?.standard?.url ||
+        item.snippet.thumbnails?.high?.url ||
         item.snippet.thumbnails?.medium?.url ||
         item.snippet.thumbnails?.default?.url ||
         null,

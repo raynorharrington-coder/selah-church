@@ -217,7 +217,7 @@ function renderSermonFeaturePanel(data) {
 
   const url = watchUrlFor(latest.videoId);
   container.innerHTML = `
-    <a href="${url}" target="_blank" rel="noopener" class="sermon-media reveal-photo is-organic">
+    <a href="${url}" target="_blank" rel="noopener" class="sermon-media reveal-photo">
       <img src="${latest.thumbnail || ''}" alt="${escapeHtml(latest.title)}" loading="lazy">
       <div class="play-button"><span><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7L8 5Z"/></svg></span></div>
     </a>

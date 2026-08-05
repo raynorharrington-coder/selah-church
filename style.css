@@ -412,16 +412,20 @@ h1, h2, h3 {
 }
 .sermon-media {
   position: relative;
-  aspect-ratio: 16/10;
+  /* 16/9, not 16/10 — YouTube's native frame. A mismatched box forced
+     object-fit:cover to crop into the actual video image on every side. */
+  aspect-ratio: 16/9;
   overflow: hidden;
   cursor: pointer;
-  /* Organic asymmetry at this key moment (SHAPE-warmth-refinement.md
-     decision #2) — the featured photo breaks from the uniform --radius
-     used everywhere else, while the hero (already full-bleed, already
-     breaking the grid) is left alone rather than forcing a second effect. */
-  border-radius: 42px 10px 42px 10px;
+  border-radius: var(--radius);
+  /* Video-letterbox black. This slot used to hold curated photography only
+     (hence the old asymmetric 42px frame, retired 2026-08-05 — see DESIGN.md
+     Shapes), but script.js swaps in a live YouTube thumbnail once sermon
+     data loads. A source below 16:9 (older uploads without a maxres
+     thumbnail) now letterboxes against this instead of being cropped. */
+  background: var(--ink);
 }
-.sermon-media img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s cubic-bezier(.25,.8,.25,1); filter: saturate(1.04) brightness(0.98); }
+.sermon-media img { width: 100%; height: 100%; object-fit: contain; transition: transform 0.6s cubic-bezier(.25,.8,.25,1); filter: saturate(1.04) brightness(0.98); }
 .sermon-media:hover img { transform: scale(1.06); }
 .play-button {
   position: absolute; inset: 0;
@@ -562,7 +566,6 @@ h1, h2, h3 {
   opacity: 1; clip-path: inset(0% round 10px); transform: scale(1);
   filter: saturate(1.04) brightness(0.98) blur(0px);
 }
-.reveal-photo.is-organic.in-view { clip-path: inset(0% round 42px 10px 42px 10px); }
 
 @media (max-width: 900px) {
   .about-teaser { grid-template-columns: 1fr; gap: 2.5rem; }
@@ -759,8 +762,9 @@ h1, h2, h3 {
   cursor: pointer;
 }
 .sermon-card.in-view { opacity: 1; transform: translateY(0); }
-.sermon-card .thumb { position: relative; aspect-ratio: 16/10; overflow: hidden; border-radius: var(--radius); margin-bottom: 1rem; }
-.sermon-card .thumb img { width: 100%; height: 100%; object-fit: cover; filter: saturate(1.04) brightness(0.98); transition: transform 0.5s ease; }
+/* 16/9 + contain + a video-letterbox fill, same reasoning as .sermon-media above. */
+.sermon-card .thumb { position: relative; aspect-ratio: 16/9; overflow: hidden; border-radius: var(--radius); margin-bottom: 1rem; background: var(--ink); }
+.sermon-card .thumb img { width: 100%; height: 100%; object-fit: contain; filter: saturate(1.04) brightness(0.98); transition: transform 0.5s ease; }
 .sermon-card:hover .thumb img { transform: scale(1.06); }
 .sermon-card .thumb .play-button span { width: 52px; height: 52px; }
 .sermon-card .thumb .play-button svg { width: 14px; height: 14px; }
