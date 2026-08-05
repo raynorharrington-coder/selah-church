@@ -254,7 +254,10 @@ h1, h2, h3 {
      .btn-small ~39px, .filter-tab ~41px, .footer-col a ~40px. */
   .btn-small { min-height: var(--tap-target-min); }
   .filter-tab { min-height: var(--tap-target-min); }
-  .footer-col a { padding: 0.6rem 0; }
+  /* .site-footer prefix (not just .footer-col a) is required here: the base .footer-col a
+     rule at ~line 660 sets padding: 0.45rem at equal specificity, and being later in the
+     file it otherwise wins regardless of this media query, silently keeping links at ~40px. */
+  .site-footer .footer-col a { padding: 0.6rem 0; }
 }
 
 /* ===================== HERO ===================== */
