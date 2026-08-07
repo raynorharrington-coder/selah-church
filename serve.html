@@ -21,6 +21,9 @@
 <meta name="twitter:description" content="Serve with Selah Church in Fredericksburg, VA — many hands make light work. Fill out the survey and we will find your fit.">
 <meta name="twitter:image" content="https://selah-church.thyratechllc.workers.dev/assets/photos/JM_A0812.jpg">
 
+<!-- Sets .js before first paint so the scroll-reveal rules in style.css apply.
+     Without JS the no-JS safety net at the end of style.css keeps everything visible. -->
+<script>document.documentElement.className += " js";</script>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -45,8 +48,10 @@
         <p>Whether it&rsquo;s greeting at the door, running sound, or serving in Selah Kids, there&rsquo;s a place for you.</p>
         <a href="https://forms.gle/wPxW6eTBPoeB5hvUA" target="_blank" rel="noopener" class="btn btn-gold">Start the serving survey</a>
       </div>
+      <!-- Not JM_A0812: that became the homepage hero on 2026-08-07, and the
+           same frame twice in one visit reads as a thin photo library. -->
       <div class="about-media reveal">
-        <img src="assets/photos/JM_A0812.jpg" alt="Selah Church gathered on a Sunday morning" style="width:100%;height:100%;object-fit:cover;" loading="lazy">
+        <div class="ministry-placeholder" style="aspect-ratio:4/5;">Photo: the volunteer team serving on a Sunday</div>
       </div>
     </div>
     <p class="dev-note">Copy on this page is Selah&rsquo;s own, lifted from selahchurchfxbg.com on 2026-08-07 &mdash; worth a read-through with Luke&rsquo;s team before launch in case anything has moved on since. A photo of the volunteer team actually serving would be stronger here than a congregation shot.</p>

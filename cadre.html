@@ -21,6 +21,9 @@
 <meta name="twitter:description" content="Cadre is Selah Church&rsquo;s men&rsquo;s and women&rsquo;s small groups — intentional space to worship, check in deeply, and call the best out of each other.">
 <meta name="twitter:image" content="https://selah-church.thyratechllc.workers.dev/assets/photos/JM_A0834.jpg">
 
+<!-- Sets .js before first paint so the scroll-reveal rules in style.css apply.
+     Without JS the no-JS safety net at the end of style.css keeps everything visible. -->
+<script>document.documentElement.className += " js";</script>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -45,8 +48,12 @@
         <p>This perfectly describes our men&rsquo;s and women&rsquo;s cadres. A small group from our church that creates intentional space to worship together, check in on a deeper level, and call the best out of each other as God leads.</p>
         <a href="https://forms.gle/JiD5KNLr4msveM5B9" target="_blank" rel="noopener" class="btn btn-gold">Sign me up</a>
       </div>
+      <!-- Was JM_A0834.jpg, dropped 2026-08-07: it measures 71% near-black at
+           every 4:5 crop window, so it rendered as a black rectangle here. It
+           also showed a Sunday teaching moment, not a Cadre group, which is the
+           kind of implied claim PRODUCT.md's no-fabrication rule covers. -->
       <div class="about-media reveal">
-        <img src="assets/photos/JM_A0834.jpg" alt="Selah Church members gathered together" style="width:100%;height:100%;object-fit:cover;" loading="lazy">
+        <div class="ministry-placeholder" style="aspect-ratio:4/5;">Photo: a men&rsquo;s or women&rsquo;s Cadre group meeting</div>
       </div>
     </div>
     <p class="dev-note">Copy on this page is Selah&rsquo;s own, lifted from selahchurchfxbg.com on 2026-08-07 &mdash; worth a read-through with Luke&rsquo;s team before launch in case anything has moved on since. The sign-up link points at the same Google Form the current site uses.</p>

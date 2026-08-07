@@ -35,6 +35,9 @@
 }
 </script>
 
+<!-- Sets .js before first paint so the scroll-reveal rules in style.css apply.
+     Without JS the no-JS safety net at the end of style.css keeps everything visible. -->
+<script>document.documentElement.className += " js";</script>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -43,12 +46,16 @@
 
 <!-- ============ HERO ============ -->
 <section class="hero" id="main-content" tabindex="-1">
+  <!-- A real Selah congregation shot, not stock. The Pexels clip this replaces
+       showed a video-production control room — a monitor reading "Input 2" was
+       the brightest thing on the page, sitting right beside the headline. It
+       also hotlinked videos.pexels.com, handing every visitor's IP to a third
+       party, which is the same exposure the self-hosted-fonts rule exists to
+       avoid. The ken-burns drift and colour grade in .hero-media apply to img
+       exactly as they did to video, so the hero still moves.
+       Swapping this photo is a one-line change; see TODOS.md. -->
   <div class="hero-media">
-    <video id="heroVideo" autoplay muted loop playsinline
-      poster="assets/photos/selah-worship-night.jpg">
-      <source data-src="https://videos.pexels.com/video-files/7411164/7411164-uhd_2560_1440_30fps.mp4" type="video/mp4">
-      Your browser doesn't support background video — showing a static image instead.
-    </video>
+    <img src="assets/photos/JM_A0812.jpg" alt="" width="1600" height="1067" fetchpriority="high">
   </div>
   <div class="hero-content">
     <span class="eyebrow hero-eyebrow">Selah Church &middot; Fredericksburg, VA</span>

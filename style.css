@@ -124,6 +124,14 @@ h1, h2, h3 {
 .section--ink { background: var(--ink); color: var(--paper); }
 .section--paper { background: var(--paper); }
 
+/* Two sections of the same tone in a row read as one section, because there's
+   no colour change to mark the seam — so their facing paddings just stack into
+   a ~290px hole. Collapsing the second one's top padding restores the intended
+   single gap. Only same-tone pairs: a paper/ink boundary is a real edge and
+   keeps both paddings. Currently hits index, give, our-beginning, our-beliefs. */
+.section--paper + .section--paper,
+.section--ink + .section--ink { padding-top: 0; }
+
 .container {
   max-width: var(--container);
   margin: 0 auto;
@@ -368,10 +376,33 @@ h1, h2, h3 {
 @media (prefers-reduced-motion: reduce) {
   .hero-media video, .hero-media img { animation: none; transform: scale(1.05); }
 }
+/* Two scrim layers, not one.
+
+   The vertical gradient sets the hero's overall mood and is weakest at 40%
+   height. That was fine when the subhead was two lines, but Luke's copy
+   (2026-08-07) runs six, so the text now reaches exactly that weak band —
+   and the background is a *moving* video, so whatever is bright in frame
+   drifts under the words. Measured against the stock clip, the brightest
+   region behind the paragraph came out at 1.70:1, far under the 4.5:1 floor.
+
+   The horizontal layer fixes that structurally: it keeps a dark wash under
+   the left-hand copy column no matter what the footage is doing, and fades
+   out before the right side so the image still reads. Any future hero photo
+   or video inherits the guarantee — nobody has to re-check contrast on swap. */
 .hero-media::after {
   content: '';
   position: absolute; inset: 0;
-  background: linear-gradient(180deg, rgba(22,35,28,0.55) 0%, rgba(22,35,28,0.35) 40%, rgba(15,26,20,0.96) 100%);
+  background:
+    linear-gradient(95deg, rgba(15,26,20,0.86) 0%, rgba(15,26,20,0.70) 34%, rgba(15,26,20,0.15) 60%, rgba(15,26,20,0) 74%),
+    linear-gradient(180deg, rgba(22,35,28,0.55) 0%, rgba(22,35,28,0.35) 40%, rgba(15,26,20,0.96) 100%);
+}
+/* Below the nav breakpoint the copy spans the full width, so a left-anchored
+   wash would leave the last words on bare video — go flat instead. */
+@media (max-width: 860px) {
+  .hero-media::after {
+    background:
+      linear-gradient(180deg, rgba(15,26,20,0.72) 0%, rgba(15,26,20,0.68) 40%, rgba(15,26,20,0.96) 100%);
+  }
 }
 .hero-content {
   position: relative;
@@ -1003,10 +1034,11 @@ h1, h2, h3 {
 
 @media (max-width: 560px) { .form-row { grid-template-columns: 1fr; } }
 
-/* Internal build notes, shown during client review. There are 8 across the site
-   and they render to real visitors, so they must never be mistakable for site
-   copy — hence the dashed frame and the INTERNAL label rather than the muted
-   body text they used to be.
+/* Internal build notes, shown during client review. There are 13 across the
+   site as of 2026-08-07 (the nav restructure added several) and they render to
+   real visitors, so they must never be mistakable for site copy — hence the
+   dashed frame and the INTERNAL label rather than the muted body text they
+   used to be. Count them with: grep -c dev-note *.html
 
    >>> LAUNCH STEP: uncomment the rule below to hide all of them at once. <<<
    .dev-note { display: none !important; }                                     */
@@ -1143,4 +1175,31 @@ h1, h2, h3 {
   top: 1rem;
   outline: var(--focus-ring);
   outline-offset: 2px;
+}
+
+/* ===================== NO-JS SAFETY NET =====================
+   Every scroll-reveal element above starts at opacity:0 and is only ever
+   cleared by script.js adding .in-view. That makes the whole site below the
+   hero invisible if script.js doesn't run — a JS error, a truncated or
+   blocked file, an ad blocker, an old browser choking on the syntax. The
+   animation is a nice-to-have; the content is not.
+
+   The <head> of each page sets .js on <html> before first paint, so this
+   override only applies when JS is genuinely absent. It is deliberately the
+   last rule in the file: it has to win against every reveal rule above it
+   without editing each one, so the animation stays the plain-English default
+   for anyone reading those rules. */
+html:not(.js) .reveal,
+html:not(.js) .reveal-photo,
+html:not(.js) .route-card,
+html:not(.js) .ministry-card,
+html:not(.js) .sermon-card,
+html:not(.js) .event-card,
+html:not(.js) .give-card,
+html:not(.js) .shop-card {
+  opacity: 1;
+  transform: none;
+  clip-path: none;
+  filter: none;
+  transition: none;
 }
