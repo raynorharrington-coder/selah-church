@@ -32,14 +32,22 @@
 
 <section class="page-hero" id="main-content" tabindex="-1">
   <div class="container">
-    <span class="eyebrow">What We Believe</span>
-    <h1>Simple, historic, and central to everything we do.</h1>
-    <p>Fourteen convictions that shape how we gather, teach, and follow Jesus together.</p>
+    <span class="eyebrow">About Us</span>
+    <h1>What we believe.</h1>
+    <p>Simple, historic, and central to everything we do.</p>
   </div>
 </section>
 
 <section class="section section--ink">
   <div class="container">
+    <!-- This h2 is load-bearing, not decoration: the belief items are h3, so
+         without it the page jumps h1 -> h3 and the fourteen items hang off
+         nothing in a screen reader's outline. about.html had it before this
+         page was split out; dropping it was a regression. -->
+    <div class="section-head">
+      <h2>Our statement of faith</h2>
+      <p>Fourteen convictions that shape how we gather, teach, and follow Jesus together.</p>
+    </div>
     <div class="belief-list">
       <div class="belief-item reveal">
         <span class="belief-num">01</span>

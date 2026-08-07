@@ -132,6 +132,12 @@ h1, h2, h3 {
 .section--paper + .section--paper,
 .section--ink + .section--ink { padding-top: 0; }
 
+/* .page-hero is ink-toned too, so a hero running straight into a dark section
+   is the same seam with the same doubled gap — it just doesn't carry the
+   .section--ink class. The hero keeps its own bottom padding, which is the
+   single gap that was intended. Hits our-beliefs and give. */
+.page-hero + .section--ink { padding-top: 0; }
+
 .container {
   max-width: var(--container);
   margin: 0 auto;
@@ -257,7 +263,10 @@ h1, h2, h3 {
 .nav-group.is-open .nav-menu { opacity: 1; visibility: visible; transform: translateY(0); }
 .nav-menu a {
   padding: 0.7rem 0.9rem;
-  border-radius: calc(var(--radius) - 4px);
+  /* var(--radius), not calc(--radius - 4px): DESIGN.md commits to one rounded
+     scale plus true circles, and a derived 6px was a third value nothing else
+     in the system uses. */
+  border-radius: var(--radius);
   color: var(--paper);
   opacity: 0.86;
   transition: background 0.2s ease, opacity 0.2s ease;
