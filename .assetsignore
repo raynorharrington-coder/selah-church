@@ -8,6 +8,8 @@ worker/
 .claude/
 .impeccable/
 .gstack/
+.agents/
+.codex/
 google-apps-script/
 
 # Internal docs — never served

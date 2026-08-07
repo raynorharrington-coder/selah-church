@@ -14,10 +14,12 @@ document.getElementById('site-footer').innerHTML = `
 
     <div class="footer-col">
       <span class="footer-heading">Explore</span>
-      <a href="about.html">About</a>
-      <a href="ministries.html">Ministries</a>
+      <a href="our-team.html">Our Team</a>
+      <a href="our-beliefs.html">Our Beliefs</a>
+      <a href="small-groups.html">Small Groups</a>
+      <a href="selah-kids.html">Selah Kids</a>
       <a href="sermons.html">Sermons</a>
-      <a href="shop.html">Shop</a>
+      <a href="events.html">Events</a>
       <a href="give.html">Give</a>
       <a href="prayer.html">Prayer Request</a>
     </div>
@@ -27,7 +29,7 @@ document.getElementById('site-footer').innerHTML = `
       <a href="https://www.instagram.com/selahchurchfxbg/" target="_blank" rel="noopener">Instagram</a>
       <a href="https://www.facebook.com/profile.php?id=61557627934600" target="_blank" rel="noopener">Facebook</a>
       <a href="https://www.youtube.com/@SelahChurchfxbg/featured" target="_blank" rel="noopener">YouTube</a>
-      <a href="visit.html">Contact</a>
+      <a href="contact.html">Contact</a>
     </div>
   </div>
 

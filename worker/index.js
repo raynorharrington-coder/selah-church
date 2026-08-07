@@ -28,7 +28,29 @@ const SERIES_PLAYLISTS = {
 };
 
 const KV_KEY = 'sermons-data';
-const MAX_PER_SERIES = 25;
+
+// YouTube caps playlistItems at 50 per request, so this is a page size, not a
+// ceiling — fetchPlaylistVideos follows nextPageToken up to MAX_PER_SERIES.
+// It used to be a hard 25 with no paging, which silently truncated Acts: the
+// API returns playlist items in playlist position order (oldest first), so
+// the videos being dropped were the *newest* ones in the series.
+const PAGE_SIZE = 50;
+const MAX_PER_SERIES = 200;
+
+// Anything a playlist doesn't cover. Messages only make it into the site if
+// someone remembers to add them to a series playlist on YouTube, and in
+// practice that gets missed — as of 2026-08-07 three July messages were live
+// on the channel but in no playlist, so the site never showed them. This
+// sweeps the channel's own uploads as a backstop.
+const CHANNEL_HANDLE = '@SelahChurchfxbg';
+const UNLISTED_SERIES = { slug: 'recent', label: 'Recent Messages' };
+const UPLOADS_SCAN_LIMIT = 50;
+
+// The uploads feed is everything the channel posts, not just Sunday messages:
+// Shorts, baby dedications, baptism testimonies, announcements. Duration
+// separates them cleanly and without guessing at titles — sampled 2026-08-07,
+// messages ran 26–83 minutes and everything else came in under 4m30.
+const MIN_MESSAGE_SECONDS = 15 * 60;
 
 export default {
   async fetch(request, env, ctx) {
@@ -108,6 +130,15 @@ async function syncSermons(env) {
     }
   }
 
+  try {
+    const extras = await fetchUnlistedMessages(series, apiKey);
+    if (extras.length) series.push({ ...UNLISTED_SERIES, videos: extras });
+  } catch (err) {
+    // The playlists are the primary source — if the uploads sweep fails, ship
+    // what the playlists gave us rather than losing the whole sync.
+    console.error('Failed to sweep channel uploads', err);
+  }
+
   const allVideos = series
     .flatMap((s) => s.videos.map((v) => ({ ...v, seriesSlug: s.slug, seriesLabel: s.label })))
     .sort((a, b) => new Date(b.publishedAt) - new Date(a.publishedAt));
@@ -119,7 +150,68 @@ async function syncSermons(env) {
   };
 
   await env.SERMONS_KV.put(KV_KEY, JSON.stringify(payload));
-  return { ok: true, seriesSynced: series.length, updatedAt: payload.updatedAt };
+  return {
+    ok: true,
+    seriesSynced: series.length,
+    videosSynced: allVideos.length,
+    updatedAt: payload.updatedAt,
+  };
+}
+
+/* Everything on the channel that no series playlist claimed. Returns [] on a
+   clean run where the playlists already cover every recent message. */
+async function fetchUnlistedMessages(series, apiKey) {
+  const uploadsPlaylistId = await resolveUploadsPlaylistId(apiKey);
+  if (!uploadsPlaylistId) return [];
+
+  const known = new Set(series.flatMap((s) => s.videos.map((v) => v.videoId)));
+  const candidates = (await fetchPlaylistVideos(uploadsPlaylistId, apiKey, UPLOADS_SCAN_LIMIT))
+    .filter((v) => !known.has(v.videoId));
+  if (!candidates.length) return [];
+
+  const durations = await fetchDurations(candidates.map((v) => v.videoId), apiKey);
+  return candidates.filter((v) => (durations.get(v.videoId) || 0) >= MIN_MESSAGE_SECONDS);
+}
+
+/* The uploads playlist id is derived from the channel, not hard-coded, so
+   this keeps working if the handle is ever pointed at a different channel. */
+async function resolveUploadsPlaylistId(apiKey) {
+  const endpoint = new URL('https://www.googleapis.com/youtube/v3/channels');
+  endpoint.searchParams.set('part', 'contentDetails');
+  endpoint.searchParams.set('forHandle', CHANNEL_HANDLE);
+  endpoint.searchParams.set('key', apiKey);
+
+  const res = await fetch(endpoint.toString());
+  if (!res.ok) throw new Error(`YouTube API ${res.status} resolving ${CHANNEL_HANDLE}: ${await res.text()}`);
+  const data = await res.json();
+  return data.items?.[0]?.contentDetails?.relatedPlaylists?.uploads || null;
+}
+
+/* videos.list takes up to 50 ids at a time. */
+async function fetchDurations(videoIds, apiKey) {
+  const durations = new Map();
+  for (let i = 0; i < videoIds.length; i += 50) {
+    const endpoint = new URL('https://www.googleapis.com/youtube/v3/videos');
+    endpoint.searchParams.set('part', 'contentDetails');
+    endpoint.searchParams.set('id', videoIds.slice(i, i + 50).join(','));
+    endpoint.searchParams.set('key', apiKey);
+
+    const res = await fetch(endpoint.toString());
+    if (!res.ok) throw new Error(`YouTube API ${res.status} fetching durations: ${await res.text()}`);
+    const data = await res.json();
+    for (const item of data.items || []) {
+      durations.set(item.id, parseIsoDuration(item.contentDetails?.duration));
+    }
+  }
+  return durations;
+}
+
+/* YouTube reports duration as an ISO 8601 period, e.g. PT43M3S. Videos are
+   never long enough for the date half of the format to appear. */
+function parseIsoDuration(iso) {
+  const m = /^PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?$/.exec(iso || '');
+  if (!m) return 0;
+  return Number(m[1] || 0) * 3600 + Number(m[2] || 0) * 60 + Number(m[3] || 0);
 }
 
 function randomState() {
@@ -214,20 +306,28 @@ async function handleOAuthCallback(request, env) {
   });
 }
 
-async function fetchPlaylistVideos(playlistId, apiKey) {
-  const endpoint = new URL('https://www.googleapis.com/youtube/v3/playlistItems');
-  endpoint.searchParams.set('part', 'snippet,contentDetails');
-  endpoint.searchParams.set('maxResults', String(MAX_PER_SERIES));
-  endpoint.searchParams.set('playlistId', playlistId);
-  endpoint.searchParams.set('key', apiKey);
+async function fetchPlaylistVideos(playlistId, apiKey, max = MAX_PER_SERIES) {
+  const items = [];
+  let pageToken = '';
 
-  const res = await fetch(endpoint.toString());
-  if (!res.ok) {
-    throw new Error(`YouTube API ${res.status} for playlist ${playlistId}: ${await res.text()}`);
-  }
-  const data = await res.json();
+  do {
+    const endpoint = new URL('https://www.googleapis.com/youtube/v3/playlistItems');
+    endpoint.searchParams.set('part', 'snippet,contentDetails');
+    endpoint.searchParams.set('maxResults', String(Math.min(PAGE_SIZE, max - items.length)));
+    endpoint.searchParams.set('playlistId', playlistId);
+    endpoint.searchParams.set('key', apiKey);
+    if (pageToken) endpoint.searchParams.set('pageToken', pageToken);
 
-  return (data.items || [])
+    const res = await fetch(endpoint.toString());
+    if (!res.ok) {
+      throw new Error(`YouTube API ${res.status} for playlist ${playlistId}: ${await res.text()}`);
+    }
+    const data = await res.json();
+    items.push(...(data.items || []));
+    pageToken = data.nextPageToken || '';
+  } while (pageToken && items.length < max);
+
+  return items
     .filter((item) => {
       const title = item.snippet?.title || '';
       // Deleted/private videos still show up as playlist items with these

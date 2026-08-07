@@ -1,4 +1,57 @@
 // Shared site header — injected into <div id="site-header"></div>
+
+/* Nav structure, defined once and rendered into both the desktop bar and the
+   mobile drawer so the two can't drift apart. A section with `items` becomes a
+   dropdown; one with `href` is a plain link. Section labels are deliberately
+   not links — every destination under them is a real page, so a clickable
+   parent would only ever be a duplicate of its own first child. */
+const NAV_SECTIONS = [
+  { label: 'About Us', id: 'about', items: [
+    { href: 'our-team.html', label: 'Our Team' },
+    { href: 'our-beliefs.html', label: 'Our Beliefs' },
+    { href: 'our-beginning.html', label: 'Our Beginning' },
+  ] },
+  { label: 'Connect', id: 'connect', items: [
+    { href: 'cadre.html', label: 'Cadre' },
+    { href: 'small-groups.html', label: 'Small Groups' },
+    { href: 'shabbat-dinners.html', label: 'Shabbat Dinner Groups' },
+    { href: 'serve.html', label: 'Serve' },
+    { href: 'prayer.html', label: 'Prayer Request' },
+  ] },
+  { label: 'Youth', id: 'youth', items: [
+    { href: 'students.html', label: 'Students' },
+    { href: 'selah-kids.html', label: 'Selah Kids' },
+  ] },
+  { href: 'sermons.html', label: 'Sermons' },
+  { href: 'events.html', label: 'Events' },
+  { label: 'First Steps', id: 'first-steps', items: [
+    { href: 'visit.html', label: 'Plan a Visit' },
+    { href: 'contact.html', label: 'Contact Us' },
+  ] },
+];
+
+const CHEVRON = '<svg class="nav-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>';
+
+function desktopNavItem(section) {
+  if (section.href) return `<a href="${section.href}">${section.label}</a>`;
+  return `<div class="nav-group">
+        <button type="button" class="nav-trigger" aria-expanded="false" aria-controls="navmenu-${section.id}">${section.label}${CHEVRON}</button>
+        <div class="nav-menu" id="navmenu-${section.id}">
+          ${section.items.map(i => `<a href="${i.href}">${i.label}</a>`).join('\n          ')}
+        </div>
+      </div>`;
+}
+
+function mobileNavItem(section) {
+  if (section.href) return `<a href="${section.href}">${section.label}</a>`;
+  return `<div class="mobile-nav-group">
+      <button type="button" class="mobile-nav-trigger" aria-expanded="false" aria-controls="mobilemenu-${section.id}">${section.label}${CHEVRON}</button>
+      <div class="mobile-nav-menu" id="mobilemenu-${section.id}">
+        ${section.items.map(i => `<a href="${i.href}">${i.label}</a>`).join('\n        ')}
+      </div>
+    </div>`;
+}
+
 document.getElementById('site-header').insertAdjacentHTML('beforebegin',
   '<a href="#main-content" class="skip-link">Skip to main content</a>'
 );
@@ -10,12 +63,7 @@ document.getElementById('site-header').innerHTML = `
     </a>
 
     <nav class="main-nav" aria-label="Primary">
-      <a href="about.html">About</a>
-      <a href="ministries.html">Ministries</a>
-      <a href="sermons.html">Sermons</a>
-      <a href="events.html">Events</a>
-      <a href="shop.html">Shop</a>
-      <a href="visit.html">Plan a Visit</a>
+      ${NAV_SECTIONS.map(desktopNavItem).join('\n      ')}
     </nav>
 
     <div class="header-actions">
@@ -27,13 +75,93 @@ document.getElementById('site-header').innerHTML = `
   </div>
 
   <nav class="mobile-nav" id="mobileNav" aria-label="Mobile">
-    <a href="about.html">About</a>
-    <a href="ministries.html">Ministries</a>
-    <a href="sermons.html">Sermons</a>
-    <a href="events.html">Events</a>
-    <a href="shop.html">Shop</a>
-    <a href="visit.html">Plan a Visit</a>
+    ${NAV_SECTIONS.map(mobileNavItem).join('\n    ')}
     <a href="give.html" class="btn btn-gold">Give</a>
   </nav>
 </header>
 `;
+
+/* Dropdown behaviour for both navs.
+
+   One state flag (`is-open`) drives everything, including hover — CSS
+   :hover alone can't work here, because a closed menu has to be `inert` to
+   stay out of the tab order, and `inert` also swallows pointer events, so a
+   CSS-only hover would show a menu nobody could click. Hover is bound only
+   on real pointing devices; touch and keyboard fall through to click. */
+function initNavDropdowns() {
+  const groups = [
+    ...document.querySelectorAll('.nav-group'),
+    ...document.querySelectorAll('.mobile-nav-group'),
+  ];
+  if (!groups.length) return;
+
+  const hasHover = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+
+  const entries = groups.map((group) => {
+    const trigger = group.querySelector('button');
+    const menu = group.querySelector('.nav-menu, .mobile-nav-menu');
+    const entry = { group, trigger, menu, hoverOpened: false };
+    entry.set = (open) => {
+      group.classList.toggle('is-open', open);
+      trigger.setAttribute('aria-expanded', String(open));
+      menu.inert = !open;
+      if (!open) entry.hoverOpened = false;
+    };
+    entry.set(false);
+    return entry;
+  });
+
+  const closeAll = (except) => entries.forEach((e) => { if (e !== except) e.set(false); });
+
+  entries.forEach((entry) => {
+    const { group, trigger, set } = entry;
+
+    trigger.addEventListener('click', () => {
+      // On a mouse, the menu is already open by the time the click lands —
+      // hovering opened it. Toggling here would slam it shut under the
+      // pointer, so leave it alone and let mouseleave do the closing.
+      if (entry.hoverOpened) return;
+      const open = !group.classList.contains('is-open');
+      closeAll(entry);
+      set(open);
+    });
+
+    if (hasHover && group.classList.contains('nav-group')) {
+      group.addEventListener('mouseenter', () => {
+        closeAll(entry);
+        entry.hoverOpened = true;
+        set(true);
+      });
+      group.addEventListener('mouseleave', () => {
+        entry.hoverOpened = false;
+        set(false);
+      });
+    }
+
+    // Tabbing out the far end of a menu should close it behind you, the same
+    // way moving the mouse away does. relatedTarget is null when focus leaves
+    // the document entirely — don't treat that as "moved somewhere else".
+    group.addEventListener('focusout', (e) => {
+      if (e.relatedTarget && !group.contains(e.relatedTarget)) set(false);
+    });
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Escape') return;
+    const open = entries.find((entry) => entry.group.classList.contains('is-open'));
+    if (open) {
+      open.set(false);
+      open.trigger.focus();
+      // header.js binds before script.js, so this runs first: inside the
+      // mobile drawer, the first Escape closes the open submenu and the
+      // second one closes the drawer, rather than both at once.
+      e.stopImmediatePropagation();
+    }
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('.nav-group, .mobile-nav-group')) closeAll();
+  });
+}
+
+initNavDropdowns();

@@ -71,12 +71,21 @@ function initMobileNav() {
 
 /* ---------- Highlight the current page in the nav ---------- */
 function initActiveNavHighlight() {
-  const currentPath = window.location.pathname.split('/').pop() || 'index.html';
+  // Cloudflare Workers Assets serves extensionless URLs and 307s /foo.html
+  // to /foo, so the address bar never matches the href we wrote in the nav.
+  // Comparing both sides stripped of ".html" is what makes this work in
+  // production — a raw comparison silently highlighted nothing at all.
+  const normalize = (path) => (path || '').split('/').pop().replace(/\.html$/, '') || 'index';
+  const currentPath = normalize(window.location.pathname);
   document.querySelectorAll('.main-nav a, .mobile-nav a').forEach(link => {
-    const linkPath = link.getAttribute('href');
-    if (linkPath === currentPath || (currentPath === '' && linkPath === 'index.html')) {
+    if (normalize(link.getAttribute('href')) === currentPath) {
       link.classList.add('active');
       link.setAttribute('aria-current', 'page');
+      // A page that lives inside a dropdown has no top-level link of its own,
+      // so mark the section it sits under — otherwise the bar shows nothing
+      // as current on 10 of the site's pages.
+      const group = link.closest('.nav-group');
+      if (group) group.classList.add('has-active');
     }
   });
 }
@@ -124,25 +133,36 @@ function initScrollReveal(reduceMotion) {
   }
 }
 
-/* ---------- Sermon series filter (sermons.html) ---------- */
+/* ---------- Sermon series filter (sermons.html) ----------
+   The library shows the 12 most recent messages, not the whole back
+   catalogue (~75 videos and growing). Every card is still rendered into the
+   DOM so the series tabs have something to filter — the cap is applied to
+   whatever the active tab matches, and because renderSermonGrid emits cards
+   newest-first, "the first 12 matches" is always the 12 most recent. */
+const SERMON_VISIBLE_LIMIT = 12;
+
+function applySermonFilter(series) {
+  const sermonCards = document.querySelectorAll('.sermon-card');
+  const sermonEmpty = document.querySelector('.sermon-empty');
+  let shown = 0;
+  sermonCards.forEach(card => {
+    const visible = (series === 'all' || card.dataset.series === series) && shown < SERMON_VISIBLE_LIMIT;
+    card.classList.toggle('is-hidden', !visible);
+    if (visible) shown++;
+  });
+  if (sermonEmpty) sermonEmpty.classList.toggle('is-visible', shown === 0);
+}
+
 function initSermonFilter() {
   const filterTabs = document.querySelectorAll('.filter-tab');
   const sermonCards = document.querySelectorAll('.sermon-card');
-  const sermonEmpty = document.querySelector('.sermon-empty');
   if (!filterTabs.length || !sermonCards.length) return;
 
   filterTabs.forEach(tab => {
     tab.addEventListener('click', () => {
       filterTabs.forEach(t => t.classList.remove('active'));
       tab.classList.add('active');
-      const series = tab.dataset.series;
-      let visibleCount = 0;
-      sermonCards.forEach(card => {
-        const match = series === 'all' || card.dataset.series === series;
-        card.classList.toggle('is-hidden', !match);
-        if (match) visibleCount++;
-      });
-      if (sermonEmpty) sermonEmpty.classList.toggle('is-visible', visibleCount === 0);
+      applySermonFilter(tab.dataset.series);
     });
   });
   const emptyReset = document.querySelector('.sermon-empty-reset');
@@ -152,6 +172,11 @@ function initSermonFilter() {
       if (allTab) allTab.click();
     });
   }
+
+  // Cards arrive from the API after this first runs at DOMContentLoaded, so
+  // trim to the cap using whichever tab is currently marked active.
+  const active = document.querySelector('.filter-tab.active');
+  applySermonFilter(active ? active.dataset.series : 'all');
 }
 
 /* ---------- Sermon data: fetched from the Worker's daily YouTube sync ----------
