@@ -95,7 +95,13 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-img { max-width: 100%; display: block; }
+/* height:auto is the required partner to the width/height attributes now on
+   every <img> — without it, max-width squashing a constrained image would
+   render it at its full intrinsic height and distort it. The attributes give
+   the browser an aspect ratio before the file arrives, so nothing on the page
+   jumps as photos load. That shift is worst on a phone, where images are the
+   full column width. */
+img { max-width: 100%; height: auto; display: block; }
 a { color: inherit; text-decoration: none; }
 
 .eyebrow {
@@ -173,11 +179,16 @@ h1, h2, h3 {
   .btn:hover { transform: translateY(-2px); }
 }
 .btn-gold { background: var(--gold); color: var(--ink); }
-.btn-gold:hover { background: var(--gold-bright); box-shadow: 0 10px 30px -10px rgba(201,162,39,0.6); }
 .btn-outline { background: transparent; color: var(--paper); border-color: rgba(247,242,230,0.4); }
-.btn-outline:hover { border-color: var(--paper); background: rgba(247,242,230,0.08); }
 .btn-outline-dark { background: transparent; color: var(--ink); border-color: rgba(22,35,28,0.3); }
-.btn-outline-dark:hover { border-color: var(--ink); background: rgba(22,35,28,0.06); }
+/* Colour changes need the same pointer gate the transform above already had —
+   otherwise a tapped button keeps its hover colour until something else is
+   tapped, which reads as "still loading". */
+@media (hover: hover) {
+  .btn-gold:hover { background: var(--gold-bright); box-shadow: 0 10px 30px -10px rgba(201,162,39,0.6); }
+  .btn-outline:hover { border-color: var(--paper); background: rgba(247,242,230,0.08); }
+  .btn-outline-dark:hover { border-color: var(--ink); background: rgba(22,35,28,0.06); }
+}
 .btn-small { padding: 0.6rem 1.3rem; font-size: 0.85rem; }
 
 /* ===================== HEADER ===================== */
@@ -228,9 +239,10 @@ h1, h2, h3 {
 .mobile-nav a:not(.btn).active { color: var(--gold-bright); }
 
 /* ---- Nav dropdowns (desktop) ----
-   The panel is padded flush to the trigger with no gap: the header's own
-   1.4rem padding is inside .nav-group's hover area, so the pointer never
-   crosses dead space on the way down and the menu can't flicker shut. */
+   The panel hangs 1.4rem below its trigger so it clears the header's own
+   padding. That gap is real dead space for a pointer travelling down to the
+   items, so `.nav-menu::before` bridges it invisibly — see the note on that
+   rule, and the one on .nav-menu, before changing anything here. */
 .nav-group { position: relative; }
 .nav-trigger {
   display: inline-flex; align-items: center; gap: 0.35rem;
@@ -239,17 +251,35 @@ h1, h2, h3 {
 }
 .nav-chevron { width: 13px; height: 13px; transition: transform 0.3s ease; }
 .nav-group.is-open .nav-chevron { transform: rotate(180deg); }
+/* The panel is dark because it belongs to the dark header, but everything on it
+   is drawn from the site's own vocabulary rather than a component-library
+   default: a brass hairline along the top edge, a warm forest gradient instead
+   of flat near-black, the mono eyebrow that labels sections everywhere else,
+   and a gold marker that grows in beside the item under the pointer.
+
+   The brass rule is a background layer, not a pseudo-element bar, and that is
+   deliberate. As an ::after it needed `overflow: hidden` on the panel to stay
+   inside the corner radius — which clipped `.nav-menu::before` below, since
+   that bridge sits outside the panel's box. Clipped content isn't hit-testable,
+   so the pointer crossing the gap left .nav-group and the menu shut roughly
+   4px into the reach, leaving every item unreachable by mouse. Background
+   layers are clipped by border-radius on their own. Never put `overflow` on
+   this element. */
 .nav-menu {
   position: absolute; top: 100%; left: -1.1rem;
   margin-top: 1.4rem;
-  min-width: 14rem;
+  min-width: 15rem;
   display: flex; flex-direction: column;
-  padding: 0.5rem;
-  background: rgba(15,26,20,0.97);
+  padding: 0.8rem 0.55rem 0.55rem;
+  background:
+    linear-gradient(90deg, var(--gold), rgba(201,162,39,0.05)) top / 100% 2px no-repeat,
+    linear-gradient(180deg, rgba(30,46,37,0.98), rgba(15,26,20,0.98));
   backdrop-filter: blur(10px);
-  border: 1px solid rgba(247,242,230,0.12);
+  border: 1px solid rgba(201,162,39,0.20);
   border-radius: var(--radius);
-  box-shadow: 0 24px 50px -20px rgba(0,0,0,0.65);
+  box-shadow:
+    0 26px 55px -22px rgba(0,0,0,0.7),
+    inset 0 1px 0 rgba(247,242,230,0.05);
   opacity: 0; visibility: hidden;
   transform: translateY(-6px);
   transition: opacity 0.25s ease, transform 0.25s ease, visibility 0.25s;
@@ -261,18 +291,58 @@ h1, h2, h3 {
   position: absolute; left: 0; right: 0; top: -1.4rem; height: 1.4rem;
 }
 .nav-group.is-open .nav-menu { opacity: 1; visibility: visible; transform: translateY(0); }
+/* Repeats the trigger's own label, so it's aria-hidden in header.js — it's
+   there to give the panel a header in the same mono eyebrow the footer columns
+   and section heads use, not to add information. */
+.nav-menu-label {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 0.64rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--gold);
+  padding: 0.15rem 0.9rem 0.55rem;
+  margin-bottom: 0.3rem;
+  border-bottom: 1px solid rgba(247,242,230,0.08);
+}
 .nav-menu a {
-  padding: 0.7rem 0.9rem;
+  position: relative;
+  padding: 0.6rem 0.9rem 0.6rem 1.15rem;
   /* var(--radius), not calc(--radius - 4px): DESIGN.md commits to one rounded
      scale plus true circles, and a derived 6px was a third value nothing else
      in the system uses. */
   border-radius: var(--radius);
   color: var(--paper);
-  opacity: 0.86;
-  transition: background 0.2s ease, opacity 0.2s ease;
+  font-size: 0.93rem;
+  font-weight: 500;
+  opacity: 0.82;
+  transition: background 0.2s ease, color 0.2s ease, opacity 0.2s ease,
+              transform 0.25s cubic-bezier(.25,.8,.25,1);
 }
-.nav-menu a:hover { background: rgba(247,242,230,0.08); opacity: 1; }
+.nav-menu a::before {
+  content: '';
+  position: absolute;
+  left: 0.45rem; top: 50%;
+  width: 2px; height: 1.05rem;
+  background: var(--gold);
+  border-radius: 1px;
+  transform: translateY(-50%) scaleY(0);
+  transition: transform 0.22s cubic-bezier(.25,.8,.25,1);
+}
+/* Gated per The Sticky-Hover Rule. The bar is hidden below 860px, but a tablet
+   in landscape is over that breakpoint and still touch — a tap there would
+   otherwise latch the gold treatment on the item you just left. */
+@media (hover: hover) {
+  .nav-menu a:hover {
+    background: rgba(201,162,39,0.07);
+    color: var(--gold-bright);
+    opacity: 1;
+    transform: translateX(3px);
+  }
+  .nav-menu a:hover::before { transform: translateY(-50%) scaleY(1); }
+}
 .nav-menu a.active { opacity: 1; color: var(--gold-bright); }
+.nav-menu a.active::before { transform: translateY(-50%) scaleY(1); }
 
 /* ---- Nav dropdowns (mobile drawer) ---- */
 .mobile-nav-trigger {
@@ -288,20 +358,41 @@ h1, h2, h3 {
 }
 .mobile-nav-group.is-open .mobile-nav-trigger { color: var(--gold-bright); }
 .mobile-nav-group.is-open .nav-chevron { transform: rotate(180deg); }
+/* 0fr -> 1fr rather than a max-height. The old rule opened to a hard-coded
+   22rem, which is only tall enough for the sections that exist today — adding a
+   sixth link to Connect would have silently clipped it, with no way to scroll to
+   the clipped item. Grid animates to the content's real height, whatever it is.
+   The inner wrapper is what the transition needs: a grid row can only animate
+   against a single child that carries the overflow. */
 .mobile-nav-menu {
-  display: flex; flex-direction: column;
-  max-height: 0; overflow: hidden;
-  background: rgba(0,0,0,0.22);
-  transition: max-height 0.35s ease;
+  display: grid;
+  grid-template-rows: 0fr;
+  /* The desktop panel's brass edge, turned on its side: a rail down the open
+     submenu, which is the drawer's equivalent of the panel border. Together
+     with the indent below it's what separates a submenu from the section
+     headings around it. */
+  background: rgba(0,0,0,0.28);
+  box-shadow: inset 3px 0 0 rgba(201,162,39,0.55);
+  transition: grid-template-rows 0.35s ease;
 }
-.mobile-nav-group.is-open .mobile-nav-menu { max-height: 22rem; }
-/* Sits after the base .mobile-nav a rule, so it wins on the indent + border. */
-.mobile-nav .mobile-nav-menu a {
+.mobile-nav-menu-inner {
+  display: flex; flex-direction: column;
+  overflow: hidden;
+  min-height: 0;
+}
+.mobile-nav-group.is-open .mobile-nav-menu { grid-template-rows: 1fr; }
+/* :not(.btn) is load-bearing, not decoration. Without it this selector ties
+   with the base `.mobile-nav a:not(.btn)` rule further down the file on
+   specificity (0,2,1) and loses on source order — so the indent and the
+   suppressed border silently never applied, and every submenu link in the
+   drawer sat flush left, indistinguishable from a top-level section. */
+.mobile-nav .mobile-nav-menu a:not(.btn) {
   padding-left: calc(clamp(1.25rem, 4vw, 2.5rem) + 1.1rem);
   border-top: none;
   font-size: 0.94rem;
-  opacity: 0.88;
+  opacity: 0.85;
 }
+.mobile-nav .mobile-nav-menu a:not(.btn).active { opacity: 1; }
 .header-actions { display: flex; align-items: center; gap: 1.2rem; }
 
 .nav-toggle {
@@ -346,13 +437,30 @@ h1, h2, h3 {
      is display:none, so an unscoped :has() would leave the desktop header opaque at the top. */
   .site-header:has(.mobile-nav.open) { background: rgba(22,35,28,0.96); backdrop-filter: blur(10px); }
   /* Padding alone leaves these under --tap-target-min on touch:
-     .btn-small ~39px, .filter-tab ~41px, .footer-col a ~40px. */
+     .btn-small ~39px, .filter-tab ~41px, .footer-col a ~40px, .brand ~38px. */
   .btn-small { min-height: var(--tap-target-min); }
   .filter-tab { min-height: var(--tap-target-min); }
+  /* The logo is the "go home" control on every page and was the one nav target
+     still under the minimum — the wordmark is 38px tall and nothing padded it. */
+  .brand { min-height: var(--tap-target-min); }
   /* .site-footer prefix (not just .footer-col a) is required here: the base .footer-col a
      rule at ~line 660 sets padding: 0.45rem at equal specificity, and being later in the
      file it otherwise wins regardless of this media query, silently keeping links at ~40px. */
   .site-footer .footer-col a { padding: 0.6rem 0; }
+
+  /* Type that is comfortable at arm's length on a laptop is not comfortable on
+     a phone. These are the ones carrying real information rather than
+     decoration — a mono label at 11.5px is legible in a UI, not in a form
+     someone is filling in one-handed. (.dev-note is deliberately left small:
+     it's an internal marker that gets hidden at launch.) */
+  .form-field label { font-size: 0.8rem; }
+  .checkbox-field { font-size: 0.94rem; }
+  .event-meta { font-size: 0.84rem; }
+  .team-role { font-size: 0.78rem; }
+  /* A default checkbox renders about 13px square. The <label for> makes the
+     whole line tappable, so this is about being able to see the state, not
+     about hitting it. */
+  .checkbox-field input { width: 20px; height: 20px; flex: none; margin-top: 0.15rem; }
 }
 
 /* ===================== HERO ===================== */
@@ -474,6 +582,24 @@ h1, h2, h3 {
   .scroll-cue { display: none; }
 }
 
+/* Phone hero. The copy is bottom-anchored in a full 100svh box, so on a 390px
+   screen it opened with ~290px of darkened photo and nothing else, then ran
+   Luke's six-line intro at desktop leading — the CTAs landed within ~50px of
+   the bottom edge. Two changes, no words cut: tighten the paragraph's own
+   metrics, and end the hero at 88svh so a band of the next section shows. That
+   band is what tells a phone visitor there's more, now that the scroll cue is
+   gone below 1024px. */
+@media (max-width: 640px) {
+  .hero { min-height: 88svh; }
+  .hero-eyebrow { margin-bottom: 1.1rem; }
+  .hero-sub {
+    font-size: 1.02rem;
+    line-height: 1.6;
+    margin: 1.1rem 0 1.9rem;
+  }
+  .hero-ctas { gap: 0.7rem; }
+}
+
 /* ===================== VISITOR ROUTING CARDS ===================== */
 .route-grid {
   display: grid;
@@ -491,24 +617,58 @@ h1, h2, h3 {
   transform: translateY(28px);
 }
 .route-card.in-view { opacity: 1; transform: translateY(0); }
-.route-card:hover, .route-card:focus-visible {
+/* :focus-visible keeps the full treatment on every device — it only fires for
+   keyboard users. :hover is gated on a real pointer: on a phone, tapping a card
+   latches :hover, so an unguarded rule left the card inverted to ink long after
+   the tap, and the next card tapped inverted too. Same reasoning as .btn above. */
+.route-card:focus-visible {
   transform: translateY(-8px);
   background: var(--ink);
   color: var(--paper);
   box-shadow: 0 22px 45px -20px rgba(22,35,28,0.45);
 }
-.route-card:hover .route-arrow, .route-card:focus-visible .route-arrow { transform: translateX(4px); color: var(--gold-bright); }
+.route-card:focus-visible .route-arrow { transform: translateX(4px); color: var(--gold-bright); }
+.route-card:focus-visible p { color: rgba(247,242,230,0.75); }
+@media (hover: hover) {
+  .route-card:hover {
+    transform: translateY(-8px);
+    background: var(--ink);
+    color: var(--paper);
+    box-shadow: 0 22px 45px -20px rgba(22,35,28,0.45);
+  }
+  .route-card:hover .route-arrow { transform: translateX(4px); color: var(--gold-bright); }
+  .route-card:hover p { color: rgba(247,242,230,0.75); }
+}
 .route-icon { color: var(--gold); margin-bottom: 1.4rem; }
 .route-card h3 { font-size: 1.3rem; margin-bottom: 0.6rem; }
 .route-card p { font-size: 0.97rem; color: var(--stone); margin: 0 0 1.4rem; transition: color 0.4s ease; }
-.route-card:hover p, .route-card:focus-visible p { color: rgba(247,242,230,0.75); }
 .route-arrow { font-family: var(--font-mono); font-size: 0.8rem; display: inline-flex; align-items: center; gap: 0.4rem; transition: transform 0.3s ease, color 0.3s ease; }
 
 @media (max-width: 980px) {
   .route-grid { grid-template-columns: repeat(2, 1fr); }
 }
+/* On a phone these four cards are the first thing under the hero, and stacked
+   at desktop proportions they ran ~530px each — over 2,000px of scrolling to
+   get past four links. Re-laying them out as icon-beside-text keeps every word
+   and drops each card to ~150px. This is the single biggest reason the home
+   page was ten viewport-heights long on mobile. */
 @media (max-width: 560px) {
-  .route-grid { grid-template-columns: 1fr; }
+  .route-grid { grid-template-columns: 1fr; gap: 1rem; margin-top: 2.5rem; }
+  .route-card {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    grid-template-areas:
+      "icon title"
+      "icon body"
+      "icon arrow";
+    column-gap: 1.15rem;
+    align-items: start;
+    padding: 1.4rem 1.3rem;
+  }
+  .route-icon { grid-area: icon; margin: 0.15rem 0 0; }
+  .route-card h3 { grid-area: title; margin-bottom: 0.3rem; }
+  .route-card p { grid-area: body; margin: 0 0 0.7rem; font-size: 0.94rem; }
+  .route-arrow { grid-area: arrow; }
 }
 
 /* ===================== SECTION HEADINGS ===================== */
@@ -544,7 +704,9 @@ h1, h2, h3 {
   background: var(--ink);
 }
 .sermon-media img { width: 100%; height: 100%; object-fit: contain; transition: transform 0.6s cubic-bezier(.25,.8,.25,1); filter: saturate(1.04) brightness(0.98); }
-.sermon-media:hover img { transform: scale(1.06); }
+@media (hover: hover) {
+  .sermon-media:hover img { transform: scale(1.06); }
+}
 .play-button {
   position: absolute; inset: 0;
   display: flex; align-items: center; justify-content: center;
@@ -559,7 +721,9 @@ h1, h2, h3 {
   backdrop-filter: blur(6px);
   transition: transform 0.35s cubic-bezier(.25,.8,.25,1), background 0.35s ease;
 }
-.sermon-media:hover .play-button span { transform: scale(1.1); background: var(--gold); }
+@media (hover: hover) {
+  .sermon-media:hover .play-button span { transform: scale(1.1); background: var(--gold); }
+}
 .play-button svg { width: 20px; height: 20px; fill: var(--paper); margin-left: 3px; }
 .sermon-copy .eyebrow { margin-bottom: 1.2rem; }
 .sermon-copy h3 { font-size: clamp(2.16rem, 3.6vw, 3.12rem); color: var(--paper); margin-bottom: 1rem; }
@@ -605,7 +769,9 @@ h1, h2, h3 {
 .ministry-card.in-view { opacity: 1; transform: translateY(0); }
 .ministry-card .media { position: absolute; inset: 0; }
 .ministry-card img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s cubic-bezier(.25,.8,.25,1); }
-.ministry-card:hover img { transform: scale(1.08); }
+@media (hover: hover) {
+  .ministry-card:hover img { transform: scale(1.08); }
+}
 .ministry-card .media::after {
   content: '';
   position: absolute; inset: 0;
@@ -615,7 +781,12 @@ h1, h2, h3 {
   width: 100%; height: 100%;
   display: flex; align-items: center; justify-content: center;
   background: linear-gradient(155deg, var(--sage-deep), var(--ink) 65%);
-  color: rgba(247,242,230,0.35);
+  /* Was 0.35, which lands at ~2.6:1 against the light end of that gradient —
+     under the 4.5:1 floor for 12px text. These placeholders name which photo is
+     still missing, so they're the only content in those cards until the real
+     shots arrive; they have to be readable. 0.62 clears 4.8:1 and still reads
+     as clearly provisional next to full-strength paper. */
+  color: rgba(247,242,230,0.62);
   font-family: var(--font-mono);
   font-size: 0.75rem;
   text-align: center;
@@ -634,8 +805,18 @@ h1, h2, h3 {
 @media (max-width: 980px) {
   .ministry-grid { grid-template-columns: repeat(2, 1fr); }
 }
+/* Deliberately stays two-up on a phone rather than collapsing to one. At full
+   column width a 3/4 card is ~466px tall, so the four of them were ~1,900px of
+   scrolling; two-up they're ~230px each and the whole set fits in roughly one
+   screen, which is also how the ministries read as a set rather than a queue.
+   The label has to come down with them or "Middle & High School" wraps to three
+   lines in a 175px column. */
 @media (max-width: 560px) {
-  .ministry-grid { grid-template-columns: 1fr; }
+  .ministry-grid { gap: 0.85rem; }
+  .ministry-label { padding: 0.9rem 0.85rem; }
+  .ministry-label h3 { font-size: 1.05rem; }
+  .ministry-card .ministry-label .eyebrow { font-size: 0.6rem; letter-spacing: 0.08em; margin-bottom: 0.2rem; }
+  .ministry-placeholder { font-size: 0.68rem; padding: 0.6rem; }
 }
 
 /* ===================== ABOUT / TEAM TEASER ===================== */
@@ -732,17 +913,21 @@ h1, h2, h3 {
 }
 .visit-details .item { font-family: var(--font-mono); font-size: 0.85rem; color: rgba(247,242,230,0.6); }
 .visit-details .item strong { display: block; color: var(--paper); font-family: var(--font-body); font-size: 1rem; margin-bottom: 0.3rem; }
-.map-placeholder {
-  aspect-ratio: 4/3;
-  background: linear-gradient(160deg, var(--ink-3), var(--ink-2) 70%);
-  border: 1px solid rgba(247,242,230,0.12);
-  border-radius: var(--radius);
-  display: flex; align-items: center; justify-content: center;
-  color: rgba(247,242,230,0.4);
-  font-family: var(--font-mono);
-  font-size: 0.8rem;
-  text-align: center;
-  padding: 1rem;
+/* The email address sits in the same muted mono as the street address beside
+   it, with no underline — so the one tappable thing in this block looked
+   exactly like the two that aren't. On a phone there's no cursor change to
+   give it away either. Brightened, underlined, and padded to a real target. */
+.visit-details .item a {
+  display: inline-block;
+  color: var(--paper);
+  text-decoration: underline;
+  text-decoration-color: rgba(224,187,62,0.55);
+  text-underline-offset: 4px;
+  padding: 0.5rem 0;
+  min-height: var(--tap-target-min);
+}
+@media (hover: hover) {
+  .visit-details .item a:hover { color: var(--gold-bright); text-decoration-color: var(--gold-bright); }
 }
 .map-embed {
   aspect-ratio: 4/3;
@@ -750,6 +935,89 @@ h1, h2, h3 {
   display: block;
   border: 1px solid rgba(247,242,230,0.12);
   border-radius: var(--radius);
+}
+
+/* ---- Map facade ----
+   The Google Maps iframe used to load on sight. That hands every visitor's IP
+   to Google before they ask for a map — the same exposure the self-hosted-fonts
+   rule exists to prevent — and it pulls roughly half a megabyte of map tiles
+   and script, which on a phone is more than the rest of the page put together.
+   So: render the address ourselves, and only fetch Google if someone actually
+   wants the map. script.js swaps this out for the real iframe on click.
+   Anyone who just wants directions takes the second link and never loads the
+   embed at all. */
+.map-facade {
+  position: relative;
+  aspect-ratio: 4/3;
+  border: 1px solid rgba(247,242,230,0.12);
+  border-radius: var(--radius);
+  overflow: hidden;
+  background:
+    radial-gradient(120% 90% at 50% 0%, rgba(201,162,39,0.10), transparent 60%),
+    linear-gradient(160deg, var(--ink-3), var(--ink-2) 70%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  text-align: center;
+  padding: 1.5rem;
+}
+.map-facade-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  font: inherit;
+  color: var(--paper);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.5rem 1rem;
+}
+.map-facade-btn svg { width: 30px; height: 30px; color: var(--gold); }
+.map-facade-address { font-size: 1.05rem; font-weight: 600; line-height: 1.35; }
+.map-facade-cue {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--gold);
+  border-bottom: 1px solid rgba(201,162,39,0.5);
+  padding-bottom: 0.15rem;
+  margin-top: 0.3rem;
+}
+.map-facade-out {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  color: rgba(247,242,230,0.62);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  padding: 0.7rem 1rem;
+  min-height: var(--tap-target-min);
+  display: inline-flex;
+  align-items: center;
+}
+@media (hover: hover) {
+  .map-facade-btn:hover .map-facade-cue { color: var(--gold-bright); border-bottom-color: var(--gold-bright); }
+  .map-facade-out:hover { color: var(--paper); }
+}
+/* visit.html's map sits on a linen section rather than ink. Accent is --rust,
+   not --gold — gold on paper is ~2.2:1 (the Accessible Accent Rule above). */
+.map-facade.is-light {
+  background:
+    radial-gradient(120% 90% at 50% 0%, rgba(168,70,46,0.07), transparent 60%),
+    linear-gradient(160deg, var(--paper-2), var(--paper) 70%);
+  border-color: rgba(22,35,28,0.12);
+}
+.map-facade.is-light .map-facade-btn { color: var(--ink); }
+.map-facade.is-light .map-facade-btn svg { color: var(--rust); }
+.map-facade.is-light .map-facade-cue { color: var(--rust); border-bottom-color: rgba(168,70,46,0.5); }
+.map-facade.is-light .map-facade-out { color: var(--stone); }
+@media (hover: hover) {
+  .map-facade.is-light .map-facade-btn:hover .map-facade-cue { color: var(--ink); border-bottom-color: var(--ink); }
+  .map-facade.is-light .map-facade-out:hover { color: var(--ink); }
 }
 
 @media (max-width: 900px) {
@@ -783,7 +1051,9 @@ h1, h2, h3 {
   margin-bottom: 1rem;
 }
 .footer-col a { display: block; padding: 0.45rem 0; margin-bottom: 0.1rem; opacity: 0.82; } /* 40px here; bumped to 44px under 860px — see the touch block above */
-.footer-col a:hover { opacity: 1; color: var(--gold-bright); }
+@media (hover: hover) {
+  .footer-col a:hover { opacity: 1; color: var(--gold-bright); }
+}
 .footer-times .tbd { display: block; font-size: 0.72rem; opacity: 0.5; font-family: var(--font-mono); }
 .footer-bottom {
   border-top: 1px solid rgba(247,242,230,0.1);
@@ -871,7 +1141,12 @@ h1, h2, h3 {
   cursor: pointer;
   transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease;
 }
-.filter-tab.active, .filter-tab:hover { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+.filter-tab.active { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+/* Gated: .active and :hover share one appearance, so on a phone the tab you
+   last tapped kept the selected look alongside the one that really is selected. */
+@media (hover: hover) {
+  .filter-tab:hover { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+}
 
 .sermon-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; }
 .sermon-card {
@@ -884,7 +1159,9 @@ h1, h2, h3 {
 /* 16/9 + contain + a video-letterbox fill, same reasoning as .sermon-media above. */
 .sermon-card .thumb { position: relative; aspect-ratio: 16/9; overflow: hidden; border-radius: var(--radius); margin-bottom: 1rem; background: var(--ink); }
 .sermon-card .thumb img { width: 100%; height: 100%; object-fit: contain; filter: saturate(1.04) brightness(0.98); transition: transform 0.5s ease; }
-.sermon-card:hover .thumb img { transform: scale(1.06); }
+@media (hover: hover) {
+  .sermon-card:hover .thumb img { transform: scale(1.06); }
+}
 .sermon-card .thumb .play-button span { width: 52px; height: 52px; }
 .sermon-card .thumb .play-button svg { width: 14px; height: 14px; }
 .sermon-card .series-tag { font-family: var(--font-mono); font-size: 0.7rem; color: var(--rust); text-transform: uppercase; letter-spacing: 0.06em; }
@@ -911,7 +1188,9 @@ h1, h2, h3 {
   transition: opacity 0.6s ease, transform 0.6s ease, box-shadow 0.3s ease;
 }
 .event-card.in-view { opacity: 1; transform: translateY(0); }
-.event-card:hover { box-shadow: 0 18px 40px -22px rgba(22,35,28,0.35); }
+@media (hover: hover) {
+  .event-card:hover { box-shadow: 0 18px 40px -22px rgba(22,35,28,0.35); }
+}
 .event-date {
   font-family: var(--font-mono);
   text-align: center;
@@ -943,7 +1222,9 @@ h1, h2, h3 {
   transition: opacity 0.6s ease, transform 0.6s ease, transform 0.4s cubic-bezier(.25,.8,.25,1);
 }
 .give-card.in-view { opacity: 1; transform: translateY(0); }
-.give-card:hover { transform: translateY(-6px); }
+@media (hover: hover) {
+  .give-card:hover { transform: translateY(-6px); }
+}
 .give-icon { color: var(--gold); margin-bottom: 1.4rem; display: flex; justify-content: center; }
 .give-card h3 { color: var(--paper); font-size: 1.3rem; margin-bottom: 0.7rem; }
 .give-card p { color: rgba(247,242,230,0.68); font-size: 0.92rem; margin-bottom: 1.6rem; }
@@ -966,7 +1247,10 @@ h1, h2, h3 {
   transition: opacity 0.7s cubic-bezier(.25,.8,.25,1), transform 0.7s cubic-bezier(.25,.8,.25,1), box-shadow 0.4s ease;
 }
 .shop-card.in-view { opacity: 1; transform: translateY(0); }
-.shop-card:hover, .shop-card:focus-within { box-shadow: 0 18px 40px -22px rgba(22,35,28,0.35); }
+.shop-card:focus-within { box-shadow: 0 18px 40px -22px rgba(22,35,28,0.35); }
+@media (hover: hover) {
+  .shop-card:hover { box-shadow: 0 18px 40px -22px rgba(22,35,28,0.35); }
+}
 .shop-media { aspect-ratio: 1/1; border-radius: var(--radius); overflow: hidden; margin-bottom: 1.2rem; }
 .shop-media .ministry-placeholder { border: 1px solid rgba(22,35,28,0.12); }
 .shop-card h3 { font-size: 1.1rem; margin-bottom: 0.4rem; line-height: 1.3; }
@@ -1038,6 +1322,25 @@ h1, h2, h3 {
 .field-error { display: block; color: var(--rust); font-family: var(--font-mono); font-size: 0.78rem; margin-top: -0.15rem; }
 .field-error:empty { display: none; }
 .form-note { font-size: 0.85rem; color: var(--stone-light); margin-top: 1rem; text-align: center; }
+/* Point-of-submit privacy line. Sits between the button and .form-note. On the
+   prayer form it carries the confidentiality promise, so it has to stay
+   readable rather than becoming fine print people scroll past — hence a real
+   line-height and a measure, not just a smaller font size. */
+/* Turnstile mount. The widget injects its own fixed-size iframe, so this only
+   needs to own the gap between the last field and the submit button. Empty
+   until the widget renders — no min-height, so nothing reserves space on the
+   rare load where Turnstile is blocked and never appears. */
+.form-turnstile { margin-bottom: 1.4rem; }
+.form-turnstile:empty { margin-bottom: 0; }
+.form-disclosure {
+  font-size: 0.8rem;
+  line-height: 1.6;
+  color: var(--stone-light);
+  margin-top: 1rem;
+  max-width: 56ch;
+}
+.form-disclosure a { color: inherit; text-decoration: underline; text-underline-offset: 0.2em; }
+.form-disclosure a:hover, .form-disclosure a:focus-visible { color: var(--gold); }
 .checkbox-field { display: flex; align-items: flex-start; gap: 0.6rem; font-size: 0.88rem; color: var(--stone); margin-bottom: 1.4rem; }
 .checkbox-field input { margin-top: 0.25rem; }
 
@@ -1102,11 +1405,6 @@ h1, h2, h3 {
 .section--ink .belief-item p { color: rgba(247,242,230,0.75); } /* heading had a dark-section override, body text didn't — was Warm Stone on Ink at 2.5:1 */
 .section--paper .visit-details .item { color: var(--stone); }
 .section--paper .visit-details .item strong { color: var(--ink); }
-.map-placeholder.is-light {
-  background: linear-gradient(160deg, var(--paper-2), var(--paper) 70%);
-  color: var(--stone-light);
-  border-color: rgba(22,35,28,0.12);
-}
 .map-embed.is-light { border-color: rgba(22,35,28,0.12); }
 
 /* --gold on --paper is ~2.2:1 (fails WCAG AA text contrast, needs 4.5:1).
@@ -1125,6 +1423,8 @@ h1, h2, h3 {
 .mobile-nav-trigger:focus-visible,
 .brand:focus-visible,
 .nav-toggle:focus-visible,
+.map-facade-btn:focus-visible,
+.map-facade-out:focus-visible,
 .footer-col a:focus-visible {
   outline: var(--focus-ring);
   outline-offset: 3px;
@@ -1212,3 +1512,9 @@ html:not(.js) .shop-card {
   filter: none;
   transition: none;
 }
+
+/* The map facade's "Show map" button is swapped for the real embed by
+   script.js, so without JS it's a control that does nothing. Hide it and leave
+   the address and the plain "Open in Google Maps" link, both of which work. */
+html:not(.js) .map-facade-cue { display: none; }
+html:not(.js) .map-facade-btn { cursor: default; }

@@ -50,7 +50,16 @@
         </div>
         <a href="https://www.google.com/maps/search/?api=1&query=316+Forbes+Street+Fredericksburg+VA" target="_blank" rel="noopener" class="btn btn-outline-dark" style="margin-top:2rem;">Get Directions</a>
       </div>
-      <iframe class="map-embed is-light reveal" src="https://www.google.com/maps?q=316+Forbes+Street,+Fredericksburg,+VA&output=embed" title="Map showing Selah Church at 316 Forbes Street, Fredericksburg, VA" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+      <!-- Tap-to-load, not a live embed — see "Map facade" in style.css. No
+           "Open in Google Maps" link here: the Get Directions button above is
+           already that link. -->
+      <div class="map-facade is-light reveal" data-map-embed="https://www.google.com/maps?q=316+Forbes+Street,+Fredericksburg,+VA&amp;output=embed" data-map-title="Map showing Selah Church at 316 Forbes Street, Fredericksburg, VA">
+        <button type="button" class="map-facade-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M12 21s-7-5.7-7-11a7 7 0 1 1 14 0c0 5.3-7 11-7 11Z"/><circle cx="12" cy="10" r="2.6"/></svg>
+          <span class="map-facade-address">316 Forbes Street<br>Fredericksburg, VA</span>
+          <span class="map-facade-cue">Show map</span>
+        </button>
+      </div>
     </div>
   </div>
 </section>
@@ -62,7 +71,7 @@
       <p>First time coming? Here&rsquo;s how a Sunday morning at Selah flows.</p>
     </div>
     <div class="reveal" style="max-width:900px;margin:0 auto 3rem;border-radius:var(--radius);overflow:hidden;">
-      <img src="assets/photos/selah-auditorium.jpg" alt="Selah's worship space" style="width:100%;aspect-ratio:21/10;object-fit:cover;" loading="lazy">
+      <img src="assets/photos/selah-auditorium.jpg" width="1800" height="858" alt="Selah's worship space" style="width:100%;aspect-ratio:21/10;object-fit:cover;" loading="lazy">
     </div>
     <div class="steps-list" style="margin:0 auto;">
       <div class="step-item reveal">
@@ -79,7 +88,7 @@
       </div>
       <div class="step-item reveal">
         <div class="step-num">4</div>
-        <div><h3>Stick around</h3><p>Grab a coffee and stay after — this is where the "family" part actually happens.</p></div>
+        <div><h3>Stick around</h3><p>Grab a coffee and stay after — this is where the &ldquo;family&rdquo; part actually happens.</p></div>
       </div>
     </div>
   </div>

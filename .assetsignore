@@ -23,3 +23,9 @@ docs/
 archive/
 
 assets/branding/
+
+
+# Unreferenced photos — kept on disk, not shipped (see TODOS.md)
+assets/photos/IMG_6693.jpeg
+assets/photos/C1108582.jpg
+assets/photos/team/lukeandamanda.jpg

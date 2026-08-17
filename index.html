@@ -55,7 +55,13 @@
        exactly as they did to video, so the hero still moves.
        Swapping this photo is a one-line change; see TODOS.md. -->
   <div class="hero-media">
-    <img src="assets/photos/JM_A0812.jpg" alt="" width="1600" height="1067" fetchpriority="high">
+    <!-- The hero is the largest image on the site and the one that gates first
+         paint. srcset lets a phone take the 480px file (17KB) instead of the
+         1600px one (133KB) — see the "-480/-900" variants in assets/photos. -->
+    <img src="assets/photos/JM_A0812.jpg"
+         srcset="assets/photos/JM_A0812-480.jpg 480w, assets/photos/JM_A0812-900.jpg 900w, assets/photos/JM_A0812-1200.jpg 1200w, assets/photos/JM_A0812.jpg 1600w"
+         sizes="100vw"
+         width="1600" height="1067" alt="" fetchpriority="high">
   </div>
   <div class="hero-content">
     <span class="eyebrow hero-eyebrow">Selah Church &middot; Fredericksburg, VA</span>
@@ -112,8 +118,15 @@
   <div class="container">
     <h2 class="sr-only">Latest Sermon</h2>
     <div class="sermon-feature" id="homeSermonFeature">
-      <a href="sermons.html" class="sermon-media reveal-photo">
-        <img src="assets/photos/JM_A0812.jpg" alt="Congregation with hands raised during worship" loading="lazy">
+      <!-- Without the label, this link's accessible name falls back to the
+           photo's alt, so a screen reader announced it as "Congregation with
+           hands raised during worship, link" — a description of the picture
+           rather than of where the link goes. -->
+      <a href="sermons.html" class="sermon-media reveal-photo" aria-label="Watch the latest message">
+        <img src="assets/photos/JM_A0812.jpg"
+             srcset="assets/photos/JM_A0812-480.jpg 480w, assets/photos/JM_A0812-900.jpg 900w, assets/photos/JM_A0812-1200.jpg 1200w, assets/photos/JM_A0812.jpg 1600w"
+             sizes="(max-width: 900px) 90vw, 620px"
+             width="1600" height="1067" alt="Congregation with hands raised during worship" loading="lazy">
         <div class="play-button"><span><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7L8 5Z"/></svg></span></div>
       </a>
       <div class="sermon-copy">
@@ -139,11 +152,11 @@
         <div class="ministry-label"><span class="eyebrow">6 months &ndash; 6 years</span><h3>Selah Kids</h3></div>
       </a>
       <a href="students.html" class="ministry-card">
-        <div class="media"><img src="assets/photos/selah-youth-photo.jpg" alt="Student ministry gathering" loading="lazy"></div>
+        <div class="media"><img src="assets/photos/selah-youth-photo.jpg" srcset="assets/photos/selah-youth-photo-480.jpg 480w, assets/photos/selah-youth-photo-600.jpg 600w, assets/photos/selah-youth-photo.jpg 1420w" sizes="(max-width: 980px) 46vw, 280px" width="1420" height="632" alt="Student ministry gathering" loading="lazy"></div>
         <div class="ministry-label"><span class="eyebrow">Middle &amp; High School</span><h3>Students</h3></div>
       </a>
       <a href="small-groups.html" class="ministry-card">
-        <div class="media"><img src="assets/photos/selah-adults-photo.jpg" alt="Small group gathered together" loading="lazy"></div>
+        <div class="media"><img src="assets/photos/selah-adults-photo.jpg" srcset="assets/photos/selah-adults-photo-480.jpg 480w, assets/photos/selah-adults-photo-600.jpg 600w, assets/photos/selah-adults-photo.jpg 950w" sizes="(max-width: 980px) 46vw, 280px" width="950" height="950" alt="Small group gathered together" loading="lazy"></div>
         <div class="ministry-label"><span class="eyebrow">All Ages</span><h3>Small Groups</h3></div>
       </a>
       <a href="serve.html" class="ministry-card">
@@ -165,7 +178,7 @@
         <a href="our-team.html" class="btn btn-outline-dark">Meet the whole team</a>
       </div>
       <div class="about-media reveal">
-        <img src="assets/photos/team/luke-amanda-family.jpg" alt="Luke and Amanda walking a field path with their son on Luke's shoulders" style="width:100%;height:100%;object-fit:cover;" loading="lazy">
+        <img src="assets/photos/team/luke-amanda-family.jpg" srcset="assets/photos/team/luke-amanda-family-480.jpg 480w, assets/photos/team/luke-amanda-family-800.jpg 800w, assets/photos/team/luke-amanda-family.jpg 1000w" sizes="(max-width: 900px) 92vw, 560px" width="1000" height="1250" alt="Luke and Amanda walking a field path with their son on Luke's shoulders" style="width:100%;height:100%;object-fit:cover;" loading="lazy">
       </div>
     </div>
   </div>
@@ -174,16 +187,16 @@
 <!-- ============ COMMUNITY MARQUEE ============ -->
 <section class="marquee-strip">
   <div class="marquee-track">
-    <img src="assets/photos/JM_A0730.jpg" alt="" loading="lazy">
-    <img src="assets/photos/JM_A0834.jpg" alt="" loading="lazy">
-    <img src="assets/photos/selah-shabbat.jpg" alt="" loading="lazy">
-    <img src="assets/photos/JM_A0855.jpg" alt="" loading="lazy">
-    <img src="assets/photos/selah-river.jpg" alt="" loading="lazy">
-    <img src="assets/photos/JM_A0730.jpg" alt="" loading="lazy">
-    <img src="assets/photos/JM_A0834.jpg" alt="" loading="lazy">
-    <img src="assets/photos/selah-shabbat.jpg" alt="" loading="lazy">
-    <img src="assets/photos/JM_A0855.jpg" alt="" loading="lazy">
-    <img src="assets/photos/selah-river.jpg" alt="" loading="lazy">
+    <img src="assets/photos/JM_A0730.jpg" srcset="assets/photos/JM_A0730-480.jpg 480w, assets/photos/JM_A0730-720.jpg 720w, assets/photos/JM_A0730.jpg 1400w" sizes="(max-width: 706px) 240px, (max-width: 1235px) 34vw, 420px" width="1400" height="933" alt="" loading="lazy">
+    <img src="assets/photos/JM_A0834.jpg" srcset="assets/photos/JM_A0834-480.jpg 480w, assets/photos/JM_A0834-720.jpg 720w, assets/photos/JM_A0834.jpg 840w" sizes="(max-width: 706px) 240px, (max-width: 1235px) 34vw, 420px" width="840" height="560" alt="" loading="lazy">
+    <img src="assets/photos/selah-shabbat.jpg" srcset="assets/photos/selah-shabbat-480.jpg 480w, assets/photos/selah-shabbat-720.jpg 720w, assets/photos/selah-shabbat.jpg 948w" sizes="(max-width: 706px) 240px, (max-width: 1235px) 34vw, 420px" width="948" height="999" alt="" loading="lazy">
+    <img src="assets/photos/JM_A0855.jpg" srcset="assets/photos/JM_A0855-480.jpg 480w, assets/photos/JM_A0855-720.jpg 720w, assets/photos/JM_A0855.jpg 900w" sizes="(max-width: 706px) 240px, (max-width: 1235px) 34vw, 420px" width="900" height="600" alt="" loading="lazy">
+    <img src="assets/photos/selah-river.jpg" srcset="assets/photos/selah-river-480.jpg 480w, assets/photos/selah-river-720.jpg 720w, assets/photos/selah-river.jpg 840w" sizes="(max-width: 706px) 240px, (max-width: 1235px) 34vw, 420px" width="840" height="566" alt="" loading="lazy">
+    <img src="assets/photos/JM_A0730.jpg" srcset="assets/photos/JM_A0730-480.jpg 480w, assets/photos/JM_A0730-720.jpg 720w, assets/photos/JM_A0730.jpg 1400w" sizes="(max-width: 706px) 240px, (max-width: 1235px) 34vw, 420px" width="1400" height="933" alt="" loading="lazy">
+    <img src="assets/photos/JM_A0834.jpg" srcset="assets/photos/JM_A0834-480.jpg 480w, assets/photos/JM_A0834-720.jpg 720w, assets/photos/JM_A0834.jpg 840w" sizes="(max-width: 706px) 240px, (max-width: 1235px) 34vw, 420px" width="840" height="560" alt="" loading="lazy">
+    <img src="assets/photos/selah-shabbat.jpg" srcset="assets/photos/selah-shabbat-480.jpg 480w, assets/photos/selah-shabbat-720.jpg 720w, assets/photos/selah-shabbat.jpg 948w" sizes="(max-width: 706px) 240px, (max-width: 1235px) 34vw, 420px" width="948" height="999" alt="" loading="lazy">
+    <img src="assets/photos/JM_A0855.jpg" srcset="assets/photos/JM_A0855-480.jpg 480w, assets/photos/JM_A0855-720.jpg 720w, assets/photos/JM_A0855.jpg 900w" sizes="(max-width: 706px) 240px, (max-width: 1235px) 34vw, 420px" width="900" height="600" alt="" loading="lazy">
+    <img src="assets/photos/selah-river.jpg" srcset="assets/photos/selah-river-480.jpg 480w, assets/photos/selah-river-720.jpg 720w, assets/photos/selah-river.jpg 840w" sizes="(max-width: 706px) 240px, (max-width: 1235px) 34vw, 420px" width="840" height="566" alt="" loading="lazy">
   </div>
 </section>
 
@@ -201,7 +214,15 @@
         </div>
         <a href="visit.html" class="btn btn-gold" style="margin-top:2rem;">Plan Your Visit</a>
       </div>
-      <iframe class="map-embed reveal" src="https://www.google.com/maps?q=316+Forbes+Street,+Fredericksburg,+VA&output=embed" title="Map showing Selah Church at 316 Forbes Street, Fredericksburg, VA" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+      <!-- Tap-to-load, not a live embed — see "Map facade" in style.css. -->
+      <div class="map-facade reveal" data-map-embed="https://www.google.com/maps?q=316+Forbes+Street,+Fredericksburg,+VA&amp;output=embed" data-map-title="Map showing Selah Church at 316 Forbes Street, Fredericksburg, VA">
+        <button type="button" class="map-facade-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M12 21s-7-5.7-7-11a7 7 0 1 1 14 0c0 5.3-7 11-7 11Z"/><circle cx="12" cy="10" r="2.6"/></svg>
+          <span class="map-facade-address">316 Forbes Street<br>Fredericksburg, VA</span>
+          <span class="map-facade-cue">Show map</span>
+        </button>
+        <a class="map-facade-out" href="https://www.google.com/maps/search/?api=1&amp;query=316+Forbes+Street%2C+Fredericksburg%2C+VA" target="_blank" rel="noopener">Open in Google Maps &#8599;</a>
+      </div>
     </div>
   </div>
 </section>

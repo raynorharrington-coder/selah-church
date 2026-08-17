@@ -56,7 +56,16 @@
         <label for="message">Message<span class="required-mark" aria-hidden="true">*</span></label>
         <textarea id="message" name="message" required></textarea>
       </div>
+      <!-- Cloudflare Turnstile mount. Widget `selah-church-forms`,
+           Managed mode. Rendered explicitly from script.js, which holds the
+           sitekey, so the widget id is available and can be reset after each
+           submit — tokens are single-use. -->
+      <div class="form-turnstile"></div>
       <button type="submit" class="btn btn-gold">Send Message</button>
+      <!-- Point-of-submit privacy disclosure. Accurate only while this form
+           does nothing but email and log the message for a human reply — no
+           mailing list, no automated follow-up. -->
+      <p class="form-disclosure">What you send is used to reply to you, and is saved in the church&rsquo;s private records. It is never shared outside the church. This form uses Cloudflare Turnstile to block spam. <a href="privacy.html">Privacy Policy</a>.</p>
       <p class="form-note">We typically respond within a couple of days.</p>
     </form>
   </div>
@@ -76,7 +85,15 @@
         </div>
         <a href="prayer.html" class="btn btn-outline" style="margin-top:2rem;">Submit a prayer request</a>
       </div>
-      <iframe class="map-embed reveal" src="https://www.google.com/maps?q=316+Forbes+Street,+Fredericksburg,+VA&output=embed" title="Map showing Selah Church at 316 Forbes Street, Fredericksburg, VA" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+      <!-- Tap-to-load, not a live embed — see "Map facade" in style.css. -->
+      <div class="map-facade reveal" data-map-embed="https://www.google.com/maps?q=316+Forbes+Street,+Fredericksburg,+VA&amp;output=embed" data-map-title="Map showing Selah Church at 316 Forbes Street, Fredericksburg, VA">
+        <button type="button" class="map-facade-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M12 21s-7-5.7-7-11a7 7 0 1 1 14 0c0 5.3-7 11-7 11Z"/><circle cx="12" cy="10" r="2.6"/></svg>
+          <span class="map-facade-address">316 Forbes Street<br>Fredericksburg, VA</span>
+          <span class="map-facade-cue">Show map</span>
+        </button>
+        <a class="map-facade-out" href="https://www.google.com/maps/search/?api=1&amp;query=316+Forbes+Street%2C+Fredericksburg%2C+VA" target="_blank" rel="noopener">Open in Google Maps &#8599;</a>
+      </div>
     </div>
   </div>
 </section>
@@ -88,5 +105,9 @@
 <script src="header.js" defer></script>
 <script src="footer.js" defer></script>
 <script src="script.js" defer></script>
+<!-- defer, not async: script.js is deferred too, and deferred scripts run in
+     document order, so window.onSelahTurnstileLoad is always defined before
+     this executes. async would race it. Disclosed in privacy.html. -->
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js?onload=onSelahTurnstileLoad&render=explicit" defer></script>
 </body>
 </html>

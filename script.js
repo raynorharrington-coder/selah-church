@@ -86,6 +86,13 @@ function initActiveNavHighlight() {
       // as current on 10 of the site's pages.
       const group = link.closest('.nav-group');
       if (group) group.classList.add('has-active');
+
+      // Same 10 pages, phone version: the drawer opened to four collapsed
+      // headings with nothing showing where the visitor was. Expand the section
+      // holding the current page, so it's already open when they tap the menu.
+      // header.js owns the open/closed state — ask it rather than set classes.
+      const mobileGroup = link.closest('.mobile-nav-group');
+      if (mobileGroup) mobileGroup.dispatchEvent(new CustomEvent('nav:open'));
     }
   });
 }
@@ -217,8 +224,21 @@ function renderHomeSermonFeature(data) {
   const eyebrow = container.querySelector('.sermon-copy .eyebrow');
   const heading = container.querySelector('.sermon-copy h3');
   const desc = container.querySelector('.sermon-copy p');
-  if (img && latest.thumbnail) { img.src = latest.thumbnail; img.alt = latest.title; }
-  if (link) link.href = 'sermons.html';
+  if (img && latest.thumbnail) {
+    // The static markup carries a srcset for the stand-in photo, and srcset
+    // beats src — without clearing it the YouTube thumbnail would be set and
+    // then silently ignored, leaving the placeholder on screen.
+    img.removeAttribute('srcset');
+    img.removeAttribute('sizes');
+    img.src = latest.thumbnail;
+    img.alt = latest.title;
+  }
+  if (link) {
+    link.href = 'sermons.html';
+    // Keep the link's name pointing at the destination rather than at the
+    // picture; once the real title is known it's the most useful name there is.
+    link.setAttribute('aria-label', `Watch “${latest.title}”`);
+  }
   if (eyebrow) eyebrow.textContent = `Latest Series · ${latest.seriesLabel}`;
   if (heading) heading.textContent = latest.title;
   if (desc) desc.textContent = `Posted ${formatSermonDate(latest.publishedAt)} — watch it or browse the full library.`;
@@ -476,6 +496,51 @@ function validateForm(form) {
 // Leave blank locally; forms fall back to the "not connected yet" message.
 const FORM_ENDPOINT = 'https://script.google.com/macros/s/AKfycbziXtOG-ZQdg4vFqecgHKqE_7T1b6Ww3DPPbE8l8SX6N1-L9FLK1jLmYSrqlc5qWwpr/exec';
 
+/* ---------- Cloudflare Turnstile ----------
+   Spam protection for the contact and prayer forms. Widget
+   `selah-church-forms` (Managed), scoped to selahchurchfxbg.com, its www form,
+   and the workers.dev subdomain the site currently serves from.
+
+   The sitekey is PUBLIC — it ships in the page source. The matching secret
+   lives only in the Apps Script's Script Properties as TURNSTILE_SECRET.
+
+   The widget on the page proves nothing on its own: the /exec URL above is
+   public, so a bot can post straight at it. Only the Apps Script re-checking
+   the token with Cloudflare actually stops anything.
+
+   Because the widget only solves on the hostnames above, it cannot produce a
+   token on 127.0.0.1 and local submits will be blocked. That is correct. To
+   exercise a form locally, temporarily swap in Cloudflare's always-passes test
+   key 1x00000000000000000000AA — and never commit that swap. */
+const TURNSTILE_SITEKEY = '0x4AAAAAAESzkUEFVnm7LlmP';
+
+// Must match TURNSTILE_ACTION in google-apps-script/Code.gs exactly. If these
+// two ever disagree, every submission is silently rejected and the forms look
+// completely broken with no error anywhere.
+const TURNSTILE_ACTION = 'selah-form';
+
+// One widget id per form element — both pages have a single form, but keying
+// by element keeps this correct if a page ever grows a second one.
+const turnstileWidgets = new WeakMap();
+
+function renderTurnstile() {
+  if (!TURNSTILE_SITEKEY || !window.turnstile) return;
+  document.querySelectorAll('form[data-inline-confirm]').forEach((form) => {
+    const mount = form.querySelector('.form-turnstile');
+    if (!mount || turnstileWidgets.has(form)) return;
+    turnstileWidgets.set(form, window.turnstile.render(mount, {
+      sitekey: TURNSTILE_SITEKEY,
+      action: TURNSTILE_ACTION,
+      theme: 'light',
+    }));
+  });
+}
+
+// Turnstile's api.js is loaded with render=explicit and calls this global once
+// it is ready. script.js is a blocking script that sits before that async tag,
+// so this is always defined before it can fire.
+window.onSelahTurnstileLoad = renderTurnstile;
+
 function initFormConfirm() {
   document.querySelectorAll('form[data-inline-confirm]').forEach((form) => {
     form.querySelectorAll('[required], input[type="email"]').forEach((field) => {
@@ -509,6 +574,20 @@ async function submitForm(form) {
     return;
   }
 
+  // Turnstile tokens are single-use and expire after a few minutes, so read the
+  // current one at submit time rather than caching it. No token means the widget
+  // has not finished, has expired, or was blocked from loading — stop here
+  // rather than posting something the Apps Script will only reject.
+  const widgetId = turnstileWidgets.get(form);
+  const token = (TURNSTILE_SITEKEY && window.turnstile && widgetId !== undefined)
+    ? window.turnstile.getResponse(widgetId)
+    : '';
+
+  if (TURNSTILE_SITEKEY && !token) {
+    setNote('Please finish the verification check above, then send again. If it doesn’t appear, email info@selahchurchfxbg.com and we’ll pick it up from there.');
+    return;
+  }
+
   const payload = { formType: form.dataset.formType };
   new FormData(form).forEach((value, key) => {
     payload[key] = value;
@@ -516,6 +595,11 @@ async function submitForm(form) {
   const confidentialField = form.querySelector('input[name="confidential"]');
   if (confidentialField) {
     payload.confidential = confidentialField.checked;
+  }
+  if (token) {
+    // Set explicitly rather than relying on the hidden input Turnstile injects,
+    // so the value is deterministic.
+    payload['cf-turnstile-response'] = token;
   }
 
   if (submitBtn) {
@@ -525,22 +609,44 @@ async function submitForm(form) {
   }
 
   try {
-    // Apps Script web apps redirect POSTs through script.googleusercontent.com
-    // to deliver the response, and that hop's CORS headers are unreliable —
-    // fetch can report "Failed to fetch" even when Apps Script already ran
-    // to completion and saved/emailed the submission. mode: 'no-cors' sends
-    // the request without asking the browser to expose that response back to
-    // JS, so we can't read a real success/failure status, but the request
-    // still reaches the script every time. A true network-level failure
-    // (offline, DNS, etc.) still throws and hits the catch block below.
-    // text/plain keeps this a CORS "simple request" so no OPTIONS preflight
-    // is sent; the server still parses the body as JSON.
-    await fetch(FORM_ENDPOINT, {
+    // text/plain keeps this a CORS "simple request", so the browser sends no
+    // OPTIONS preflight — which matters, because Apps Script web apps do not
+    // answer one. The server still parses the body as JSON.
+    //
+    // This used to also send mode:'no-cors', on the belief that the redirect
+    // hop through script.googleusercontent.com had unreliable CORS headers.
+    // That was wrong, and it was costly: no-cors means the browser never
+    // exposes the response, so EVERY submission that reached the network
+    // showed "sent successfully" — including ones the script rejected for
+    // missing fields, and ones where the email or the Sheet write threw. A
+    // visitor could be told their prayer request had been received when it
+    // had not been.
+    //
+    // The identical text/plain JSON call was verified end to end from a
+    // browser against a live Apps Script deployment on 2026-08-16
+    // (thyratechllc.com): the response is readable. Do not reintroduce no-cors.
+    const response = await fetch(FORM_ENDPOINT, {
       method: 'POST',
-      mode: 'no-cors',
       headers: { 'Content-Type': 'text/plain;charset=utf-8' },
       body: JSON.stringify(payload),
     });
+
+    // Apps Script answers HTTP 200 for application errors too, so the status
+    // code alone is not a delivery signal — the body is. `ok` is the Thyra
+    // Tech standard key; `result` is still accepted so this page keeps working
+    // against a deployment that has not been updated yet.
+    let body;
+    try {
+      body = JSON.parse(await response.text());
+    } catch (parseErr) {
+      throw new Error('Unreadable response from the form service.');
+    }
+
+    const delivered = body && (body.ok === true || body.result === 'success');
+    if (!response.ok || !delivered) {
+      throw new Error((body && body.message) || 'The form service could not accept this.');
+    }
+
     form.reset();
     form.querySelectorAll('input, textarea, button').forEach((el) => { el.disabled = true; });
     setNote("Thank you — this was sent successfully. We'll be in touch soon.");
@@ -550,8 +656,37 @@ async function submitForm(form) {
       submitBtn.disabled = false;
       submitBtn.textContent = submitBtn.dataset.originalText || 'Submit';
     }
+    // The token was spent by that request — or the request failed and it may
+    // still be spent server-side. Reset so a retry gets a fresh one; the widget
+    // does not clear itself.
+    if (window.turnstile && widgetId !== undefined) {
+      window.turnstile.reset(widgetId);
+    }
     setNote("Something went wrong sending this — please try again, or reach out through Instagram or Facebook in the footer.");
   }
+}
+
+/* ---------- Map: load Google's embed only when asked ---------- */
+function initMapFacade() {
+  document.querySelectorAll('.map-facade').forEach((facade) => {
+    const btn = facade.querySelector('.map-facade-btn');
+    if (!btn) return;
+    btn.addEventListener('click', () => {
+      const iframe = document.createElement('iframe');
+      // .is-light carries the paper-section border colour across the swap —
+      // visit.html's map sits on linen, the other two on ink.
+      iframe.className = facade.classList.contains('is-light') ? 'map-embed is-light' : 'map-embed';
+      iframe.src = facade.dataset.mapEmbed;
+      iframe.title = facade.dataset.mapTitle || 'Map';
+      iframe.loading = 'lazy';
+      iframe.referrerPolicy = 'no-referrer-when-downgrade';
+      // Deliberately not carrying .reveal over: the facade can only be clicked
+      // once it's on screen, so the replacement should be visible immediately
+      // rather than waiting on a scroll observer that has already fired.
+      facade.replaceWith(iframe);
+      iframe.focus({ preventScroll: true });
+    });
+  });
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -570,6 +705,7 @@ document.addEventListener('DOMContentLoaded', () => {
     ['form confirm', initFormConfirm],
     ['sermon data', initSermonData],
     ['events data', initEventsData],
+    ['map facade', initMapFacade],
   ];
 
   features.forEach(([name, init]) => {

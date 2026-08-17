@@ -35,6 +35,7 @@ document.getElementById('site-footer').innerHTML = `
 
   <div class="footer-bottom">
     <span>&copy; ${new Date().getFullYear()} Selah Church. All rights reserved.</span>
+    <a href="privacy.html">Privacy Policy</a>
   </div>
 </footer>
 `;

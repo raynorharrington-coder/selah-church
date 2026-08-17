@@ -34,9 +34,14 @@ const CHEVRON = '<svg class="nav-chevron" viewBox="0 0 24 24" fill="none" stroke
 
 function desktopNavItem(section) {
   if (section.href) return `<a href="${section.href}">${section.label}</a>`;
+  /* The panel repeats its own section name as a mono eyebrow, matching how the
+     footer columns and section heads are labelled. It's aria-hidden: the
+     trigger already announces that name and owns the panel via aria-controls,
+     so exposing it again would just read the word twice. */
   return `<div class="nav-group">
         <button type="button" class="nav-trigger" aria-expanded="false" aria-controls="navmenu-${section.id}">${section.label}${CHEVRON}</button>
         <div class="nav-menu" id="navmenu-${section.id}">
+          <span class="nav-menu-label" aria-hidden="true">${section.label}</span>
           ${section.items.map(i => `<a href="${i.href}">${i.label}</a>`).join('\n          ')}
         </div>
       </div>`;
@@ -44,10 +49,16 @@ function desktopNavItem(section) {
 
 function mobileNavItem(section) {
   if (section.href) return `<a href="${section.href}">${section.label}</a>`;
+  /* The extra -inner wrapper exists for the open/close animation: the drawer
+     submenu expands via grid-template-rows 0fr -> 1fr, and that needs one
+     child holding the overflow. See "Nav dropdowns (mobile drawer)" in
+     style.css. */
   return `<div class="mobile-nav-group">
       <button type="button" class="mobile-nav-trigger" aria-expanded="false" aria-controls="mobilemenu-${section.id}">${section.label}${CHEVRON}</button>
       <div class="mobile-nav-menu" id="mobilemenu-${section.id}">
-        ${section.items.map(i => `<a href="${i.href}">${i.label}</a>`).join('\n        ')}
+        <div class="mobile-nav-menu-inner">
+          ${section.items.map(i => `<a href="${i.href}">${i.label}</a>`).join('\n          ')}
+        </div>
       </div>
     </div>`;
 }
@@ -144,6 +155,12 @@ function initNavDropdowns() {
     group.addEventListener('focusout', (e) => {
       if (e.relatedTarget && !group.contains(e.relatedTarget)) set(false);
     });
+
+    // script.js knows which page is current and asks the section holding it to
+    // open (see initActiveNavHighlight). It goes through this event rather than
+    // setting .is-open itself so `inert` and aria-expanded stay in step with
+    // the rest of the state machine.
+    group.addEventListener('nav:open', () => set(true));
   });
 
   document.addEventListener('keydown', (e) => {
@@ -160,6 +177,11 @@ function initNavDropdowns() {
   });
 
   document.addEventListener('click', (e) => {
+    // The hamburger sits outside both group types, so it used to count as
+    // "clicked away" — meaning the very tap that opens the drawer collapsed the
+    // section script.js had pre-opened for the current page, and the visitor
+    // never saw it. It's the control that reveals these menus, not a dismissal.
+    if (e.target.closest('#navToggle')) return;
     if (!e.target.closest('.nav-group, .mobile-nav-group')) closeAll();
   });
 }

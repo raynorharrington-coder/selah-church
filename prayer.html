@@ -41,7 +41,7 @@
 <section class="section section--paper">
   <div class="container">
     <div class="reveal" style="max-width:520px;margin:0 auto 3rem;border-radius:var(--radius);overflow:hidden;">
-      <img src="assets/photos/prayer-photo.jpg" alt="" style="width:100%;aspect-ratio:1/1;object-fit:cover;" loading="lazy">
+      <img src="assets/photos/prayer-photo.jpg" width="950" height="910" alt="" style="width:100%;aspect-ratio:1/1;object-fit:cover;" loading="lazy">
     </div>
     <form class="form-card" data-inline-confirm data-form-type="prayer" novalidate>
       <input type="text" name="_gotcha" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden;">
@@ -61,7 +61,19 @@
         <input type="checkbox" id="p-confidential" name="confidential">
         <label for="p-confidential">Please keep this request confidential, shared only with the pastoral team.</label>
       </div>
+      <!-- Cloudflare Turnstile mount. Widget `selah-church-forms`,
+           Managed mode. Rendered explicitly from script.js, which holds the
+           sitekey, so the widget id is available and can be reset after each
+           submit — tokens are single-use. -->
+      <div class="form-turnstile"></div>
       <button type="submit" class="btn btn-gold">Submit Prayer Request</button>
+      <!-- This form collects the most sensitive information on the site, and
+           the checkbox above makes an explicit confidentiality promise. The
+           disclosure has to be concrete about where the request is stored, or
+           the promise is not one the visitor can actually evaluate. Keep it
+           in step with the "How prayer requests are handled" section of
+           privacy.html. -->
+      <p class="form-disclosure">Your request is emailed to the church and saved in a private record only church leadership can open. Tick the box above and it stays with the pastoral team alone. If you&rsquo;d rather nothing were written down, talk to us in person instead. This form uses Cloudflare Turnstile to block spam. <a href="privacy.html">Privacy Policy</a>.</p>
       <p class="form-note">This goes directly to our pastoral team — we&rsquo;ll be praying for you.</p>
     </form>
   </div>
@@ -74,5 +86,9 @@
 <script src="header.js" defer></script>
 <script src="footer.js" defer></script>
 <script src="script.js" defer></script>
+<!-- defer, not async: script.js is deferred too, and deferred scripts run in
+     document order, so window.onSelahTurnstileLoad is always defined before
+     this executes. async would race it. Disclosed in privacy.html. -->
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js?onload=onSelahTurnstileLoad&render=explicit" defer></script>
 </body>
 </html>
