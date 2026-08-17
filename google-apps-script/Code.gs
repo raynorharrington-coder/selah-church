@@ -131,7 +131,7 @@ function handlePrayerRequest(data) {
   var body = [
     'Name: ' + name,
     'Email: ' + (email || '(not provided)'),
-    'Confidential: ' + (confidential ? 'Yes — pastoral team only' : 'No'),
+    'Confidential: ' + (confidential ? 'Yes — the sender asked for this to be kept confidential' : 'No'),
     '',
     'Request:',
     request,
