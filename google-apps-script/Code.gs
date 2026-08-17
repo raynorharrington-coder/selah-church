@@ -39,18 +39,19 @@ var SENDER_DISPLAY_NAME = 'Selah Church Website';
 /**
  * Require a valid Cloudflare Turnstile token.
  *
- * Currently false: the Turnstile widget for selahchurchfxbg.com has not been
- * created yet, so there is no secret to verify against and no sitekey in the
- * page. The honeypot below is the only spam protection until then — and a bot
- * already beat a honeypot on the Anchored Accounting site, so this is a real
- * gap, not a theoretical one.
+ * Live since 2026-08-17. Widget `selah-church-forms` (Managed); its sitekey is
+ * in script.js and its secret is in this project's Script Properties as
+ * TURNSTILE_SECRET.
  *
- * To switch on: create the widget, put the sitekey in script.js, put the
- * secret in Script Properties as TURNSTILE_SECRET, then set this to true and
- * deploy a new version. Once true it fails closed — a missing secret or an
- * unreachable Cloudflare rejects the submission rather than letting it pass.
+ * Fails closed: a missing secret, an unreachable Cloudflare, or a mismatched
+ * action/hostname rejects the submission rather than letting it through. That
+ * means a misconfiguration looks exactly like the form being broken — check
+ * the Script Property first if legitimate messages stop arriving.
+ *
+ * The honeypot below is NOT sufficient on its own: a bot already beat a
+ * honeypot on the Anchored Accounting site.
  */
-var TURNSTILE_ENABLED = false;
+var TURNSTILE_ENABLED = true;
 
 /** Must match the `action` script.js renders the widget with. */
 var TURNSTILE_ACTION = 'selah-form';
