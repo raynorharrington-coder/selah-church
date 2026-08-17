@@ -72,11 +72,21 @@ var SHEET_ID = '1bxb9EaJzvQlyI89n2_0P7b1Z9lOtYsB6okvoUSBszuk';
 var PRAYER_SHEET_NAME = 'Prayer Requests';
 var CONTACT_SHEET_NAME = 'Visit & Contact Messages';
 
+/**
+ * Bump this on every change to this file, then check it via doGet after
+ * deploying. SENDER_DISPLAY_NAME alone only detects drift in changes that
+ * happen to touch config — a change inside a handler body is invisible from
+ * outside, so "did my deploy land?" is otherwise unanswerable without sending
+ * a real submission. See Deploy-Ops-Gotchas, "doGet is a free deployment-drift
+ * detector".
+ */
+var SCRIPT_VERSION = '2026-08-17.2';
+
 // ===== ENTRY POINTS =====
 
 /** Opening the /exec URL in a browser. Confirms the deployment is live. */
 function doGet() {
-  return jsonResponse({ ok: true, result: 'success', service: SENDER_DISPLAY_NAME + ' forms' });
+  return jsonResponse({ ok: true, result: 'success', service: SENDER_DISPLAY_NAME + ' forms', version: SCRIPT_VERSION });
 }
 
 function doPost(e) {
