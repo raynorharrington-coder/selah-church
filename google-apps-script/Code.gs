@@ -80,7 +80,7 @@ var CONTACT_SHEET_NAME = 'Visit & Contact Messages';
  * a real submission. See Deploy-Ops-Gotchas, "doGet is a free deployment-drift
  * detector".
  */
-var SCRIPT_VERSION = '2026-08-17.2';
+var SCRIPT_VERSION = '2026-08-18.1';
 
 // ===== ENTRY POINTS =====
 
@@ -237,7 +237,7 @@ function verifyTurnstile_(data) {
       }
     );
   } catch (err) {
-    logTurnstileRejection_('verification-request-failed');
+    logTurnstileRejection_('verification-request-failed: ' + diagnosticErrorMessage_(err));
     return false;
   }
 
@@ -274,10 +274,40 @@ function verifyTurnstile_(data) {
 
 /** Safe operational telemetry for a rejected Turnstile token. */
 function logTurnstileRejection_(reason, metadata) {
-  console.warn('Turnstile verification rejected: ' + JSON.stringify({
+  var details = {
     reason: reason,
     metadata: metadata || null
-  }));
+  };
+
+  console.warn('Turnstile verification rejected: ' + JSON.stringify(details));
+
+  // Apps Script's default GCP project may not expose Cloud Logging to the
+  // project owner. Keep the same safe metadata in the existing form Sheet so
+  // the church can diagnose a verification failure without a GCP upgrade.
+  // No token, prayer/contact content, or secret is written here.
+  try {
+    var sheet = getOrCreateSheet('Diagnostics', [
+      'Timestamp', 'Reason', 'Error codes', 'Action', 'Hostname', 'Success'
+    ]);
+    var safe = metadata || {};
+    sheet.appendRow([
+      new Date(),
+      reason,
+      (safe.errorCodes || []).join(', '),
+      safe.action || '',
+      safe.hostname || '',
+      safe.success === true ? 'TRUE' : 'FALSE'
+    ]);
+  } catch (err) {
+    // A diagnostic-write failure must never change the form's actual outcome.
+    console.warn('Could not write Turnstile diagnostics to the Sheet.');
+  }
+}
+
+/** Error text is operational only and never includes form data or a token. */
+function diagnosticErrorMessage_(err) {
+  var message = err && err.message ? err.message : String(err || 'unknown error');
+  return oneLine_(message).slice(0, 240);
 }
 
 // ===== HELPERS =====

@@ -85,8 +85,11 @@ This avoids browser-specific cross-origin redirect failures without falsely
 claiming a submission succeeded when Apps Script rejected it.
 
 When Turnstile rejects a request, `Code.gs` writes only safe verification
-metadata (reason, Cloudflare error codes, action, and hostname) to the Apps
-Script execution log. It never logs the Turnstile token or form contents.
+metadata (reason, Cloudflare error codes, action, and hostname) to both the
+Apps Script execution log and the `Diagnostics` tab in the existing form
+Sheet. It never logs the Turnstile token or form contents. If the external
+Turnstile request itself fails, the safe Apps Script exception text is included
+in the Diagnostics reason.
 
 ## Notes
 
