@@ -602,9 +602,14 @@ h1, h2, h3 {
    gone below 1024px. */
 @media (max-width: 640px) {
   .hero { min-height: 88svh; }
-  /* The mobile source centers the worship leader and raised hands, rather than
-     inheriting the desktop composition. */
-  .hero-image { object-position: 51% 53%; }
+  /* The mobile source needs a tighter, lower crop than desktop: its people sit
+     in the lower half of the original frame, while the ceiling dominates the
+     top. Shift the photo upward so worship is the first thing a visitor sees. */
+  .hero-image {
+    object-position: 51% 53%;
+    transform: translateY(-10%) scale(1.16);
+    animation: mobile-hero-kenburns 26s ease-in-out infinite alternate;
+  }
   .hero-eyebrow { margin-bottom: 1.1rem; }
   .hero-sub {
     font-size: 1.02rem;
@@ -612,6 +617,13 @@ h1, h2, h3 {
     margin: 1.1rem 0 1.9rem;
   }
   .hero-ctas { gap: 0.7rem; }
+}
+@keyframes mobile-hero-kenburns {
+  from { transform: translateY(-10%) scale(1.16); }
+  to { transform: translateY(-12%) scale(1.2); }
+}
+@media (max-width: 640px) and (prefers-reduced-motion: reduce) {
+  .hero-image { animation: none; transform: translateY(-11%) scale(1.16); }
 }
 
 /* ===================== VISITOR ROUTING CARDS ===================== */
