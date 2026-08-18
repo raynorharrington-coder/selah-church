@@ -601,16 +601,28 @@ h1, h2, h3 {
    band is what tells a phone visitor there's more, now that the scroll cue is
    gone below 1024px. */
 @media (max-width: 640px) {
-  .hero { min-height: 88svh; }
-  /* The mobile source needs a decisively lower crop than desktop: its people
-     sit in the lower half of the original frame, while the ceiling dominates
-     the top. Scale from low in the frame to crop away the ceiling and bring
-     worship into the first screen. */
+  /* A background cannot carry both this close worship photo and the full home
+     copy: the people end up underneath the words. On phones the hero becomes
+     two deliberate zones — worship first, then the invitation — while desktop
+     keeps the full-bleed treatment above. */
+  .hero { min-height: 0; display: block; }
+  .hero-media { position: relative; height: 35svh; min-height: 290px; overflow: hidden; }
+  .hero-media picture { display: block; height: 100%; }
+  .hero-media::after {
+    background: linear-gradient(180deg, rgba(15,26,20,0.32) 0%, rgba(15,26,20,0.1) 54%, rgba(15,26,20,0.56) 100%);
+  }
+  /* The source photo's people sit in its lower half. Scale from low in the
+     frame to crop away the ceiling and place worship in the visible photo zone. */
   .hero-image {
     object-position: 51% 53%;
     transform-origin: 50% 85%;
     transform: scale(1.7);
     animation: mobile-hero-kenburns 26s ease-in-out infinite alternate;
+    filter: grayscale(0.16) brightness(0.78) sepia(0.08);
+  }
+  .hero-content {
+    background: var(--ink);
+    padding: 2rem clamp(1.25rem, 4vw, 2.5rem) 3rem;
   }
   .hero-eyebrow { margin-bottom: 1.1rem; }
   .hero-sub {
