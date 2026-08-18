@@ -57,22 +57,16 @@
   </div>
 </section>
 
-<!-- FILTERABLE LIBRARY -->
+<!-- COMPLETE, DATA-DRIVEN LIBRARY -->
 <section class="section section--paper">
   <div class="container">
     <div class="section-head">
       <h2>Sermon library</h2>
-      <p>The last 12 messages. Filter by series, or head to YouTube for the full back catalogue.</p>
+      <p>Every synced message, organized by series. Choose a series to explore it, or browse the full archive.</p>
     </div>
 
-    <div class="filter-tabs">
-      <button type="button" class="filter-tab active" data-series="all">All</button>
-      <button type="button" class="filter-tab" data-series="just-jesus">Just Jesus</button>
-      <button type="button" class="filter-tab" data-series="design">Design</button>
-      <button type="button" class="filter-tab" data-series="blueprints">The Blueprints</button>
-      <button type="button" class="filter-tab" data-series="acts">Acts</button>
-      <button type="button" class="filter-tab" data-series="galatians">Galatians</button>
-      <button type="button" class="filter-tab" data-series="corinthians">1 Corinthians</button>
+    <div class="filter-tabs" id="sermonFilters" aria-label="Filter sermons by series">
+      <p class="sermon-loading-note">Loading sermon series&hellip;</p>
     </div>
 
     <div class="sermon-grid" id="sermonGrid" aria-live="polite">
@@ -80,7 +74,7 @@
     </div>
     <p class="sermon-empty">No messages in this series yet — check back soon, or <button type="button" class="sermon-empty-reset">browse all sermons</button>.</p>
     <p style="text-align:center;margin-top:2.5rem;">
-      <a href="https://www.youtube.com/@SelahChurchfxbg/featured" target="_blank" rel="noopener" class="btn btn-outline-dark">See every message on YouTube</a>
+      <a href="https://www.youtube.com/@SelahChurchfxbg/featured" target="_blank" rel="noopener" class="btn btn-outline-dark">Visit Selah on YouTube</a>
     </p>
     <p class="dev-note" id="sermonSyncNote">Messages sync automatically from YouTube once a day — see PRODUCT.md / STEP-BY-STEP.md if this note is showing stale data or an error. A message picks up its series tag from the YouTube playlist it&rsquo;s in; anything not in a playlist still appears here, tagged &ldquo;Recent Messages&rdquo;.</p>
   </div>

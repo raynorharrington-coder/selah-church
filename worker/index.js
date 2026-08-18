@@ -56,6 +56,12 @@ export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
 
+    // Cadre Small Groups now has one clear destination. Keep links shared
+    // before the navigation change from landing on superseded group details.
+    if (url.pathname === '/small-groups' || url.pathname === '/small-groups.html') {
+      return Response.redirect(new URL('/cadre.html', url.origin), 301);
+    }
+
     if (url.pathname === '/api/sermons') {
       return handleSermonsApi(request, env);
     }

@@ -9,18 +9,20 @@ const NAV_SECTIONS = [
   { label: 'About Us', id: 'about', items: [
     { href: 'our-team.html', label: 'Our Team' },
     { href: 'our-beliefs.html', label: 'Our Beliefs' },
-    { href: 'our-beginning.html', label: 'Our Beginning' },
+    { href: 'our-beginning.html', label: 'Our Story' },
   ] },
   { label: 'Connect', id: 'connect', items: [
-    { href: 'cadre.html', label: 'Cadre' },
-    { href: 'small-groups.html', label: 'Small Groups' },
+    { href: 'cadre.html', label: 'Cadre Small Groups' },
+    { href: 'young-adults.html', label: 'Young Adults' },
+    { href: 'moms-group.html', label: 'Mom\'s Group' },
     { href: 'shabbat-dinners.html', label: 'Shabbat Dinner Groups' },
     { href: 'serve.html', label: 'Serve' },
     { href: 'prayer.html', label: 'Prayer Request' },
   ] },
-  { label: 'Youth', id: 'youth', items: [
-    { href: 'students.html', label: 'Students' },
+  { label: 'Next Gen', id: 'next-gen', items: [
+    { href: 'selah-nursery.html', label: 'Selah Nursery' },
     { href: 'selah-kids.html', label: 'Selah Kids' },
+    { href: 'students.html', label: 'Selah Youth' },
   ] },
   { href: 'sermons.html', label: 'Sermons' },
   { href: 'events.html', label: 'Events' },

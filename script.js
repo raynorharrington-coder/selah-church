@@ -141,19 +141,16 @@ function initScrollReveal(reduceMotion) {
 }
 
 /* ---------- Sermon series filter (sermons.html) ----------
-   The library shows the 12 most recent messages, not the whole back
-   catalogue (~75 videos and growing). Every card is still rendered into the
-   DOM so the series tabs have something to filter — the cap is applied to
-   whatever the active tab matches, and because renderSermonGrid emits cards
-   newest-first, "the first 12 matches" is always the 12 most recent. */
-const SERMON_VISIBLE_LIMIT = 12;
+   The library deliberately keeps the complete synced archive rather than a
+   hand-picked YouTube showcase. Every series control is generated from the
+   Worker response, so a newly configured series is immediately browseable. */
 
 function applySermonFilter(series) {
   const sermonCards = document.querySelectorAll('.sermon-card');
   const sermonEmpty = document.querySelector('.sermon-empty');
   let shown = 0;
   sermonCards.forEach(card => {
-    const visible = (series === 'all' || card.dataset.series === series) && shown < SERMON_VISIBLE_LIMIT;
+    const visible = series === 'all' || card.dataset.series === series;
     card.classList.toggle('is-hidden', !visible);
     if (visible) shown++;
   });
@@ -180,8 +177,8 @@ function initSermonFilter() {
     });
   }
 
-  // Cards arrive from the API after this first runs at DOMContentLoaded, so
-  // trim to the cap using whichever tab is currently marked active.
+  // Cards and their data-driven series controls arrive after this first runs
+  // at DOMContentLoaded, so initialize the current selection once they exist.
   const active = document.querySelector('.filter-tab.active');
   applySermonFilter(active ? active.dataset.series : 'all');
 }
@@ -309,9 +306,22 @@ function sermonCardHTML(video) {
     </a>`;
 }
 
+function renderSermonFilters(series) {
+  const filters = document.getElementById('sermonFilters');
+  if (!filters) return;
+
+  const availableSeries = (series || []).filter((entry) => entry && entry.slug && entry.label && entry.videos?.length);
+  filters.innerHTML = [
+    '<button type="button" class="filter-tab active" data-series="all">All sermons</button>',
+    ...availableSeries.map((entry) => `<button type="button" class="filter-tab" data-series="${escapeHtml(entry.slug)}">${escapeHtml(entry.label)}</button>`),
+  ].join('');
+}
+
 function renderSermonGrid(data) {
   const grid = document.getElementById('sermonGrid');
   if (!grid) return;
+
+  renderSermonFilters(data && data.series);
 
   const allVideos = (data && data.series ? data.series : [])
     .flatMap((s) => s.videos.map((v) => ({ ...v, seriesSlug: s.slug, seriesLabel: s.label })))
