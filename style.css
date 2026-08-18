@@ -952,7 +952,7 @@ h1, h2, h3 {
 .marquee-track {
   display: flex;
   width: max-content;
-  animation: marquee 38s linear infinite;
+  animation: marquee 84s linear infinite;
 }
 .marquee-strip:hover .marquee-track { animation-play-state: paused; }
 @media (prefers-reduced-motion: reduce) {
@@ -960,7 +960,7 @@ h1, h2, h3 {
 }
 @keyframes marquee {
   from { transform: translateX(0); }
-  to { transform: translateX(-50%); }
+  to { transform: translateX(calc(-100% + 100vw)); }
 }
 .marquee-track img {
   height: clamp(180px, 26vw, 320px);
