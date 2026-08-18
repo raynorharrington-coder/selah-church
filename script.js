@@ -707,6 +707,28 @@ function initMapFacade() {
   });
 }
 
+/* ---------- Video: load YouTube only when asked ---------- */
+function initVideoFacade() {
+  document.querySelectorAll('.video-facade').forEach((facade) => {
+    const btn = facade.querySelector('.video-facade-btn');
+    if (!btn) return;
+    btn.addEventListener('click', () => {
+      const iframe = document.createElement('iframe');
+      iframe.className = 'video-embed';
+      iframe.src = facade.dataset.youtubeEmbed;
+      iframe.title = facade.dataset.youtubeTitle || 'Video';
+      iframe.loading = 'lazy';
+      iframe.referrerPolicy = 'strict-origin-when-cross-origin';
+      iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+      iframe.allowFullscreen = true;
+      // The player is only inserted after a deliberate activation, so it
+      // should appear immediately instead of waiting for scroll reveal again.
+      facade.replaceWith(iframe);
+      iframe.focus({ preventScroll: true });
+    });
+  });
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   const reduceMotion = getReducedMotionPreference();
 
@@ -724,6 +746,7 @@ document.addEventListener('DOMContentLoaded', () => {
     ['sermon data', initSermonData],
     ['events data', initEventsData],
     ['map facade', initMapFacade],
+    ['video facade', initVideoFacade],
   ];
 
   features.forEach(([name, init]) => {
