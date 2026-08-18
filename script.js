@@ -650,7 +650,9 @@ async function submitForm(form) {
 
     const delivered = body && (body.ok === true || body.result === 'success');
     if (!response.ok || !delivered) {
-      throw new Error((body && body.message) || 'The form service could not accept this.');
+      const error = new Error((body && body.message) || 'The form service could not accept this.');
+      error.formErrorCode = body && body.code;
+      throw error;
     }
 
     form.reset();
@@ -668,7 +670,11 @@ async function submitForm(form) {
     if (window.turnstile && widgetId !== undefined) {
       window.turnstile.reset(widgetId);
     }
-    setNote("Something went wrong sending this — please try again, or reach out through Instagram or Facebook in the footer.");
+    if (err && err.formErrorCode === 'verification_failed') {
+      setNote('The security check was rejected by the form service. Please refresh this page and try again. If it keeps happening, email info@selahchurchfxbg.com so we can help.');
+    } else {
+      setNote("Something went wrong sending this — please try again, or reach out through Instagram or Facebook in the footer.");
+    }
   }
 }
 

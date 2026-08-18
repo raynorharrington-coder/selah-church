@@ -95,7 +95,7 @@ function doPost(e) {
 
     // 1. Turnstile, when enabled. Fails closed.
     if (TURNSTILE_ENABLED && !verifyTurnstile_(data)) {
-      return jsonResponse({ ok: false, result: 'error', message: 'Verification failed. Please reload the page and try again.' });
+      return jsonResponse({ ok: false, result: 'error', code: 'verification_failed', message: 'Verification failed. Please reload the page and try again.' });
     }
 
     // 2. Honeypot: real visitors never fill this hidden field. Bots often do.
@@ -216,11 +216,13 @@ function sendNotification_(subject, body, replyTo) {
 function verifyTurnstile_(data) {
   var secret = PropertiesService.getScriptProperties().getProperty('TURNSTILE_SECRET');
   if (!secret) {
+    logTurnstileRejection_('missing-secret');
     return false;
   }
 
   var token = oneLine_(data['cf-turnstile-response']);
   if (!token || token.length > 2048) {
+    logTurnstileRejection_('missing-or-invalid-token');
     return false;
   }
 
@@ -235,10 +237,12 @@ function verifyTurnstile_(data) {
       }
     );
   } catch (err) {
+    logTurnstileRejection_('verification-request-failed');
     return false;
   }
 
   if (response.getResponseCode() !== 200) {
+    logTurnstileRejection_('verification-http-' + response.getResponseCode());
     return false;
   }
 
@@ -246,12 +250,34 @@ function verifyTurnstile_(data) {
   try {
     result = JSON.parse(response.getContentText());
   } catch (err) {
+    logTurnstileRejection_('invalid-verification-response');
     return false;
   }
 
-  return result.success === true &&
+  var accepted = result.success === true &&
     result.action === TURNSTILE_ACTION &&
     TURNSTILE_HOSTNAMES.indexOf(result.hostname) !== -1;
+
+  if (!accepted) {
+    // Log only the verification metadata required to diagnose configuration
+    // drift. Never log a submitter's token or any contact/prayer fields.
+    logTurnstileRejection_('rejected', {
+      errorCodes: result['error-codes'] || [],
+      action: result.action || null,
+      hostname: result.hostname || null,
+      success: result.success === true
+    });
+  }
+
+  return accepted;
+}
+
+/** Safe operational telemetry for a rejected Turnstile token. */
+function logTurnstileRejection_(reason, metadata) {
+  console.warn('Turnstile verification rejected: ' + JSON.stringify({
+    reason: reason,
+    metadata: metadata || null
+  }));
 }
 
 // ===== HELPERS =====

@@ -84,6 +84,10 @@ which forwards it server-to-server and streams back Apps Script's JSON result.
 This avoids browser-specific cross-origin redirect failures without falsely
 claiming a submission succeeded when Apps Script rejected it.
 
+When Turnstile rejects a request, `Code.gs` writes only safe verification
+metadata (reason, Cloudflare error codes, action, and hostname) to the Apps
+Script execution log. It never logs the Turnstile token or form contents.
+
 ## Notes
 
 - Submissions are also logged to the Google Sheet as a backup in case an
