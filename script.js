@@ -311,9 +311,17 @@ function renderSermonFilters(series) {
   if (!filters) return;
 
   const availableSeries = (series || []).filter((entry) => entry && entry.slug && entry.label && entry.videos?.length);
+  const latestTimestamp = (entry) => Math.max(0, ...entry.videos.map((video) => Date.parse(video.publishedAt) || 0));
+  // "Recent Messages" is a catch-all for uploads that are not in a series, so
+  // it belongs after the named series rather than interrupting their chronology.
+  const namedSeries = availableSeries
+    .filter((entry) => entry.slug !== 'recent')
+    .sort((a, b) => latestTimestamp(b) - latestTimestamp(a));
+  const unsortedMessages = availableSeries.filter((entry) => entry.slug === 'recent');
+  const orderedSeries = [...namedSeries, ...unsortedMessages];
   filters.innerHTML = [
     '<button type="button" class="filter-tab active" data-series="all">All sermons</button>',
-    ...availableSeries.map((entry) => `<button type="button" class="filter-tab" data-series="${escapeHtml(entry.slug)}">${escapeHtml(entry.label)}</button>`),
+    ...orderedSeries.map((entry) => `<button type="button" class="filter-tab" data-series="${escapeHtml(entry.slug)}">${escapeHtml(entry.label)}</button>`),
   ].join('');
 }
 
