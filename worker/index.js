@@ -52,6 +52,14 @@ const UPLOADS_SCAN_LIMIT = 50;
 // messages ran 26–83 minutes and everything else came in under 4m30.
 const MIN_MESSAGE_SECONDS = 15 * 60;
 
+// Google Apps Script redirects every web-app POST to a googleusercontent.com
+// response. Following that redirect in the visitor's browser is unreliable on
+// some mobile browsers, so forms use this same-origin Worker endpoint instead.
+// The URL is public by design; Turnstile validation and field validation still
+// happen inside Code.gs before a message can be delivered.
+const FORM_BACKEND_URL = 'https://script.google.com/macros/s/AKfycbziXtOG-ZQdg4vFqecgHKqE_7T1b6Ww3DPPbE8l8SX6N1-L9FLK1jLmYSrqlc5qWwpr/exec';
+const MAX_FORM_BODY_BYTES = 12 * 1024;
+
 export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
@@ -64,6 +72,10 @@ export default {
 
     if (url.pathname === '/api/sermons') {
       return handleSermonsApi(request, env);
+    }
+
+    if (url.pathname === '/api/forms') {
+      return handleFormProxy(request);
     }
 
     // Lets `?resync=1` (with the same secret the cron uses) trigger an
@@ -101,6 +113,93 @@ async function handleSermonsApi(request, env) {
       // Browser + Cloudflare edge cache for an hour; the underlying KV
       // value itself only changes once a day via the cron.
       'cache-control': 'public, max-age=3600',
+    },
+  });
+}
+
+/**
+ * Receives a small, already-validated browser form payload and forwards it to
+ * Apps Script. Keeping this hop same-origin means the browser never has to
+ * follow Google's cross-origin redirect, while Apps Script remains the source
+ * of truth for Turnstile, Sheets, and notification email.
+ */
+async function handleFormProxy(request) {
+  if (request.method !== 'POST') {
+    return new Response('Method Not Allowed', {
+      status: 405,
+      headers: { Allow: 'POST' },
+    });
+  }
+
+  const body = await readLimitedRequestBody(request, MAX_FORM_BODY_BYTES);
+  if (body === null) {
+    return formProxyJson({ ok: false, result: 'error', message: 'This submission is too large. Please shorten it and try again.' }, 413);
+  }
+
+  try {
+    const upstream = await fetch(FORM_BACKEND_URL, {
+      method: 'POST',
+      headers: { 'content-type': 'text/plain;charset=utf-8' },
+      body,
+      redirect: 'follow',
+    });
+
+    if (!upstream.ok) {
+      console.error(`Form backend returned HTTP ${upstream.status}`);
+      return formProxyJson({ ok: false, result: 'error', message: 'The form service is unavailable right now. Please try again shortly.' }, 502);
+    }
+
+    // Preserve Apps Script's JSON body as a stream: do not buffer sensitive
+    // prayer/contact content in the Worker or cache an acknowledgement.
+    return new Response(upstream.body, {
+      status: 200,
+      headers: {
+        'content-type': 'application/json;charset=utf-8',
+        'cache-control': 'no-store',
+      },
+    });
+  } catch (err) {
+    // Deliberately omit the payload and upstream URL from logs; neither is
+    // needed to diagnose transport failures and they should not be retained.
+    console.error('Form proxy could not reach the backend', err);
+    return formProxyJson({ ok: false, result: 'error', message: 'The form service is unavailable right now. Please try again shortly.' }, 502);
+  }
+}
+
+/** Read at most the form envelope's small, intentional size. */
+async function readLimitedRequestBody(request, maximumBytes) {
+  if (!request.body) return '';
+
+  const reader = request.body.getReader();
+  const chunks = [];
+  let total = 0;
+
+  while (true) {
+    const { value, done } = await reader.read();
+    if (done) break;
+    total += value.byteLength;
+    if (total > maximumBytes) {
+      await reader.cancel();
+      return null;
+    }
+    chunks.push(value);
+  }
+
+  const bytes = new Uint8Array(total);
+  let offset = 0;
+  for (const chunk of chunks) {
+    bytes.set(chunk, offset);
+    offset += chunk.byteLength;
+  }
+  return new TextDecoder().decode(bytes);
+}
+
+function formProxyJson(body, status) {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: {
+      'content-type': 'application/json;charset=utf-8',
+      'cache-control': 'no-store',
     },
   });
 }

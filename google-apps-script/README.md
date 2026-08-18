@@ -44,10 +44,11 @@ account as **Editor** first, or the writes will fail.
 
 ## Wire it into the site
 
-1. Open [`script.js`](../script.js) and find the `FORM_ENDPOINT` constant
-   near the top.
-2. Replace the placeholder with the Web app URL from step 7 above.
-3. Commit and push — Cloudflare Workers Build deploys automatically.
+1. The browser sends forms to the same-origin `/api/forms` Worker route. Its
+   server-side forwarding URL is the `FORM_BACKEND_URL` constant in
+   [`worker/index.js`](../worker/index.js). Update that one constant only if
+   the Apps Script project is intentionally replaced with a new `/exec` URL.
+2. Commit and push — Cloudflare Workers Build deploys automatically.
 
 ## Testing
 
@@ -75,25 +76,13 @@ account as **Editor** first, or the writes will fail.
   before real visitor submissions start arriving, so they don't get
   confused with real ones.
 
-## Resolved quirk: occasional false "failed" message
+## Form transport
 
-Earlier in development, one submission out of several showed `Failed to
-fetch` in the browser console **even though the row was written and the
-email sent successfully** — confirmed by a duplicate row in the sheet.
-Root cause: Apps Script web apps respond to POST with a redirect to a
-`script.googleusercontent.com` URL, and the browser's `fetch` occasionally
-failed to read that second hop even after the script already ran to
-completion server-side.
-
-Fixed by sending the request with `mode: 'no-cors'` (see `script.js`) —
-matching the pattern already proven live on the Anchored Accounting site.
-This means the client never reads a real success/failure status back (any
-resolved fetch is treated as success, right or wrong), but it sidesteps
-the flaky read entirely. Re-tested after the switch: no false failures, no
-duplicate rows, on both forms. The tradeoff: if `Code.gs` itself throws
-(e.g. a Gmail send-quota error), the visitor still sees "sent
-successfully" with no way to know it failed server-side — worth keeping in
-mind if submissions seem to go quiet without anyone reporting an error.
+Apps Script redirects each POST to a `script.googleusercontent.com` response.
+The site therefore sends the visitor's request to its same-origin Worker,
+which forwards it server-to-server and streams back Apps Script's JSON result.
+This avoids browser-specific cross-origin redirect failures without falsely
+claiming a submission succeeded when Apps Script rejected it.
 
 ## Notes
 

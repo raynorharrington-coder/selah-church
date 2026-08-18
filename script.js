@@ -510,9 +510,10 @@ function validateForm(form) {
   return invalid;
 }
 
-// Google Apps Script Web App URL — see google-apps-script/README.md.
-// Leave blank locally; forms fall back to the "not connected yet" message.
-const FORM_ENDPOINT = 'https://script.google.com/macros/s/AKfycbziXtOG-ZQdg4vFqecgHKqE_7T1b6Ww3DPPbE8l8SX6N1-L9FLK1jLmYSrqlc5qWwpr/exec';
+// Same-origin Worker endpoint. It forwards to the Google Apps Script server
+// side, avoiding the cross-origin redirect that causes intermittent browser
+// failures on form submission. See worker/index.js and google-apps-script/.
+const FORM_ENDPOINT = '/api/forms';
 
 /* ---------- Cloudflare Turnstile ----------
    Spam protection for the contact and prayer forms. Widget
@@ -627,22 +628,9 @@ async function submitForm(form) {
   }
 
   try {
-    // text/plain keeps this a CORS "simple request", so the browser sends no
-    // OPTIONS preflight — which matters, because Apps Script web apps do not
-    // answer one. The server still parses the body as JSON.
-    //
-    // This used to also send mode:'no-cors', on the belief that the redirect
-    // hop through script.googleusercontent.com had unreliable CORS headers.
-    // That was wrong, and it was costly: no-cors means the browser never
-    // exposes the response, so EVERY submission that reached the network
-    // showed "sent successfully" — including ones the script rejected for
-    // missing fields, and ones where the email or the Sheet write threw. A
-    // visitor could be told their prayer request had been received when it
-    // had not been.
-    //
-    // The identical text/plain JSON call was verified end to end from a
-    // browser against a live Apps Script deployment on 2026-08-16
-    // (thyratechllc.com): the response is readable. Do not reintroduce no-cors.
+    // This stays same-origin. The Worker forwards the payload to Apps Script
+    // server-to-server, so the browser neither preflights nor follows Google's
+    // cross-origin redirect — while still receiving the actual JSON result.
     const response = await fetch(FORM_ENDPOINT, {
       method: 'POST',
       headers: { 'Content-Type': 'text/plain;charset=utf-8' },
