@@ -602,12 +602,14 @@ h1, h2, h3 {
    gone below 1024px. */
 @media (max-width: 640px) {
   .hero { min-height: 88svh; }
-  /* The mobile source needs a tighter, lower crop than desktop: its people sit
-     in the lower half of the original frame, while the ceiling dominates the
-     top. Shift the photo upward so worship is the first thing a visitor sees. */
+  /* The mobile source needs a decisively lower crop than desktop: its people
+     sit in the lower half of the original frame, while the ceiling dominates
+     the top. Scale from low in the frame to crop away the ceiling and bring
+     worship into the first screen. */
   .hero-image {
     object-position: 51% 53%;
-    transform: translateY(-10%) scale(1.16);
+    transform-origin: 50% 85%;
+    transform: scale(1.7);
     animation: mobile-hero-kenburns 26s ease-in-out infinite alternate;
   }
   .hero-eyebrow { margin-bottom: 1.1rem; }
@@ -619,11 +621,11 @@ h1, h2, h3 {
   .hero-ctas { gap: 0.7rem; }
 }
 @keyframes mobile-hero-kenburns {
-  from { transform: translateY(-10%) scale(1.16); }
-  to { transform: translateY(-12%) scale(1.2); }
+  from { transform: scale(1.7); }
+  to { transform: scale(1.74); }
 }
 @media (max-width: 640px) and (prefers-reduced-motion: reduce) {
-  .hero-image { animation: none; transform: translateY(-11%) scale(1.16); }
+  .hero-image { animation: none; transform: scale(1.7); }
 }
 
 /* ===================== VISITOR ROUTING CARDS ===================== */
