@@ -91,11 +91,12 @@ Sheet. It never logs the Turnstile token or form contents. If the external
 Turnstile request itself fails, the safe Apps Script exception text is included
 in the Diagnostics reason.
 
-After adding or changing `UrlFetchApp` code, select
-`testTurnstileTransport_` in the Apps Script editor and click **Run** once.
-Approve the external-request permission if Google prompts for it. The helper
-uses deliberately invalid verification values and should return HTTP 400; it
-does not submit a form or write form data to the Sheet.
+Turnstile response tokens are opaque values that commonly exceed 240 characters.
+They must use `turnstileToken_()` rather than `oneLine_()`: the latter is only
+for short display fields and would silently truncate a valid token before it
+reaches Cloudflare. The repository's `SCRIPT_VERSION` must be bumped on every
+backend change and matched against `doGet` after manually deploying the existing
+web-app deployment's new version.
 
 ## Notes
 

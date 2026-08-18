@@ -80,7 +80,7 @@ var CONTACT_SHEET_NAME = 'Visit & Contact Messages';
  * a real submission. See Deploy-Ops-Gotchas, "doGet is a free deployment-drift
  * detector".
  */
-var SCRIPT_VERSION = '2026-08-18.2';
+var SCRIPT_VERSION = '2026-08-18.3';
 
 // ===== ENTRY POINTS =====
 
@@ -220,7 +220,7 @@ function verifyTurnstile_(data) {
     return false;
   }
 
-  var token = oneLine_(data['cf-turnstile-response']);
+  var token = turnstileToken_(data['cf-turnstile-response']);
   if (!token || token.length > 2048) {
     logTurnstileRejection_('missing-or-invalid-token');
     return false;
@@ -270,30 +270,6 @@ function verifyTurnstile_(data) {
   }
 
   return accepted;
-}
-
-/**
- * Editor-only diagnostic. Run this once from the Apps Script editor after
- * adding UrlFetchApp-based Turnstile verification. It uses deliberately
- * invalid values, so it cannot submit a form or record personal data.
- *
- * A normal result is HTTP 400 from Turnstile. If Apps Script asks to authorize
- * external requests, approve that permission before testing the live form.
- */
-function testTurnstileTransport_() {
-  var response = UrlFetchApp.fetch(
-    'https://challenges.cloudflare.com/turnstile/v0/siteverify',
-    {
-      method: 'post',
-      payload: {
-        secret: 'diagnostic-only',
-        response: 'diagnostic-only'
-      },
-      muteHttpExceptions: true
-    }
-  );
-
-  return response.getResponseCode();
 }
 
 /** Safe operational telemetry for a rejected Turnstile token. */
@@ -363,8 +339,22 @@ function requestData_(e) {
   return (e && e.parameter) || {};
 }
 
-/** Single-line field. Strips line breaks so they cannot be used to inject
- *  extra email headers, and caps the length. */
+/**
+ * Turnstile response tokens routinely run 300–2000+ characters — far past
+ * oneLine_'s 240-character cap for ordinary display fields. Reusing oneLine_
+ * here silently truncates a real token before it reaches Cloudflare. Strip
+ * stray control whitespace only; the 2048-character guard in verifyTurnstile_
+ * is the actual size limit.
+ */
+function turnstileToken_(value) {
+  if (value === null || value === undefined) {
+    return '';
+  }
+  return String(value).replace(/[\r\n\t]+/g, '').trim();
+}
+
+/** Single-line display field. Strips line breaks so they cannot be used to
+ *  inject extra email headers, and caps the length. */
 function oneLine_(value) {
   if (value === null || value === undefined) {
     return '';
