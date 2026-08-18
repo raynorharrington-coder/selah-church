@@ -58,10 +58,16 @@
     <!-- The hero is the largest image on the site and the one that gates first
          paint. srcset lets a phone take the 480px file (17KB) instead of the
          1600px one (133KB) — see the "-480/-900" variants in assets/photos. -->
-    <img src="assets/photos/home/worship.jpg"
-         srcset="assets/photos/home/worship-480.jpg 480w, assets/photos/home/worship-900.jpg 900w, assets/photos/home/worship.jpg 1400w"
-         sizes="100vw"
-         width="1400" height="932" alt="" fetchpriority="high">
+    <picture>
+      <!-- Phones get a dedicated, people-first crop while desktop keeps the existing hero. -->
+      <source media="(max-width: 640px)"
+              srcset="assets/photos/JM_A0730-480.jpg 480w, assets/photos/JM_A0730-720.jpg 720w, assets/photos/JM_A0730.jpg 1400w"
+              sizes="100vw">
+      <img class="hero-image" src="assets/photos/home/worship.jpg"
+           srcset="assets/photos/home/worship-480.jpg 480w, assets/photos/home/worship-900.jpg 900w, assets/photos/home/worship.jpg 1400w"
+           sizes="100vw"
+           width="1400" height="932" alt="" fetchpriority="high">
+    </picture>
   </div>
   <div class="hero-content">
     <h1>The church was made for <em>family.</em></h1>
@@ -202,9 +208,8 @@
     <img src="assets/photos/slideshow/baptism-service.jpg" srcset="assets/photos/slideshow/baptism-service-480.jpg 480w, assets/photos/slideshow/baptism-service-900.jpg 900w, assets/photos/slideshow/baptism-service.jpg 1400w" sizes="(max-width: 706px) 240px, (max-width: 1235px) 34vw, 420px" width="1400" height="933" alt="" loading="lazy">
     <img src="assets/photos/slideshow/selah-kids.jpg" srcset="assets/photos/slideshow/selah-kids-480.jpg 480w, assets/photos/slideshow/selah-kids-900.jpg 900w, assets/photos/slideshow/selah-kids.jpg 1400w" sizes="(max-width: 706px) 240px, (max-width: 1235px) 34vw, 420px" width="1400" height="788" alt="" loading="lazy">
     <img src="assets/photos/slideshow/baptism-message-2.jpg" srcset="assets/photos/slideshow/baptism-message-2-480.jpg 480w, assets/photos/slideshow/baptism-message-2-900.jpg 900w, assets/photos/slideshow/baptism-message-2.jpg 1400w" sizes="(max-width: 706px) 240px, (max-width: 1235px) 34vw, 420px" width="1400" height="933" alt="" loading="lazy">
-    <img src="assets/photos/slideshow/baptism-celebration.jpg" srcset="assets/photos/slideshow/baptism-celebration-480.jpg 480w, assets/photos/slideshow/baptism-celebration-900.jpg 900w, assets/photos/slideshow/baptism-celebration.jpg 1400w" sizes="(max-width: 706px) 240px, (max-width: 1235px) 34vw, 420px" width="1400" height="933" alt="" loading="lazy">
-    <img src="assets/photos/slideshow/baptism-celebration-2.jpg" srcset="assets/photos/slideshow/baptism-celebration-2-480.jpg 480w, assets/photos/slideshow/baptism-celebration-2-900.jpg 900w, assets/photos/slideshow/baptism-celebration-2.jpg 1400w" sizes="(max-width: 706px) 240px, (max-width: 1235px) 34vw, 420px" width="1400" height="2100" alt="" loading="lazy">
     <img src="assets/photos/slideshow/church-family.jpg" srcset="assets/photos/slideshow/church-family-480.jpg 480w, assets/photos/slideshow/church-family-900.jpg 900w, assets/photos/slideshow/church-family.jpg 1400w" sizes="(max-width: 706px) 240px, (max-width: 1235px) 34vw, 420px" width="1400" height="933" alt="" loading="lazy">
+    <img src="assets/photos/slideshow/baptism-celebration-2.jpg" srcset="assets/photos/slideshow/baptism-celebration-2-480.jpg 480w, assets/photos/slideshow/baptism-celebration-2-900.jpg 900w, assets/photos/slideshow/baptism-celebration-2.jpg 1400w" sizes="(max-width: 706px) 240px, (max-width: 1235px) 34vw, 420px" width="1400" height="2100" alt="" loading="lazy">
     <img src="assets/photos/slideshow/worship-congregation.jpg" srcset="assets/photos/slideshow/worship-congregation-480.jpg 480w, assets/photos/slideshow/worship-congregation-900.jpg 900w, assets/photos/slideshow/worship-congregation.jpg 1400w" sizes="(max-width: 706px) 240px, (max-width: 1235px) 34vw, 420px" width="1400" height="933" alt="" loading="lazy">
     <img src="assets/photos/slideshow/river-baptism-community.jpg" srcset="assets/photos/slideshow/river-baptism-community-480.jpg 480w, assets/photos/slideshow/river-baptism-community-900.jpg 900w, assets/photos/slideshow/river-baptism-community.jpg 1400w" sizes="(max-width: 706px) 240px, (max-width: 1235px) 34vw, 420px" width="1400" height="933" alt="" loading="lazy">
   </div>

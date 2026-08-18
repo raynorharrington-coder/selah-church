@@ -602,6 +602,9 @@ h1, h2, h3 {
    gone below 1024px. */
 @media (max-width: 640px) {
   .hero { min-height: 88svh; }
+  /* The mobile source centers the worship leader and raised hands, rather than
+     inheriting the desktop composition. */
+  .hero-image { object-position: 51% 53%; }
   .hero-eyebrow { margin-bottom: 1.1rem; }
   .hero-sub {
     font-size: 1.02rem;
@@ -1190,6 +1193,7 @@ h1, h2, h3 {
 }
 .team-card { display: grid; grid-template-columns: 180px 1fr; gap: 1.6rem; align-items: start; }
 .team-photo { aspect-ratio: 1/1; overflow: hidden; border-radius: var(--radius); }
+.team-photo img { width: 100%; height: 100%; object-fit: cover; }
 .team-card h3 { font-size: 1.4rem; margin-bottom: 0.2rem; }
 .team-role { font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--rust); display: block; margin-bottom: 0.8rem; } /* rust not gold: this label always sits on a light background — gold fails AA here (The Accessible Accent Rule, DESIGN.md) */
 .team-card p { color: var(--stone); font-size: 0.94rem; margin: 0; }
