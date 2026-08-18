@@ -91,6 +91,12 @@ Sheet. It never logs the Turnstile token or form contents. If the external
 Turnstile request itself fails, the safe Apps Script exception text is included
 in the Diagnostics reason.
 
+After adding or changing `UrlFetchApp` code, select
+`testTurnstileTransport_` in the Apps Script editor and click **Run** once.
+Approve the external-request permission if Google prompts for it. The helper
+uses deliberately invalid verification values and should return HTTP 400; it
+does not submit a form or write form data to the Sheet.
+
 ## Notes
 
 - Submissions are also logged to the Google Sheet as a backup in case an

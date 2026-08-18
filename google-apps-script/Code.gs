@@ -80,7 +80,7 @@ var CONTACT_SHEET_NAME = 'Visit & Contact Messages';
  * a real submission. See Deploy-Ops-Gotchas, "doGet is a free deployment-drift
  * detector".
  */
-var SCRIPT_VERSION = '2026-08-18.1';
+var SCRIPT_VERSION = '2026-08-18.2';
 
 // ===== ENTRY POINTS =====
 
@@ -270,6 +270,30 @@ function verifyTurnstile_(data) {
   }
 
   return accepted;
+}
+
+/**
+ * Editor-only diagnostic. Run this once from the Apps Script editor after
+ * adding UrlFetchApp-based Turnstile verification. It uses deliberately
+ * invalid values, so it cannot submit a form or record personal data.
+ *
+ * A normal result is HTTP 400 from Turnstile. If Apps Script asks to authorize
+ * external requests, approve that permission before testing the live form.
+ */
+function testTurnstileTransport_() {
+  var response = UrlFetchApp.fetch(
+    'https://challenges.cloudflare.com/turnstile/v0/siteverify',
+    {
+      method: 'post',
+      payload: {
+        secret: 'diagnostic-only',
+        response: 'diagnostic-only'
+      },
+      muteHttpExceptions: true
+    }
+  );
+
+  return response.getResponseCode();
 }
 
 /** Safe operational telemetry for a rejected Turnstile token. */
