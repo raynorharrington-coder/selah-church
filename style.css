@@ -115,17 +115,6 @@ a { color: inherit; text-decoration: none; }
   gap: 0.6rem;
 }
 
-/* An eyebrow that carries a label and a meeting time is too long for one line
-   in a two-column block. inline-flex swallows a <br>, so switch to a block and
-   restore the leading the flex row didn't need. */
-.eyebrow--stack {
-  display: block;
-  line-height: 1.75;
-  /* The single-line eyebrow had the h2's own leading as its gap. Two lines eat
-     that, and the heading ends up sitting on the time — which is the crowding
-     this was meant to fix. Put the gap back explicitly. */
-  margin-bottom: 0.85rem;
-}
 
 h1, h2, h3 {
   font-family: var(--font-display);
@@ -583,28 +572,42 @@ h1, h2, h3 {
   z-index: 1;
   max-width: var(--container);
   margin: 0 auto;
-  padding: 0 clamp(1.25rem, 4vw, 2.5rem) clamp(3.5rem, 8vw, 6rem);
+  /* The top padding is a floor, not a gap. The hero is a flex box with
+     align-items:flex-end, and flex overflow runs *upward* — so on any viewport
+     shorter than the copy block the headline used to slide under the fixed nav
+     rather than push the hero taller. Reserving the header's height means the
+     worst case is a hero that grows past 100svh, which is recoverable by
+     scrolling; text underneath the logo is not. */
+  padding: 5.5rem clamp(1.25rem, 4vw, 2.5rem) clamp(2.5rem, 5.5vw, 4.25rem);
   width: 100%;
   color: var(--paper);
 }
 .hero-eyebrow { margin-bottom: 1.6rem; opacity: 0; }
 .hero h1 {
-  /* Display role scaled 1.2x — confirmed via the live tweak-bar preview */
-  font-size: clamp(3.12rem, 8.4vw, 6.48rem);
+  /* Was the display role at 1.2x (max 6.48rem). At that size the h1, the
+     six-line intro, and the CTAs measured 651px — taller than a 1.25x-scaled
+     laptop's 639px viewport, so the headline overlapped the nav. Brought back
+     toward the base display role. */
+  font-size: clamp(2.6rem, 6.4vw, 4.9rem);
   max-width: 16ch;
   opacity: 0;
 }
 .hero h1 em { color: var(--gold-bright); font-style: italic; }
 .hero-sub {
-  /* Body role scaled 1.05x — confirmed via the live tweak-bar preview */
-  font-size: clamp(1.1rem, 1.68vw, 1.31rem);
-  max-width: 46ch;
+  /* Down from the 1.05x body role for the height reason above. The measure
+     widens as the type shrinks so the paragraph still breaks at six lines
+     rather than seven — 52ch is inside the comfortable 45-75ch range. */
+  font-size: clamp(1rem, 1.32vw, 1.12rem);
+  max-width: 52ch;
   color: rgba(247,242,230,0.82);
-  margin: 1.6rem 0 2.4rem;
+  margin: 1.2rem 0 1.9rem;
   opacity: 0;
-  font-weight: 500; line-height: 1.68; letter-spacing: 0.005em;
+  font-weight: 500; line-height: 1.6; letter-spacing: 0.005em;
 }
 .hero-ctas { display: flex; flex-wrap: wrap; gap: 1rem; opacity: 0; }
+/* Scaled with the rest of the hero type. 0.88rem text on 0.8rem padding is a
+   46px control — still clear of the 44px tap-target floor. */
+.hero-ctas .btn { font-size: 0.88rem; padding: 0.8rem 1.5rem; }
 
 .scroll-cue {
   position: absolute;
@@ -687,6 +690,16 @@ h1, h2, h3 {
   }
   .hero-ctas { gap: 0.7rem; }
 }
+/* Desktop layout in a short window — a small laptop, or any browser that isn't
+   full height. The base sizes above clear the nav down to about a 570px
+   viewport; below that the bottom-anchored copy starts walking up into it
+   again. Tighten rather than collide. */
+@media (min-width: 641px) and (max-height: 620px) {
+  .hero h1 { font-size: clamp(2.3rem, 5vw, 3.6rem); }
+  .hero-sub { font-size: 1rem; line-height: 1.55; margin: 1rem 0 1.5rem; }
+  .hero-content { padding-top: 5rem; padding-bottom: clamp(2rem, 4vw, 3rem); }
+}
+
 @keyframes mobile-hero-kenburns {
   from { transform: scale(1.06); }
   to { transform: scale(1.11); }
@@ -921,6 +934,12 @@ h1, h2, h3 {
   gap: 4rem;
   align-items: center;
 }
+/* Every other eyebrow context sets this (.page-hero, .sermon-copy); .about-copy
+   never did, so its eyebrow sat 2px off the h2 below it and the two read as one
+   crowded lump. That is what Luke kept flagging on Selah Youth — the line's
+   length was the symptom, this was the cause. Fixes eight pages at once,
+   Shabbat Dinners ("Fourth Fridays · 6:30-8:30 PM") included. */
+.about-copy .eyebrow { margin-bottom: 1rem; }
 .about-copy p { color: var(--stone); font-size: 1.1rem; margin: 1.4rem 0 2rem; max-width: 48ch; }
 
 /* Quiet Confidence: the site's own existing copy re-set as a large italic
