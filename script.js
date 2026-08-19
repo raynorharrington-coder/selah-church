@@ -119,13 +119,25 @@ function initHeroEntrance(reduceMotion) {
       .to(heroEls, { opacity: 1, y: 0, duration: 1.1, stagger: 0.16, delay: 0.3 });
 
     /* subtle hero parallax on scroll */
-    const heroMedia = document.querySelector('.hero-media video, .hero-media img');
+    // The video is layered *over* the photo, so a comma selector picks the
+    // photo — first in document order, and completely hidden whenever the video
+    // is running. Choose the layer the visitor can actually see. initHeroVideo()
+    // runs before this and only promotes data-src to a real src when the video
+    // is going to be used, so that is the signal.
+    const heroClip = document.querySelector('.hero-media video');
+    const heroMedia = (heroClip && heroClip.querySelector('source[src]'))
+      ? heroClip
+      : document.querySelector('.hero-media img');
     if (heroMedia && window.ScrollTrigger) {
-      gsap.to(heroMedia, {
+      const parallax = {
         yPercent: 12,
         ease: 'none',
         scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: true }
-      });
+      };
+      // GSAP writes an inline transform, which would drop the slight scale the
+      // video carries in CSS to keep its edges off-screen while it drifts.
+      if (heroMedia.tagName === 'VIDEO') parallax.scale = 1.02;
+      gsap.to(heroMedia, parallax);
     }
   } else {
     heroEls.forEach(el => { el.style.opacity = 1; el.style.transform = 'none'; });
