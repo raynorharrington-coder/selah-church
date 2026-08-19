@@ -53,20 +53,25 @@
        party, which is the same exposure the self-hosted-fonts rule exists to
        avoid. The ken-burns drift and colour grade in .hero-media apply to img
        exactly as they did to video, so the hero still moves.
-       Swapping this photo is a one-line change; see TODOS.md. -->
+       Swapping this photo is a one-line change; see TODOS.md.
+       2026-08-18: swapped to Luke's worship shot (worship-hands-raised). The
+       previous pair — home/worship.jpg on desktop, JM_A0730 on phones — is
+       still in assets/photos, so going back is a one-line revert. -->
   <div class="hero-media">
     <!-- The hero is the largest image on the site and the one that gates first
          paint. srcset lets a phone take the 480px file (17KB) instead of the
          1600px one (133KB) — see the "-480/-900" variants in assets/photos. -->
     <picture>
-      <!-- Phones get a dedicated, people-first crop while desktop keeps the existing hero. -->
+      <!-- Luke's 2026-08-18 photo, on both breakpoints. Same file either side:
+           the frame is a wide 3:2 whose whole composition is the point, so the
+           phone shows it near-whole rather than taking a separate crop. -->
       <source media="(max-width: 640px)"
-              srcset="assets/photos/JM_A0730-480.jpg 480w, assets/photos/JM_A0730-720.jpg 720w, assets/photos/JM_A0730.jpg 1400w"
+              srcset="assets/photos/home/worship-hands-raised-480.jpg 480w, assets/photos/home/worship-hands-raised-720.jpg 720w, assets/photos/home/worship-hands-raised.jpg 1400w"
               sizes="100vw">
-      <img class="hero-image" src="assets/photos/home/worship.jpg"
-           srcset="assets/photos/home/worship-480.jpg 480w, assets/photos/home/worship-900.jpg 900w, assets/photos/home/worship.jpg 1400w"
+      <img class="hero-image" src="assets/photos/home/worship-hands-raised.jpg"
+           srcset="assets/photos/home/worship-hands-raised-480.jpg 480w, assets/photos/home/worship-hands-raised-900.jpg 900w, assets/photos/home/worship-hands-raised.jpg 1400w"
            sizes="100vw"
-           width="1400" height="932" alt="" fetchpriority="high">
+           width="1400" height="935" alt="" fetchpriority="high">
     </picture>
   </div>
   <div class="hero-content">
@@ -175,17 +180,19 @@
 <!-- ============ ABOUT / TEAM TEASER ============ -->
 <section class="section section--paper">
   <div class="container">
-    <div class="about-teaser">
-      <div class="about-copy reveal">
+    <div class="about-teaser about-teaser--intro">
+      <div class="about-head reveal">
         <span class="eyebrow">Meet the Family</span>
         <h2>Luke and Amanda Taylor</h2>
+      </div>
+      <div class="about-media reveal-photo">
+        <img src="assets/photos/team/luke-amanda-family.jpg" srcset="assets/photos/team/luke-amanda-family-480.jpg 480w, assets/photos/team/luke-amanda-family-800.jpg 800w, assets/photos/team/luke-amanda-family.jpg 1000w" sizes="(max-width: 900px) 92vw, 560px" width="1000" height="1250" alt="Luke and Amanda walking a field path with their son on Luke's shoulders" style="width:100%;height:100%;object-fit:cover;" loading="lazy">
+      </div>
+      <div class="about-copy reveal">
         <p>Luke and Amanda have been married since 2020 and are the proud parents of Maverick Isaiah and Haven Joy. Together, they have served in full-time ministry for over a decade.</p>
         <p>In 2022, they planted Selah Church as a simple house church with a handful of faithful friends. Since then, they&rsquo;ve had the privilege of watching God grow it into a thriving church family.</p>
         <p>At the heart of their ministry is a passion to follow the leading of the Holy Spirit, faithfully teach the Word of God, and cultivate a church where people can come as they are, encounter the presence of Jesus, and discover the life He created them to live.</p>
         <a href="our-team.html" class="btn btn-outline-dark">Meet the whole team</a>
-      </div>
-      <div class="about-media reveal">
-        <img src="assets/photos/team/luke-amanda-family.jpg" srcset="assets/photos/team/luke-amanda-family-480.jpg 480w, assets/photos/team/luke-amanda-family-800.jpg 800w, assets/photos/team/luke-amanda-family.jpg 1000w" sizes="(max-width: 900px) 92vw, 560px" width="1000" height="1250" alt="Luke and Amanda walking a field path with their son on Luke's shoulders" style="width:100%;height:100%;object-fit:cover;" loading="lazy">
       </div>
     </div>
   </div>
