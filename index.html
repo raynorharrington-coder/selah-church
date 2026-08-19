@@ -51,20 +51,21 @@
        the brightest thing on the page, sitting right beside the headline. It
        also hotlinked videos.pexels.com, handing every visitor's IP to a third
        party, which is the same exposure the self-hosted-fonts rule exists to
-       avoid. The ken-burns drift and colour grade in .hero-media apply to img
-       exactly as they did to video, so the hero still moves.
-       Swapping this photo is a one-line change; see TODOS.md.
-       2026-08-18: swapped to Luke's worship shot (worship-hands-raised). The
-       previous pair — home/worship.jpg on desktop, JM_A0730 on phones — is
-       still in assets/photos, so going back is a one-line revert. -->
+       avoid. This hero is self-hosted end to end — the clip below is a file in
+       assets/video, not an embed.
+       2026-08-18: swapped to Luke's worship shot (worship-hands-raised).
+       2026-08-19: desktop gained the video; the photo stays on phones. -->
   <div class="hero-media">
     <!-- The hero is the largest image on the site and the one that gates first
          paint. srcset lets a phone take the 480px file (17KB) instead of the
          1600px one (133KB) — see the "-480/-900" variants in assets/photos. -->
     <picture>
-      <!-- Luke's 2026-08-18 photo, on both breakpoints. Same file either side:
-           the frame is a wide 3:2 whose whole composition is the point, so the
-           phone shows it near-whole rather than taking a separate crop. -->
+      <!-- Luke's photo, re-edited by him on 2026-08-19 to take the lyrics off
+           the projection screen — they competed with the site's own headline.
+           Same file at both breakpoints: the frame is a wide 3:2 whose whole
+           composition is the point, so the phone shows it near-whole rather
+           than taking a separate crop. On desktop it is the still behind the
+           video below, and the fallback whenever the video is not loaded. -->
       <source media="(max-width: 640px)"
               srcset="assets/photos/home/worship-hands-raised-480.jpg 480w, assets/photos/home/worship-hands-raised-720.jpg 720w, assets/photos/home/worship-hands-raised.jpg 1400w"
               sizes="100vw">
@@ -73,6 +74,24 @@
            sizes="100vw"
            width="1400" height="935" alt="" fetchpriority="high">
     </picture>
+    <!-- 2026-08-19, Luke: on desktop the photo's subject sat behind the intro
+         paragraph, so only the raised hands on the right read. This clip fills
+         the same frame with the whole room instead. It is the old space, which
+         Luke knows and chose anyway.
+
+         Deliberately not a <source src>: preload="none" plus data-src means the
+         3.7MB file is never requested on a phone, on a reduced-motion setting,
+         or on a metered connection — those keep the photo above, which is the
+         version Luke edited for mobile. See initHeroVideo() in script.js.
+
+         The projection screen's lyrics are blurred out in the encode, for the
+         reason Luke removed them from the photo. Re-encode recipe is in
+         docs/hero-video.md. -->
+    <video id="heroVideo" class="hero-video" width="1280" height="720"
+           autoplay muted loop playsinline preload="none"
+           aria-hidden="true" tabindex="-1">
+      <source data-src="assets/video/hero-worship.mp4" type="video/mp4">
+    </video>
   </div>
   <div class="hero-content">
     <h1>The church was made for <em>family.</em></h1>

@@ -6,3 +6,6 @@
 
 /assets/photos/*
   Cache-Control: public, max-age=2592000
+
+/assets/video/*
+  Cache-Control: public, max-age=2592000

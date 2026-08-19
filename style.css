@@ -115,6 +115,18 @@ a { color: inherit; text-decoration: none; }
   gap: 0.6rem;
 }
 
+/* An eyebrow that carries a label and a meeting time is too long for one line
+   in a two-column block. inline-flex swallows a <br>, so switch to a block and
+   restore the leading the flex row didn't need. */
+.eyebrow--stack {
+  display: block;
+  line-height: 1.75;
+  /* The single-line eyebrow had the h2's own leading as its gap. Two lines eat
+     that, and the heading ends up sitting on the time — which is the crowding
+     this was meant to fix. Put the gap back explicitly. */
+  margin-bottom: 0.85rem;
+}
+
 h1, h2, h3 {
   font-family: var(--font-display);
   font-weight: 400;
@@ -511,6 +523,31 @@ h1, h2, h3 {
 }
 @media (prefers-reduced-motion: reduce) {
   .hero-media video, .hero-media img { animation: none; transform: scale(1.05); }
+}
+
+/* The hero video sits over the photo rather than replacing it, so the photo is
+   what shows on phones, on reduced-motion, on a metered connection, and for the
+   moment before the first frame decodes. Only a video that is genuinely playing
+   fades in on top — a stalled download never leaves an empty hero. */
+.hero-video {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  opacity: 0;
+  transition: opacity 0.9s ease;
+}
+.hero-video.is-playing { opacity: 1; }
+/* No ken-burns on the video: the footage already pushes in on its own, and
+   stacking the CSS drift on top would both double the movement and magnify a
+   720p source past the point where it holds up on a wide display. */
+.hero-media video {
+  animation: none;
+  transform: scale(1.02);
+}
+/* The phone hero is a fixed 35svh photo zone — the video never loads there, but
+   keep it out of the box in case a tablet lands between the two rules. */
+@media (max-width: 640px) {
+  .hero-video { display: none; }
 }
 /* Two scrim layers, not one.
 
@@ -1264,6 +1301,10 @@ h1, h2, h3 {
 .team-card h3 { font-size: 1.4rem; margin-bottom: 0.2rem; }
 .team-role { font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--rust); display: block; margin-bottom: 0.8rem; } /* rust not gold: this label always sits on a light background — gold fails AA here (The Accessible Accent Rule, DESIGN.md) */
 .team-card p { color: var(--stone); font-size: 0.94rem; margin: 0; }
+/* Every bio is three paragraphs and margin:0 ran them into one block, so
+   they read as a wall regardless of length. Luke asked twice for shorter
+   bios; some of what he was reacting to was this, not the word count. */
+.team-card p + p { margin-top: 0.8rem; }
 @media (max-width: 720px) {
   .team-grid { grid-template-columns: 1fr; }
   .team-card { grid-template-columns: 110px 1fr; }

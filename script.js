@@ -15,13 +15,26 @@ function initHeroVideo(reduceMotion) {
   const isNarrowViewport = window.matchMedia('(max-width: 700px)').matches;
   const source = heroVideo.querySelector('source[data-src]');
 
-  if (reduceMotion || isNarrowViewport) {
-    // Skip downloading the video entirely on mobile / reduced-motion — poster image only.
+  // Respect an explicit "don't spend my data" signal the same way we respect a
+  // narrow screen. Chromium-only API, so guard it rather than assume it exists.
+  const conn = navigator.connection;
+  const isMeteredConnection = !!conn && (conn.saveData === true ||
+    ['slow-2g', '2g'].includes(conn.effectiveType));
+
+  if (reduceMotion || isNarrowViewport || isMeteredConnection) {
+    // Skip downloading the video entirely — the hero photo underneath is a
+    // complete hero on its own, so there is nothing to fall back to.
     heroVideo.removeAttribute('autoplay');
     heroVideo.pause();
   } else if (source) {
+    // .is-playing only goes on once frames are actually rendering, so a slow or
+    // failed download leaves the photo showing instead of fading to black.
+    heroVideo.addEventListener('playing', () => heroVideo.classList.add('is-playing'), { once: true });
     source.src = source.dataset.src;
     heroVideo.load();
+    // Safari does not always honour the autoplay attribute on a source swapped
+    // in after parse; asking directly costs nothing when autoplay already won.
+    heroVideo.play().catch(() => {});
   }
 
   // Save resources when the tab isn't visible.
