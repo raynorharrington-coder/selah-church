@@ -13,6 +13,8 @@ worker/
 google-apps-script/
 
 # Internal docs — never served
+CLAUDE.md
+AGENTS.md
 README.md
 DESIGN.md
 PRODUCT.md

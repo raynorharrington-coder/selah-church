@@ -6,6 +6,8 @@
 
 # Internal docs — this repo is PUBLIC, so project notes stay local-only.
 # OneDrive is their only backup; there is no git history for these files.
+CLAUDE.md
+AGENTS.md
 README.md
 DESIGN.md
 PRODUCT.md
