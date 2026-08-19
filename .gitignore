@@ -1,8 +1,14 @@
 .claude/
 .gstack/
-.impeccable/
 .agents/
 .codex/
+
+# The detector waiver is a decision about this project and has to survive a
+# fresh clone, so .impeccable is ignored by *contents* — git cannot re-include a
+# file whose parent directory is itself excluded. Caches and per-user overrides
+# under it stay ignored. Not served either way; see .assetsignore.
+.impeccable/*
+!.impeccable/config.json
 
 # Internal docs — this repo is PUBLIC, so project notes stay local-only.
 # OneDrive is their only backup; there is no git history for these files.

@@ -1,0 +1,9 @@
+{
+  "detector": {
+    "ignoreRules": [
+      "design-system-font-size"
+    ],
+    "ignoreFiles": [],
+    "ignoreValues": []
+  }
+}
