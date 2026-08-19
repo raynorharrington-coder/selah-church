@@ -880,10 +880,24 @@ h1, h2, h3 {
 @media (hover: hover) {
   .ministry-card:hover img { transform: scale(1.08); }
 }
+/* The label sits in the bottom ~30% of the card, and the previous ramp was only
+   ~0.57 opaque where its gold eyebrow lands — about 2.5:1 against the bright
+   photos on the Kids and Mom's Group cards, well under the 4.5:1 floor for
+   10-11px text. This is the Accessible Accent Rule's other half: gold is only
+   safe on a dark background, so the background under it has to actually be one.
+
+   The ramp is now flat-clear for the top 30% (the photo reads better than it did
+   at 0.05) and ramps hard through the label band. At the eyebrow's position it
+   is ~0.93 opaque, which holds 8.5:1 against a pure-white photo — so it clears
+   AA no matter what image goes in the slot. */
 .ministry-card .media::after {
   content: '';
   position: absolute; inset: 0;
-  background: linear-gradient(180deg, rgba(22,35,28,0.05) 40%, rgba(15,26,20,0.92) 100%);
+  background: linear-gradient(180deg,
+    rgba(22,35,28,0) 30%,
+    rgba(15,26,20,0.55) 58%,
+    rgba(15,26,20,0.93) 78%,
+    rgba(15,26,20,0.95) 100%);
 }
 .ministry-placeholder {
   width: 100%; height: 100%;
@@ -1252,12 +1266,35 @@ h1, h2, h3 {
   .footer-col a:hover { opacity: 1; color: var(--gold-bright); }
 }
 .footer-times .tbd { display: block; font-size: 0.72rem; opacity: 0.5; font-family: var(--font-mono); }
+/* Was `opacity: 0.55` over the footer's inherited `rgba(paper,0.7)`, which
+   compounds to an effective 0.385 — 3.37:1 at 12.8px, under AA on all 21 pages.
+   Setting the colour once, explicitly, gives 5.57:1 and still reads as clearly
+   secondary to the 0.82 links above it. */
 .footer-bottom {
   border-top: 1px solid rgba(247,242,230,0.1);
-  padding: 1.5rem clamp(1.25rem, 4vw, 2.5rem);
+  padding: 0.75rem clamp(1.25rem, 4vw, 2.5rem);
   font-size: 0.8rem;
-  opacity: 0.55;
-  text-align: center;
+  color: rgba(247,242,230,0.55);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 0.15rem 1.25rem;
+}
+/* Privacy Policy was an 80x18 target with no underline, sitting in a bar where
+   every character is the same colour — so it neither read as a link nor met the
+   24px minimum, let alone the 44px comfortable one. */
+.footer-bottom a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 0.35rem;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
+}
+@media (hover: hover) {
+  .footer-bottom a:hover { color: var(--gold-bright); }
 }
 
 @media (max-width: 860px) {
@@ -1523,6 +1560,14 @@ h1, h2, h3 {
 .form-field.has-error textarea:focus { border-color: var(--rust); box-shadow: 0 0 0 3px rgba(168,70,46,0.25); }
 .field-error { display: block; color: var(--rust); font-family: var(--font-mono); font-size: 0.78rem; margin-top: -0.15rem; }
 .field-error:empty { display: none; }
+/* The prayer form marked its optional field with an inline `opacity:.7` on the
+   label, dragging --stone down to 2.94:1 — the same failure the --stone-light
+   token was introduced to fix. This is that token, as a reusable class. */
+.label-hint {
+  text-transform: none;
+  letter-spacing: normal;
+  color: var(--stone-light);
+}
 .form-note { font-size: 0.85rem; color: var(--stone-light); margin-top: 1rem; text-align: center; }
 /* Point-of-submit privacy line. Sits between the button and .form-note. On the
    prayer form it carries the confidentiality promise, so it has to stay
@@ -1616,7 +1661,23 @@ h1, h2, h3 {
 
 /* ===================== ACCESSIBILITY: FOCUS STATES ===================== */
 /* Keyboard-focus parity with hover: outline uses the brand gold accent, not
-   a browser default, so it reads as intentional rather than left over. */
+   a browser default, so it reads as intentional rather than left over.
+
+   This used to be the selector list below and nothing else — an allowlist, so
+   any control not named in it was born without a ring. The footer's Privacy
+   Policy link had fallen through, and on ink-2 the browser default is close to
+   invisible. A base rule is the floor instead; the list that follows now only
+   exists to adjust offsets where 3px would clip or float. Form fields are
+   excluded: .form-field input:focus already owns a documented gold
+   border-and-glow, and stacking an outline on top doubles it. */
+a:focus-visible,
+button:focus-visible,
+summary:focus-visible,
+[tabindex]:not([tabindex="-1"]):focus-visible {
+  outline: var(--focus-ring);
+  outline-offset: 3px;
+}
+
 .btn:focus-visible,
 .filter-tab:focus-visible,
 .main-nav a:focus-visible,
