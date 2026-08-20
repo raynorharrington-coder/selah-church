@@ -7,43 +7,6 @@ function getReducedMotionPreference() {
   }
 }
 
-/* ---------- Hero video: reduced motion, mobile bandwidth, tab visibility ---------- */
-function initHeroVideo(reduceMotion) {
-  const heroVideo = document.getElementById('heroVideo');
-  if (!heroVideo) return;
-
-  const isNarrowViewport = window.matchMedia('(max-width: 700px)').matches;
-  const source = heroVideo.querySelector('source[data-src]');
-
-  // Respect an explicit "don't spend my data" signal the same way we respect a
-  // narrow screen. Chromium-only API, so guard it rather than assume it exists.
-  const conn = navigator.connection;
-  const isMeteredConnection = !!conn && (conn.saveData === true ||
-    ['slow-2g', '2g'].includes(conn.effectiveType));
-
-  if (reduceMotion || isNarrowViewport || isMeteredConnection) {
-    // Skip downloading the video entirely — the hero photo underneath is a
-    // complete hero on its own, so there is nothing to fall back to.
-    heroVideo.removeAttribute('autoplay');
-    heroVideo.pause();
-  } else if (source) {
-    // .is-playing only goes on once frames are actually rendering, so a slow or
-    // failed download leaves the photo showing instead of fading to black.
-    heroVideo.addEventListener('playing', () => heroVideo.classList.add('is-playing'), { once: true });
-    source.src = source.dataset.src;
-    heroVideo.load();
-    // Safari does not always honour the autoplay attribute on a source swapped
-    // in after parse; asking directly costs nothing when autoplay already won.
-    heroVideo.play().catch(() => {});
-  }
-
-  // Save resources when the tab isn't visible.
-  document.addEventListener('visibilitychange', () => {
-    if (!heroVideo.paused && document.hidden) heroVideo.pause();
-    else if (document.visibilityState === 'visible' && heroVideo.getAttribute('autoplay') !== null) heroVideo.play().catch(() => {});
-  });
-}
-
 /* ---------- Header scroll state ---------- */
 function initHeaderScroll() {
   const header = document.getElementById('siteHeader');
@@ -119,25 +82,15 @@ function initHeroEntrance(reduceMotion) {
       .to(heroEls, { opacity: 1, y: 0, duration: 1.1, stagger: 0.16, delay: 0.3 });
 
     /* subtle hero parallax on scroll */
-    // The video is layered *over* the photo, so a comma selector picks the
-    // photo — first in document order, and completely hidden whenever the video
-    // is running. Choose the layer the visitor can actually see. initHeroVideo()
-    // runs before this and only promotes data-src to a real src when the video
-    // is going to be used, so that is the signal.
-    const heroClip = document.querySelector('.hero-media video');
-    const heroMedia = (heroClip && heroClip.querySelector('source[src]'))
-      ? heroClip
-      : document.querySelector('.hero-media img');
+    // One hero layer since 2026-08-20 (Luke dropped the video), so this is
+    // simply the photo.
+    const heroMedia = document.querySelector('.hero-media img');
     if (heroMedia && window.ScrollTrigger) {
-      const parallax = {
+      gsap.to(heroMedia, {
         yPercent: 12,
         ease: 'none',
         scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: true }
-      };
-      // GSAP writes an inline transform, which would drop the slight scale the
-      // video carries in CSS to keep its edges off-screen while it drifts.
-      if (heroMedia.tagName === 'VIDEO') parallax.scale = 1.02;
-      gsap.to(heroMedia, parallax);
+      });
     }
   } else {
     heroEls.forEach(el => { el.style.opacity = 1; el.style.transform = 'none'; });
@@ -754,7 +707,6 @@ document.addEventListener('DOMContentLoaded', () => {
   // Each feature initializes independently — one throwing doesn't take down
   // the rest of the page's interactivity (nav, forms, filters, animations).
   const features = [
-    ['hero video', () => initHeroVideo(reduceMotion)],
     ['header scroll', initHeaderScroll],
     ['mobile nav', initMobileNav],
     ['active nav highlight', initActiveNavHighlight],

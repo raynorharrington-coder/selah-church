@@ -489,7 +489,6 @@ h1, h2, h3 {
   inset: 0;
   z-index: 0;
 }
-.hero-media video,
 .hero-media img {
   width: 100%;
   height: 100%;
@@ -511,46 +510,23 @@ h1, h2, h3 {
   to { transform: scale(1.24) translate(-1.5%, -1.5%); }
 }
 @media (prefers-reduced-motion: reduce) {
-  .hero-media video, .hero-media img { animation: none; transform: scale(1.05); }
+  .hero-media img { animation: none; transform: scale(1.05); }
 }
 
-/* The hero video sits over the photo rather than replacing it, so the photo is
-   what shows on phones, on reduced-motion, on a metered connection, and for the
-   moment before the first frame decodes. Only a video that is genuinely playing
-   fades in on top — a stalled download never leaves an empty hero. */
-.hero-video {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  opacity: 0;
-  transition: opacity 0.9s ease;
-}
-.hero-video.is-playing { opacity: 1; }
-/* No ken-burns on the video: the footage already pushes in on its own, and
-   stacking the CSS drift on top would both double the movement and magnify a
-   720p source past the point where it holds up on a wide display. */
-.hero-media video {
-  animation: none;
-  transform: scale(1.02);
-}
-/* The phone hero is a fixed 35svh photo zone — the video never loads there, but
-   keep it out of the box in case a tablet lands between the two rules. */
-@media (max-width: 640px) {
-  .hero-video { display: none; }
-}
 /* Two scrim layers, not one.
 
    The vertical gradient sets the hero's overall mood and is weakest at 40%
    height. That was fine when the subhead was two lines, but Luke's copy
    (2026-08-07) runs six, so the text now reaches exactly that weak band —
-   and the background is a *moving* video, so whatever is bright in frame
-   drifts under the words. Measured against the stock clip, the brightest
-   region behind the paragraph came out at 1.70:1, far under the 4.5:1 floor.
+   and the hero image drifts under the words as the ken-burns runs, so whatever
+   is bright in frame passes behind them. Measured against the stock clip this
+   replaced, the brightest region behind the paragraph came out at 1.70:1, far
+   under the 4.5:1 floor.
 
    The horizontal layer fixes that structurally: it keeps a dark wash under
-   the left-hand copy column no matter what the footage is doing, and fades
+   the left-hand copy column no matter what the image is doing, and fades
    out before the right side so the image still reads. Any future hero photo
-   or video inherits the guarantee — nobody has to re-check contrast on swap. */
+   inherits the guarantee — nobody has to re-check contrast on swap. */
 .hero-media::after {
   content: '';
   position: absolute; inset: 0;
