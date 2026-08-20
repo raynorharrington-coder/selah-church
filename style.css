@@ -121,6 +121,17 @@ h1, h2, h3 {
   font-weight: 400;
   line-height: 1.08;
   margin: 0;
+  /* Instrument Serif at display sizes drops a single short word onto its own
+     line constantly -- "A place for your whole / family", "Catch up on the
+     latest / message". Balance evens the lines out instead. Progressive
+     enhancement: browsers without it wrap exactly as they did before. */
+  text-wrap: balance;
+}
+
+/* Body copy wants the weaker rule: never strand the final word of a
+   paragraph on its own line, without re-balancing every line above it. */
+p, li, figcaption {
+  text-wrap: pretty;
 }
 
 .section {
@@ -144,6 +155,22 @@ h1, h2, h3 {
    .section--ink class. The hero keeps its own bottom padding, which is the
    single gap that was intended. Hits our-beliefs and give. */
 .page-hero + .section--ink { padding-top: 0; }
+
+/* The closing call-to-action band that ends thirteen interior pages. It was
+   three inline declarations copy-pasted onto every one of them, so changing
+   the pattern meant editing thirteen files -- and the two that had drifted
+   (events, shop) were impossible to spot. Two shapes, both reproduced here:
+   heading straight into the button, or heading + lede + button. */
+.section--cta { text-align: center; }
+/* Direct children only. visit.html builds the same band around a .section-head,
+   which owns its own heading rhythm -- these rules must not reach into it. */
+.section--cta > .container > .eyebrow { justify-content: center; }
+.section--cta > .container > h2 { margin: 1rem 0 1.2rem; }
+/* No lede: the button carries the rest of the gap the heading used to own,
+   so the tighter heading margin above does not need to be a special case. */
+.section--cta > .container > h2 + .btn { margin-top: 0.8rem; }
+.section--cta > .container > p { max-width: 52ch; margin: 0 auto 2rem; color: var(--stone); }
+.section--ink.section--cta > .container > p { color: rgba(247,242,230,0.75); }
 
 .container {
   max-width: var(--container);
