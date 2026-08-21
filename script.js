@@ -380,7 +380,14 @@ async function initSermonData() {
    the recurrence strings ("The second Thursday of every month") and the
    descriptions are Luke's own words from the calendar, not invented here.
    If a rhythm changes on Church Center, change it here too: this list is a
-   mirror, and nothing detects drift automatically. */
+   mirror, and nothing detects drift automatically.
+
+   One deliberate exception to the mirror: Selah Worship Team Night (first
+   Monday) is on Church Center but not here. Removed 2026-08-21 — it is a
+   staff/team rehearsal, not something the public is being invited to, so
+   listing it on a page headed "What's happening at Selah" only invites people
+   to show up to something that isn't for them. Do not re-add it on the next
+   Church Center sync. */
 const EVENT_SCHEDULE = [
   {
     title: 'Church Gathering',
@@ -391,15 +398,6 @@ const EVENT_SCHEDULE = [
     location: 'Selah Church',
     description: 'Our weekly gathering as a church family — worship, teaching from God’s Word, and space to pause, reflect, and praise.',
     link: { href: 'visit.html', label: 'Plan your visit' },
-  },
-  {
-    title: 'Selah Worship Team Night',
-    rule: { weekday: 1, nths: [1] },         // first Monday
-    recurrence: 'First Monday of every month',
-    shortWhen: { top: '1st', bottom: 'Mon' },
-    time: '6:30 – 8:30 PM',
-    location: 'Selah Church',
-    description: 'A monthly night for our worship team to rehearse, pray, and prepare together for the Sundays ahead.',
   },
   {
     title: 'Cadre',

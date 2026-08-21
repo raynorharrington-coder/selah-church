@@ -15,11 +15,11 @@
 <meta property="og:url" content="https://selah-church.thyratechllc.workers.dev/sermons.html">
 <meta property="og:title" content="Sermons | Selah Church — Fredericksburg, VA">
 <meta property="og:description" content="Watch the latest messages and browse past sermon series from Selah Church in Fredericksburg, VA.">
-<meta property="og:image" content="https://selah-church.thyratechllc.workers.dev/assets/photos/JM_A0845.jpg">
+<meta property="og:image" content="https://selah-church.thyratechllc.workers.dev/assets/photos/home/hero-preaching-podium.jpg">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Sermons | Selah Church">
 <meta name="twitter:description" content="Watch the latest messages and browse past sermon series.">
-<meta name="twitter:image" content="https://selah-church.thyratechllc.workers.dev/assets/photos/JM_A0845.jpg">
+<meta name="twitter:image" content="https://selah-church.thyratechllc.workers.dev/assets/photos/home/hero-preaching-podium.jpg">
 
 <!-- Sets .js before first paint so the scroll-reveal rules in style.css apply.
      Without JS the no-JS safety net at the end of style.css keeps everything visible. -->
@@ -30,7 +30,27 @@
 
 <div id="site-header"></div>
 
-<section class="page-hero" id="main-content" tabindex="-1">
+<!-- Photo hero, 2026-08-21 at Luke's request — this page only. The photo is
+     hero-preaching-podium, which he picked off the same candidate board as the
+     new home hero (_hero-preview.html). It is a band, not a full-height hero:
+     see the .page-hero--photo comment in style.css for why the home page keeps
+     that treatment to itself. -->
+<section class="page-hero page-hero--photo" id="main-content" tabindex="-1">
+  <div class="page-hero-media">
+    <picture>
+      <source media="(max-width: 640px)"
+              srcset="assets/photos/home/hero-preaching-podium-480.jpg 480w, assets/photos/home/hero-preaching-podium-720.jpg 720w, assets/photos/home/hero-preaching-podium.jpg 1400w"
+              sizes="100vw">
+      <!-- Decorative: the h1 sitting on top of it already says what the page
+           is, so alt text here would just be read out twice. Same call as the
+           home hero. Eager and high-priority — it is the first paint on this
+           page, so lazy-loading it would only delay it. -->
+      <img src="assets/photos/home/hero-preaching-podium.jpg"
+           srcset="assets/photos/home/hero-preaching-podium-480.jpg 480w, assets/photos/home/hero-preaching-podium-900.jpg 900w, assets/photos/home/hero-preaching-podium.jpg 1400w"
+           sizes="100vw"
+           width="1400" height="933" alt="" fetchpriority="high">
+    </picture>
+  </div>
   <div class="container">
     <span class="eyebrow">Watch Online</span>
     <h1>Messages to pause, reflect, and praise with.</h1>

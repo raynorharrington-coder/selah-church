@@ -47,29 +47,36 @@
 <!-- ============ HERO ============ -->
 <section class="hero" id="main-content" tabindex="-1">
   <!-- A real Selah congregation shot, not stock. The hero has been a photo
-       since 2026-08-18 (Luke's worship shot, worship-hands-raised), and is
-       self-hosted — no third-party media domain, which is the same exposure
-       the self-hosted-fonts rule exists to avoid.
+       since 2026-08-18, and is self-hosted — no third-party media domain,
+       which is the same exposure the self-hosted-fonts rule exists to avoid.
        2026-08-19: desktop briefly ran a video layered over this photo.
        2026-08-20, Luke: "the video is no good" — back to the photo on every
-       breakpoint, which is what mobile was showing throughout. -->
+       breakpoint, which is what mobile was showing throughout.
+       2026-08-21: Luke picked hero-congregation-hands off the six-candidate
+       board in _hero-preview.html, replacing worship-hands-raised-v2. That
+       file stays on disk and in git in case he wants it back.
+       This frame is a good deal brighter than the one it replaced, so the
+       scrim in style.css was re-checked rather than assumed: sampled at five
+       points along the ken-burns path at 1440 and 1280 wide, the worst
+       contrast behind the headline is 5.67:1 against a 4.5:1 floor. No scrim
+       change was needed — which is the guarantee the two-layer wash exists
+       to provide. -->
   <div class="hero-media">
     <!-- The hero is the largest image on the site and the one that gates first
-         paint. srcset lets a phone take the 480px file (17KB) instead of the
-         1600px one (133KB) — see the "-480/-900" variants in assets/photos. -->
+         paint. srcset lets a phone take the 480px file (24KB) instead of the
+         1400px one (124KB) — see the "-480/-900" variants in assets/photos. -->
     <picture>
-      <!-- Luke's photo, re-edited by him on 2026-08-19 to take the lyrics off
-           the projection screen — they competed with the site's own headline.
-           Same file at both breakpoints: the frame is a wide 3:2 whose whole
+      <!-- Same file at both breakpoints, at Luke's direction: the frame is a
+           3:2 shot from behind the congregation into the light, and the whole
            composition is the point, so the phone shows it near-whole rather
            than taking a separate crop. -->
       <source media="(max-width: 640px)"
-              srcset="assets/photos/home/worship-hands-raised-v2-480.jpg 480w, assets/photos/home/worship-hands-raised-v2-720.jpg 720w, assets/photos/home/worship-hands-raised-v2.jpg 1400w"
+              srcset="assets/photos/home/hero-congregation-hands-480.jpg 480w, assets/photos/home/hero-congregation-hands-720.jpg 720w, assets/photos/home/hero-congregation-hands.jpg 1400w"
               sizes="100vw">
-      <img class="hero-image" src="assets/photos/home/worship-hands-raised-v2.jpg"
-           srcset="assets/photos/home/worship-hands-raised-v2-480.jpg 480w, assets/photos/home/worship-hands-raised-v2-900.jpg 900w, assets/photos/home/worship-hands-raised-v2.jpg 1400w"
+      <img class="hero-image" src="assets/photos/home/hero-congregation-hands.jpg"
+           srcset="assets/photos/home/hero-congregation-hands-480.jpg 480w, assets/photos/home/hero-congregation-hands-900.jpg 900w, assets/photos/home/hero-congregation-hands.jpg 1400w"
            sizes="100vw"
-           width="1400" height="935" alt="" fetchpriority="high">
+           width="1400" height="933" alt="" fetchpriority="high">
     </picture>
   </div>
   <div class="hero-content">

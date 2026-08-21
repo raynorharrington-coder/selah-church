@@ -1329,6 +1329,73 @@ p, li, figcaption {
 .page-hero h1 { font-size: clamp(2.4rem, 6vw, 4rem); max-width: 22ch; }
 .page-hero p { color: rgba(247,242,230,0.72); max-width: 52ch; margin-top: 1.2rem; font-size: 1.05rem; }
 
+/* --- Photo variant, added 2026-08-21 for sermons.html ---------------------
+
+   Luke wanted the sermons page to open on a photo rather than the flat ink
+   band the other seventeen interior pages use. It is deliberately NOT the
+   home hero: that one is 100svh and owns the viewport, and giving an interior
+   page the same weight would flatten the difference between the front door
+   and a room inside. This is a band — taller than the plain .page-hero, well
+   short of full height — so the sermon library still starts above the fold on
+   a laptop.
+
+   The .page-hero base rules all still apply; this only adds the media layer
+   and the height. Any other page can take a photo hero by adding the
+   modifier and a .page-hero-media block. */
+.page-hero--photo {
+  min-height: min(60svh, 560px);
+  display: flex;
+  align-items: flex-end;
+  padding-bottom: clamp(4rem, 8vw, 6rem);
+}
+.page-hero--photo > .container { width: 100%; }
+/* The gold radial is the plain hero's only visual interest. Over a photo it
+   just muddies the image, and the scrim below is doing the contrast work. */
+.page-hero--photo::before { display: none; }
+
+.page-hero-media { position: absolute; inset: 0; z-index: 0; }
+.page-hero-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  /* Right of centre: the preacher stands at ~72% across the frame, so a
+     centred crop walks him off the edge as the viewport narrows. */
+  object-position: 68% center;
+  /* Lighter grade than the home hero's. That frame is a dim stage shot; this
+     room is warm and evenly lit, so it needs less lifting and no sepia — the
+     wall is already that colour. */
+  filter: grayscale(0.25) brightness(0.94);
+}
+/* Same two-layer scrim as the home hero, and for the same reason: the
+   horizontal wash guarantees a dark field under the left-hand copy column
+   whatever the photo is doing, so contrast does not have to be re-checked
+   if the image is ever swapped.
+
+   Measured 2026-08-21 against the brightest background pixel inside each
+   text box, which is the worst case the copy can land on: h1 12.5:1 desktop
+   / 6.4:1 mobile, and the subhead — the weakest text, since it is the paper
+   colour at 0.72 alpha — 7.6:1 and 5.8:1. Floor is 4.5:1. The first pass ran
+   brightness(0.86) with a heavier wash and measured 7.9:1, but the photo read
+   as a dark panel rather than a photograph; the grade above spends that
+   headroom on the image and still clears the floor by a wide margin. */
+.page-hero-media::after {
+  content: '';
+  position: absolute; inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(95deg, rgba(15,26,20,0.88) 0%, rgba(15,26,20,0.70) 36%, rgba(15,26,20,0.16) 62%, rgba(15,26,20,0) 78%),
+    linear-gradient(180deg, rgba(22,35,28,0.48) 0%, rgba(22,35,28,0.28) 40%, rgba(15,26,20,0.90) 100%);
+}
+/* Below the nav breakpoint the copy spans the full width, so a left-anchored
+   wash would leave the last words on bare photo — go flat, as the home hero
+   does at the same breakpoint. */
+@media (max-width: 860px) {
+  .page-hero-media::after {
+    background:
+      linear-gradient(180deg, rgba(15,26,20,0.68) 0%, rgba(15,26,20,0.62) 40%, rgba(15,26,20,0.92) 100%);
+  }
+}
+
 /* ===================== BELIEFS ===================== */
 .belief-list { display: flex; flex-direction: column; max-width: 780px; margin: 0 auto; }
 .belief-item {

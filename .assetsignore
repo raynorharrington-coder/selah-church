@@ -35,6 +35,13 @@ assets/photos/team/lukeandamanda.jpg
 assets/photos/team/amanda-bio.jpg
 assets/photos/team/amanda-bio-480.jpg
 
-# Local hero-preview tooling and unchosen candidates (2026-08-20) — never served
+# Local hero-preview tooling and the candidates Luke did not pick (2026-08-20)
+# — never served. The two he did pick on 2026-08-21 are deliberately absent
+# from this list: hero-congregation-hands is the home hero and
+# hero-preaching-podium is the sermons hero. Keep this in step with the
+# matching block in .gitignore.
 _hero-preview.html
-assets/photos/home/hero-*
+assets/photos/home/hero-congregation-vertical*
+assets/photos/home/hero-teaching-slide*
+assets/photos/home/hero-worship-band*
+assets/photos/home/hero-worship-leader-lyrics*

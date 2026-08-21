@@ -34,8 +34,20 @@ archive/
 # Hero selection, 2026-08-20 — local only until Luke picks one.
 # _hero-preview.html is generated from index.html by
 # docs/hero-selection/make-preview.py; the hero-* candidates are generated
-# from the masters in OneDrive media-source by build-heroes.py. Neither is
-# referenced by the live site. When Luke picks, delete the matching line
-# below and commit just the chosen photo's four variants.
+# from the masters in OneDrive media-source by build-heroes.py. When Luke
+# picks, delete the matching line below and commit just the chosen photo's
+# four variants — and un-ignore it in .assetsignore too, or the file is in
+# git but never served.
+#
+# Picked 2026-08-21: hero-congregation-hands (home hero, both breakpoints)
+# and hero-preaching-podium (sermons page hero). Both now committed.
+# The four below stay local; the masters are in OneDrive media-source.
 _hero-preview.html
-assets/photos/home/hero-*.jpg
+assets/photos/home/hero-congregation-vertical-*.jpg
+assets/photos/home/hero-congregation-vertical.jpg
+assets/photos/home/hero-teaching-slide-*.jpg
+assets/photos/home/hero-teaching-slide.jpg
+assets/photos/home/hero-worship-band-*.jpg
+assets/photos/home/hero-worship-band.jpg
+assets/photos/home/hero-worship-leader-lyrics-*.jpg
+assets/photos/home/hero-worship-leader-lyrics.jpg
