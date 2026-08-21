@@ -27,21 +27,10 @@ archive/
 assets/branding/
 
 
-# Unreferenced photos — kept on disk, not shipped (see TODOS.md)
-assets/photos/IMG_6693.jpeg
-assets/photos/C1108582.jpg
-assets/photos/team/lukeandamanda.jpg
-# Superseded by amanda-bio-v2 (2026-08-20 crop); kept as the crop source.
-assets/photos/team/amanda-bio.jpg
-assets/photos/team/amanda-bio-480.jpg
-
-# Local hero-preview tooling and the candidates Luke did not pick (2026-08-20)
-# — never served. The two he did pick on 2026-08-21 are deliberately absent
-# from this list: hero-congregation-hands is the home hero and
-# hero-preaching-podium is the sermons hero. Keep this in step with the
-# matching block in .gitignore.
+# The unreferenced-photo block that used to live here is gone: those files were
+# deleted from the repo 2026-08-21 rather than carried as unserved weight.
+# Their masters are in OneDrive at Selah-site/media-source/ — camera originals
+# in photos-raw/, the frames Luke passed on in photos-raw/unused-2026-08-21/
+# and photos-raw/hero-candidates-2026-08-20/. Nothing needs listing here
+# because nothing unreferenced remains.
 _hero-preview.html
-assets/photos/home/hero-congregation-vertical*
-assets/photos/home/hero-teaching-slide*
-assets/photos/home/hero-worship-band*
-assets/photos/home/hero-worship-leader-lyrics*

@@ -41,7 +41,13 @@ archive/
 #
 # Picked 2026-08-21: hero-congregation-hands (home hero, both breakpoints)
 # and hero-preaching-podium (sermons page hero). Both now committed.
-# The four below stay local; the masters are in OneDrive media-source.
+#
+# The four candidates Luke passed on were deleted from disk 2026-08-21 — they
+# were never in git, so this is their only record. The 1400px canonicals of
+# hero-congregation-vertical and hero-teaching-slide are preserved in
+# media-source/photos-raw/hero-candidates-2026-08-20/, and the other two in
+# photos-raw/unused-2026-08-21/. The rules below stay so that re-running
+# build-heroes.py cannot accidentally commit regenerated candidates.
 _hero-preview.html
 assets/photos/home/hero-congregation-vertical-*.jpg
 assets/photos/home/hero-congregation-vertical.jpg
