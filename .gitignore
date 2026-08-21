@@ -30,3 +30,12 @@ archive/
 .env*
 !.env.example
 
+
+# Hero selection, 2026-08-20 — local only until Luke picks one.
+# _hero-preview.html is generated from index.html by
+# docs/hero-selection/make-preview.py; the hero-* candidates are generated
+# from the masters in OneDrive media-source by build-heroes.py. Neither is
+# referenced by the live site. When Luke picks, delete the matching line
+# below and commit just the chosen photo's four variants.
+_hero-preview.html
+assets/photos/home/hero-*.jpg
