@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Events | Selah Church — Fredericksburg, VA</title>
-<meta name="description" content="Upcoming events at Selah Church in Fredericksburg, VA.">
+<meta name="description" content="Weekly and monthly gatherings at Selah Church in Fredericksburg, VA — Sunday services, Cadre, Bread, Selah Youth, and monthly Shabbat dinners.">
 
 <!-- Update to a custom domain if one is connected later -->
 <link rel="canonical" href="https://selah-church.thyratechllc.workers.dev/events.html">
@@ -34,50 +34,85 @@
   <div class="container">
     <span class="eyebrow">Get Involved</span>
     <h1>What&rsquo;s happening at Selah.</h1>
-    <p>From weekend gatherings to one-off events, here&rsquo;s what&rsquo;s coming up.</p>
+    <p>These are the rhythms we keep as a church family &mdash; weekly, monthly, and always open.</p>
   </div>
 </section>
 
 <section class="section section--paper">
   <div class="container">
+    <!-- Luke's ask, 2026-08-20: point people at Church Center first, since
+         that calendar is the source of truth and this page is a mirror of it. -->
+    <p class="calendar-callout">
+      For more exact information, check our calendar on Church Center
+      <a href="https://selahchurch.churchcenter.com/calendar?view=month" target="_blank" rel="noopener">here</a>!
+    </p>
+
     <h2 class="sr-only">Upcoming Events</h2>
+
+    <!-- These six cards are the no-JS view: the date block carries the
+         recurrence in words ("2nd / Thu") so the page still tells the truth
+         without scripting. With JS, initEventsData replaces the block with
+         the next real date and re-sorts by which comes soonest. Keep this
+         markup in sync with EVENT_SCHEDULE in script.js. -->
     <div class="event-list" id="eventList">
       <div class="event-card">
-        <div class="event-date"><span class="month">Placeholder</span><span class="day">TBD</span></div>
+        <div class="event-date"><span class="month">Every</span><span class="day">Sun</span></div>
         <div class="event-info">
-          <h3>Family Movie Night</h3>
-          <p>Bring the whole family for a night of food, fun, and a movie on the big screen.</p>
-          <span class="event-meta">Time &amp; location — TBD</span>
+          <h3>Church Gathering</h3>
+          <p>Our weekly gathering as a church family &mdash; worship, teaching from God&rsquo;s Word, and space to pause, reflect, and praise.</p>
+          <span class="event-meta">Every Sunday &middot; 10:30 AM &ndash; 12:00 PM &middot; Selah Church</span>
+        </div>
+        <a href="visit.html" class="btn btn-outline-dark btn-small">Plan your visit</a>
+      </div>
+
+      <div class="event-card">
+        <div class="event-date"><span class="month">1st</span><span class="day">Mon</span></div>
+        <div class="event-info">
+          <h3>Selah Worship Team Night</h3>
+          <p>A monthly night for our worship team to rehearse, pray, and prepare together for the Sundays ahead.</p>
+          <span class="event-meta">First Monday of every month &middot; 6:30 &ndash; 8:30 PM &middot; Selah Church</span>
         </div>
       </div>
 
       <div class="event-card">
-        <div class="event-date"><span class="month">Placeholder</span><span class="day">TBD</span></div>
+        <div class="event-date"><span class="month">1st &amp; 3rd</span><span class="day">Tue</span></div>
         <div class="event-info">
-          <h3>Life Group Kickoff</h3>
-          <p>New Life Groups are launching — come find a group and get plugged in.</p>
-          <span class="event-meta">Time &amp; location — TBD</span>
+          <h3>Cadre</h3>
+          <p>Cadres are designed to help people build authentic relationships, grow in their faith, and walk through life together &mdash; opening God&rsquo;s Word, reflecting on Sunday&rsquo;s sermon, and praying for one another.</p>
+          <span class="event-meta">First &amp; third Tuesday of every month &middot; 6:30 &ndash; 8:30 PM &middot; Selah Church</span>
+        </div>
+        <a href="cadre.html" class="btn btn-outline-dark btn-small">Learn more</a>
+      </div>
+
+      <div class="event-card">
+        <div class="event-date"><span class="month">2nd</span><span class="day">Thu</span></div>
+        <div class="event-info">
+          <h3>Bread</h3>
+          <p>Want to grow in reading God&rsquo;s Word? At Bread we walk through a book of the Bible together and provide a reading plan for the month ahead. Come ready to learn, grow, and be nourished.</p>
+          <span class="event-meta">Second Thursday of every month &middot; 6:30 &ndash; 8:00 PM &middot; Selah Church</span>
         </div>
       </div>
 
       <div class="event-card">
-        <div class="event-date"><span class="month">Placeholder</span><span class="day">TBD</span></div>
+        <div class="event-date"><span class="month">1st &amp; 3rd</span><span class="day">Thu</span></div>
         <div class="event-info">
-          <h3>Serve Day</h3>
-          <p>A day for our church family to serve the Fredericksburg community together.</p>
-          <span class="event-meta">Time &amp; location — TBD</span>
+          <h3>Selah Youth</h3>
+          <p>Middle and high schoolers growing in faith through worship, teaching, fellowship, and fun &mdash; helping students deepen their relationship with God and find a sense of belonging and purpose.</p>
+          <span class="event-meta">First &amp; third Thursday of every month &middot; 6:00 &ndash; 8:00 PM &middot; Selah Church</span>
         </div>
+        <a href="students.html" class="btn btn-outline-dark btn-small">Learn more</a>
+      </div>
+
+      <div class="event-card">
+        <div class="event-date"><span class="month">4th</span><span class="day">Fri</span></div>
+        <div class="event-info">
+          <h3>Shabbat Dinner</h3>
+          <p>A monthly dinner expression of Selah Church &mdash; cultivating relationships within the church family and honoring the Sabbath around real tables in real homes.</p>
+          <span class="event-meta">Fourth Friday of every month &middot; 6:30 &ndash; 8:30 PM &middot; Hosted in homes</span>
+        </div>
+        <a href="shabbat-dinners.html" class="btn btn-outline-dark btn-small">Learn more</a>
       </div>
     </div>
-  </div>
-</section>
-
-<section class="section section--ink section--cta">
-  <div class="container">
-    <span class="eyebrow">Church Calendar</span>
-    <h2>See everything that&rsquo;s coming up.</h2>
-    <p>Our full calendar lives on Church Center and is kept up to date with every gathering, group, and event.</p>
-    <a href="https://selahchurch.churchcenter.com/calendar?view=month" target="_blank" rel="noopener" class="btn btn-gold">View the church calendar</a>
   </div>
 </section>
 

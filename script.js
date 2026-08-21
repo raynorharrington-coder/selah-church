@@ -365,67 +365,184 @@ async function initSermonData() {
   }
 }
 
-/* ---------- Events: staff-editable via /admin (Decap CMS) ----------
-   content/events.json is edited through the dashboard, not by hand — see
-   STEP-BY-STEP.md and the USER-GUIDE.md handed to Luke's team. The static
-   cards already in events.html's markup are the fallback: they're only
-   left on screen if this fetch fails, never silently replaced with
-   something misleading. */
-function eventCardHTML(ev) {
-  const hasDate = ev.date && !Number.isNaN(new Date(`${ev.date}T00:00:00`).getTime());
-  const d = hasDate ? new Date(`${ev.date}T00:00:00`) : null;
-  const month = d ? d.toLocaleDateString('en-US', { month: 'short' }).toUpperCase() : 'TBD';
-  const day = d ? String(d.getDate()) : '—';
+/* ---------- Events: generated from Church Center's recurrence rules ----------
+   2026-08-20, Luke via Raynor: the events page no longer reads
+   content/events.json. The /admin dashboard and that file are both left in
+   place and untouched — we're just not sourcing this page from them for now.
+
+   Every Selah event is a standing rhythm, not a one-off, so hard-coded dates
+   would silently rot the moment a month turned over. Instead each event
+   carries the same recurrence rule Church Center publishes, and the next
+   real date is computed in the browser at page load. The page stays correct
+   in six months with nobody touching it.
+
+   Rules and copy were read off selahchurch.churchcenter.com on 2026-08-20 —
+   the recurrence strings ("The second Thursday of every month") and the
+   descriptions are Luke's own words from the calendar, not invented here.
+   If a rhythm changes on Church Center, change it here too: this list is a
+   mirror, and nothing detects drift automatically. */
+const EVENT_SCHEDULE = [
+  {
+    title: 'Church Gathering',
+    rule: { weekday: 0 },                    // every Sunday
+    recurrence: 'Every Sunday',
+    shortWhen: { top: 'Every', bottom: 'Sun' },
+    time: '10:30 AM – 12:00 PM',
+    location: 'Selah Church',
+    description: 'Our weekly gathering as a church family — worship, teaching from God’s Word, and space to pause, reflect, and praise.',
+    link: { href: 'visit.html', label: 'Plan your visit' },
+  },
+  {
+    title: 'Selah Worship Team Night',
+    rule: { weekday: 1, nths: [1] },         // first Monday
+    recurrence: 'First Monday of every month',
+    shortWhen: { top: '1st', bottom: 'Mon' },
+    time: '6:30 – 8:30 PM',
+    location: 'Selah Church',
+    description: 'A monthly night for our worship team to rehearse, pray, and prepare together for the Sundays ahead.',
+  },
+  {
+    title: 'Cadre',
+    // startsOn: Church Center has no Cadre before 2026-09-01 (August is
+    // blank on the calendar), so the rule alone would invent an Aug 4 / Aug 18
+    // that never happens. Same story for Selah Youth below.
+    rule: { weekday: 2, nths: [1, 3], startsOn: '2026-09-01' },
+    recurrence: 'First & third Tuesday of every month',
+    shortWhen: { top: '1st & 3rd', bottom: 'Tue' },
+    time: '6:30 – 8:30 PM',
+    location: 'Selah Church',
+    description: 'Cadres are designed to help people build authentic relationships, grow in their faith, and walk through life together — opening God’s Word, reflecting on Sunday’s sermon, and praying for one another.',
+    link: { href: 'cadre.html', label: 'Learn more' },
+  },
+  {
+    title: 'Bread',
+    rule: { weekday: 4, nths: [2] },         // second Thursday
+    recurrence: 'Second Thursday of every month',
+    shortWhen: { top: '2nd', bottom: 'Thu' },
+    time: '6:30 – 8:00 PM',
+    location: 'Selah Church',
+    description: 'Want to grow in reading God’s Word? At Bread we walk through a book of the Bible together and provide a reading plan for the month ahead. Come ready to learn, grow, and be nourished.',
+  },
+  {
+    title: 'Selah Youth',
+    rule: { weekday: 4, nths: [1, 3], startsOn: '2026-09-03' },
+    recurrence: 'First & third Thursday of every month',
+    shortWhen: { top: '1st & 3rd', bottom: 'Thu' },
+    time: '6:00 – 8:00 PM',
+    location: 'Selah Church',
+    description: 'Middle and high schoolers growing in faith through worship, teaching, fellowship, and fun — helping students deepen their relationship with God and find a sense of belonging and purpose.',
+    link: { href: 'students.html', label: 'Learn more' },
+  },
+  {
+    title: 'Shabbat Dinner',
+    rule: { weekday: 5, nths: [4] },         // fourth Friday
+    recurrence: 'Fourth Friday of every month',
+    shortWhen: { top: '4th', bottom: 'Fri' },
+    time: '6:30 – 8:30 PM',
+    location: 'Hosted in homes',
+    description: 'A monthly dinner expression of Selah Church — cultivating relationships within the church family and honoring the Sabbath around real tables in real homes.',
+    link: { href: 'shabbat-dinners.html', label: 'Learn more' },
+  },
+];
+
+/* The nth weekday of a month, or null when that month has no nth — a 5th
+   Friday does not exist in most months, and asking for one must not silently
+   roll into the next month. */
+function nthWeekdayOfMonth(year, month, weekday, nth) {
+  const first = new Date(year, month, 1);
+  const shift = (weekday - first.getDay() + 7) % 7;
+  const date = new Date(year, month, 1 + shift + (nth - 1) * 7);
+  return date.getMonth() === month ? date : null;
+}
+
+/* The first occurrence on or after `from`. An event happening *today* still
+   counts as upcoming — nobody wants the page to drop tonight's dinner at
+   9am on the day of it. Monthly rules scan 14 months so a rule that skips
+   some months (a 5th-weekday rule, were one ever added) still resolves. */
+function nextOccurrence(rule, from) {
+  // A series that hasn't begun yet can't occur before its first date.
+  let start = from;
+  if (rule.startsOn) {
+    const seriesStart = new Date(`${rule.startsOn}T00:00:00`);
+    if (seriesStart > start) start = seriesStart;
+  }
+  if (!rule.nths) {
+    const shift = (rule.weekday - start.getDay() + 7) % 7;
+    return new Date(start.getFullYear(), start.getMonth(), start.getDate() + shift);
+  }
+  for (let i = 0; i < 14; i += 1) {
+    const probe = new Date(start.getFullYear(), start.getMonth() + i, 1);
+    const hits = rule.nths
+      .map((n) => nthWeekdayOfMonth(probe.getFullYear(), probe.getMonth(), rule.weekday, n))
+      .filter((d) => d && d >= start)
+      .sort((a, b) => a - b);
+    if (hits.length) return hits[0];
+  }
+  return null;
+}
+
+function eventCardHTML(ev, next) {
+  const month = next
+    ? next.toLocaleDateString('en-US', { month: 'short' }).toUpperCase()
+    : ev.shortWhen.top;
+  const day = next ? String(next.getDate()) : ev.shortWhen.bottom;
+  const meta = [ev.recurrence, ev.time, ev.location].filter(Boolean).join(' · ');
+  const cta = ev.link
+    ? `<a href="${escapeHtml(ev.link.href)}" class="btn btn-outline-dark btn-small">${escapeHtml(ev.link.label)}</a>`
+    : '';
   return `
     <div class="event-card">
       <div class="event-date"><span class="month">${escapeHtml(month)}</span><span class="day">${escapeHtml(day)}</span></div>
       <div class="event-info">
         <h3>${escapeHtml(ev.title)}</h3>
         <p>${escapeHtml(ev.description)}</p>
-        <span class="event-meta">${escapeHtml(ev.meta || 'Time & location — TBD')}</span>
+        <span class="event-meta">${escapeHtml(meta)}</span>
       </div>
+      ${cta}
     </div>`;
 }
 
-async function initEventsData() {
+function initEventsData() {
   const list = document.getElementById('eventList');
   if (!list) return;
-  try {
-    const res = await fetch('content/events.json', { cache: 'no-store' });
-    if (!res.ok) throw new Error(`status ${res.status}`);
-    const data = await res.json();
-    const items = Array.isArray(data.items) ? data.items : [];
-    if (!items.length) {
-      list.innerHTML = '<p class="sermon-loading-note">No events posted right now — check back soon.</p>';
-      return;
-    }
-    list.innerHTML = items.map(eventCardHTML).join('');
 
-    // These cards didn't exist when initScrollReveal first ran at
-    // DOMContentLoaded — wire the reveal observer up now for the
-    // freshly-inserted markup (same pattern as renderSermonGrid).
-    const reduceMotion = getReducedMotionPreference();
-    const newCards = list.querySelectorAll('.event-card');
-    if (reduceMotion) {
-      newCards.forEach((el) => el.classList.add('in-view'));
-    } else {
-      const io = new IntersectionObserver((entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('in-view');
-            io.unobserve(entry.target);
-          }
-        });
-      }, { threshold: 0.18 });
-      newCards.forEach((el, i) => {
-        el.style.transitionDelay = `${(i % 4) * 90}ms`;
-        io.observe(el);
-      });
-    }
-  } catch (e) {
-    console.error('events fetch failed — leaving the static fallback cards in place', e);
+  // Midnight today, so an event later today still reads as upcoming.
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+  const cards = EVENT_SCHEDULE
+    .map((ev) => ({ ev, next: nextOccurrence(ev.rule, today) }))
+    .sort((a, b) => {
+      if (!a.next) return 1;
+      if (!b.next) return -1;
+      return a.next - b.next;
+    });
+
+  list.innerHTML = cards.map(({ ev, next }) => eventCardHTML(ev, next)).join('');
+
+  // These cards didn't exist when initScrollReveal first ran at
+  // DOMContentLoaded — wire the reveal observer up now for the
+  // freshly-inserted markup (same pattern as renderSermonGrid).
+  const reduceMotion = getReducedMotionPreference();
+  const newCards = list.querySelectorAll('.event-card');
+  if (reduceMotion) {
+    newCards.forEach((el) => el.classList.add('in-view'));
+    return;
   }
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('in-view');
+        io.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.18 });
+  newCards.forEach((el, i) => {
+    el.style.transitionDelay = `${(i % 4) * 90}ms`;
+    io.observe(el);
+  });
 }
+
 
 /* ---------- Form validation + confirmation (prayer/contact) ----------
    No backend exists yet (see the dev-note on each form). Telling the user

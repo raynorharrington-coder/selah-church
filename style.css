@@ -1445,6 +1445,28 @@ p, li, figcaption {
 .event-info p { color: var(--stone); font-size: 0.92rem; margin: 0; }
 .event-meta { font-family: var(--font-mono); font-size: 0.78rem; color: var(--stone-light); margin-top: 0.4rem; display: block; }
 
+/* Church Center is the source of truth for dates; this page mirrors it.
+   Luke asked for the pointer to sit above the list, not buried at the bottom. */
+.calendar-callout {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  color: var(--stone);
+  background: var(--paper-2);
+  border: 1px solid rgba(22,35,28,0.08);
+  border-left: 3px solid var(--rust);
+  border-radius: var(--radius);
+  padding: 0.95rem 1.2rem;
+  margin: 0 0 2.2rem;
+}
+.calendar-callout a { color: var(--rust); text-decoration: underline; text-underline-offset: 2px; }
+@media (hover: hover) { .calendar-callout a:hover { color: var(--ink); } }
+
+/* Without JS the date block carries the recurrence in words ("1st & 3rd" /
+   "Tue") instead of a number, so .month has to survive a longer string than
+   the "SEP" it was sized for. */
+.event-date .month { line-height: 1.25; }
+.event-date .day { overflow-wrap: anywhere; }
+
 @media (max-width: 640px) {
   /* The 1.8rem gap + 1.8rem side padding left the title column ~160px on a 360px phone */
   .event-card { grid-template-columns: 70px 1fr; gap: 1.1rem; padding: 1.4rem 1.2rem; }
