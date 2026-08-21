@@ -603,9 +603,8 @@ function validateForm(form) {
   return invalid;
 }
 
-// Same-origin Worker endpoint. It forwards to the Google Apps Script server
-// side, avoiding the cross-origin redirect that causes intermittent browser
-// failures on form submission. See worker/index.js and google-apps-script/.
+// Same-origin Worker endpoint. It validates Turnstile and sends through Resend
+// server-side, so the browser never sees either secret. See worker/index.js.
 const FORM_ENDPOINT = '/api/forms';
 
 /* ---------- Cloudflare Turnstile ----------
@@ -689,7 +688,7 @@ async function submitForm(form) {
   // Turnstile tokens are single-use and expire after a few minutes, so read the
   // current one at submit time rather than caching it. No token means the widget
   // has not finished, has expired, or was blocked from loading — stop here
-  // rather than posting something the Apps Script will only reject.
+  // rather than posting something the Worker will only reject.
   const widgetId = turnstileWidgets.get(form);
   const token = (TURNSTILE_SITEKEY && window.turnstile && widgetId !== undefined)
     ? window.turnstile.getResponse(widgetId)
@@ -721,12 +720,11 @@ async function submitForm(form) {
   }
 
   try {
-    // This stays same-origin. The Worker forwards the payload to Apps Script
-    // server-to-server, so the browser neither preflights nor follows Google's
-    // cross-origin redirect — while still receiving the actual JSON result.
+    // This stays same-origin. The Worker validates Turnstile and sends the
+    // notification server-to-server, returning only this small JSON result.
     const response = await fetch(FORM_ENDPOINT, {
       method: 'POST',
-      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      headers: { 'Content-Type': 'application/json;charset=utf-8' },
       body: JSON.stringify(payload),
     });
 

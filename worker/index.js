@@ -1,16 +1,18 @@
 /**
  * Selah Church Worker
  *
- * Two jobs:
+ * Three jobs:
  *  1. Serve the static site (everything not matched below falls through to
  *     the ASSETS binding, i.e. the existing HTML/CSS/JS files).
  *  2. Once a day (see wrangler.jsonc "triggers.crons"), pull the latest
  *     videos from each sermon-series YouTube playlist and cache the result
  *     in KV, so sermons.html never has to call YouTube's API itself.
+ *  3. Receive the contact and prayer forms, validate Turnstile, and deliver
+ *     the notification through Resend from Selah's verified domain.
  *
  * Nothing here needs Luke's involvement day to day — this file only needs
  * to be touched again if a new sermon series starts (add its playlist to
- * SERIES_PLAYLISTS below) or the YouTube API key rotates.
+ * SERIES_PLAYLISTS below), a secret rotates, or a form destination changes.
  */
 
 // Fill in every active/past series here, mapping to its real YouTube
@@ -52,13 +54,19 @@ const UPLOADS_SCAN_LIMIT = 50;
 // messages ran 26–83 minutes and everything else came in under 4m30.
 const MIN_MESSAGE_SECONDS = 15 * 60;
 
-// Google Apps Script redirects every web-app POST to a googleusercontent.com
-// response. Following that redirect in the visitor's browser is unreliable on
-// some mobile browsers, so forms use this same-origin Worker endpoint instead.
-// The URL is public by design; Turnstile validation and field validation still
-// happen inside Code.gs before a message can be delivered.
-const FORM_BACKEND_URL = 'https://script.google.com/macros/s/AKfycbziXtOG-ZQdg4vFqecgHKqE_7T1b6Ww3DPPbE8l8SX6N1-L9FLK1jLmYSrqlc5qWwpr/exec';
-const MAX_FORM_BODY_BYTES = 12 * 1024;
+// Form delivery is intentionally same-origin: the browser sends to this
+// Worker, which validates Turnstile and sends through Resend. The secrets
+// never reach the browser or this public repository.
+const FORM_MAX_BODY_BYTES = 24 * 1024;
+const TURNSTILE_ACTION = 'selah-form';
+const TURNSTILE_HOSTNAMES = new Set([
+  'selahchurchfxbg.com',
+  'www.selahchurchfxbg.com',
+  'selah-church.thyratechllc.workers.dev',
+]);
+const FORM_FROM = 'Selah Church Website <website@selahchurchfxbg.com>';
+const FORM_NOTIFY_EMAIL = 'info@selahchurchfxbg.com';
+const RESEND_EMAILS_URL = 'https://api.resend.com/emails';
 
 export default {
   async fetch(request, env, ctx) {
@@ -75,7 +83,7 @@ export default {
     }
 
     if (url.pathname === '/api/forms') {
-      return handleFormProxy(request);
+      return handleFormsApi(request, env);
     }
 
     // Lets `?resync=1` (with the same secret the cron uses) trigger an
@@ -117,13 +125,8 @@ async function handleSermonsApi(request, env) {
   });
 }
 
-/**
- * Receives a small, already-validated browser form payload and forwards it to
- * Apps Script. Keeping this hop same-origin means the browser never has to
- * follow Google's cross-origin redirect, while Apps Script remains the source
- * of truth for Turnstile, Sheets, and notification email.
- */
-async function handleFormProxy(request) {
+/** Receives, validates, and delivers the site's two small form payloads. */
+async function handleFormsApi(request, env) {
   if (request.method !== 'POST') {
     return new Response('Method Not Allowed', {
       status: 405,
@@ -131,38 +134,52 @@ async function handleFormProxy(request) {
     });
   }
 
-  const body = await readLimitedRequestBody(request, MAX_FORM_BODY_BYTES);
+  if (!env.TURNSTILE_SECRET || !env.RESEND_API_KEY) {
+    console.error('Form service is not configured: missing required secret');
+    return formJson({ ok: false, result: 'error', message: 'The form service is unavailable right now. Please try again shortly.' }, 503);
+  }
+
+  const body = await readLimitedRequestBody(request, FORM_MAX_BODY_BYTES);
   if (body === null) {
-    return formProxyJson({ ok: false, result: 'error', message: 'This submission is too large. Please shorten it and try again.' }, 413);
+    return formJson({ ok: false, result: 'error', message: 'This submission is too large. Please shorten it and try again.' }, 413);
+  }
+
+  let submitted;
+  try {
+    submitted = JSON.parse(body);
+  } catch {
+    return formJson({ ok: false, result: 'error', code: 'invalid_submission', message: 'The form could not be read. Please try again.' }, 400);
+  }
+
+  if (!submitted || typeof submitted !== 'object' || Array.isArray(submitted)) {
+    return formJson({ ok: false, result: 'error', code: 'invalid_submission', message: 'The form could not be read. Please try again.' }, 400);
+  }
+
+  const turnstile = await verifyTurnstile(request, env.TURNSTILE_SECRET, submitted['cf-turnstile-response']);
+  if (!turnstile.ok) {
+    console.warn(`Turnstile rejected a form submission: ${turnstile.reason}`);
+    return formJson({ ok: false, result: 'error', code: 'verification_failed', message: 'Verification failed. Please reload the page and try again.' }, 400);
+  }
+
+  // A filled honeypot gets an indistinguishable success response. Validate
+  // Turnstile first so this endpoint cannot be used as a free success oracle.
+  if (oneLine(submitted._gotcha, 240)) {
+    return formJson({ ok: true, result: 'success' }, 200);
+  }
+
+  const form = parseFormSubmission(submitted);
+  if (!form.ok) {
+    return formJson({ ok: false, result: 'error', code: 'invalid_submission', message: form.message }, 400);
   }
 
   try {
-    const upstream = await fetch(FORM_BACKEND_URL, {
-      method: 'POST',
-      headers: { 'content-type': 'text/plain;charset=utf-8' },
-      body,
-      redirect: 'follow',
-    });
-
-    if (!upstream.ok) {
-      console.error(`Form backend returned HTTP ${upstream.status}`);
-      return formProxyJson({ ok: false, result: 'error', message: 'The form service is unavailable right now. Please try again shortly.' }, 502);
-    }
-
-    // Preserve Apps Script's JSON body as a stream: do not buffer sensitive
-    // prayer/contact content in the Worker or cache an acknowledgement.
-    return new Response(upstream.body, {
-      status: 200,
-      headers: {
-        'content-type': 'application/json;charset=utf-8',
-        'cache-control': 'no-store',
-      },
-    });
+    await sendFormEmail(env.RESEND_API_KEY, form);
+    return formJson({ ok: true, result: 'success' }, 200);
   } catch (err) {
-    // Deliberately omit the payload and upstream URL from logs; neither is
-    // needed to diagnose transport failures and they should not be retained.
-    console.error('Form proxy could not reach the backend', err);
-    return formProxyJson({ ok: false, result: 'error', message: 'The form service is unavailable right now. Please try again shortly.' }, 502);
+    // Do not log form contents, visitor addresses, or the Resend response.
+    // That data may be especially sensitive for a prayer request.
+    console.error(`Form email delivery failed: ${err instanceof Error ? err.message : 'unknown error'}`);
+    return formJson({ ok: false, result: 'error', message: 'The form service is unavailable right now. Please try again shortly.' }, 502);
   }
 }
 
@@ -194,7 +211,7 @@ async function readLimitedRequestBody(request, maximumBytes) {
   return new TextDecoder().decode(bytes);
 }
 
-function formProxyJson(body, status) {
+function formJson(body, status) {
   return new Response(JSON.stringify(body), {
     status,
     headers: {
@@ -202,6 +219,118 @@ function formProxyJson(body, status) {
       'cache-control': 'no-store',
     },
   });
+}
+
+async function verifyTurnstile(request, secret, rawToken) {
+  const token = tokenValue(rawToken);
+  if (!token || token.length > 2048) return { ok: false, reason: 'missing-or-invalid-token' };
+
+  const body = new FormData();
+  body.set('secret', secret);
+  body.set('response', token);
+  const ip = request.headers.get('cf-connecting-ip');
+  if (ip) body.set('remoteip', ip);
+
+  try {
+    const response = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
+      method: 'POST',
+      body,
+    });
+    if (!response.ok) return { ok: false, reason: `siteverify-http-${response.status}` };
+
+    const result = await response.json();
+    if (result?.success !== true) return { ok: false, reason: 'siteverify-rejected' };
+    if (result.action !== TURNSTILE_ACTION) return { ok: false, reason: 'action-mismatch' };
+    if (!TURNSTILE_HOSTNAMES.has(result.hostname)) return { ok: false, reason: 'hostname-mismatch' };
+    return { ok: true };
+  } catch {
+    return { ok: false, reason: 'siteverify-unavailable' };
+  }
+}
+
+function parseFormSubmission(data) {
+  const formType = oneLine(data.formType, 20);
+  const name = oneLine(data.name, 240);
+  const email = oneLine(data.email, 320);
+
+  if (formType === 'contact') {
+    const message = multiLine(data.message, 5000);
+    if (!name || !email || !message || !isEmail(email)) {
+      return { ok: false, message: 'Please complete the required fields and use a valid email address.' };
+    }
+    return {
+      ok: true,
+      subject: `New Visit/Contact Message — ${name}`,
+      replyTo: email,
+      text: ['Name: ' + name, 'Email: ' + email, '', 'Message:', message, '', '---', 'Submitted through the contact form on selahchurchfxbg.com.'].join('\n'),
+    };
+  }
+
+  if (formType === 'prayer') {
+    const request = multiLine(data.request, 5000);
+    if (!name || !request || (email && !isEmail(email))) {
+      return { ok: false, message: 'Please complete the required fields and use a valid email address.' };
+    }
+    const confidential = data.confidential === true || data.confidential === 'true' || data.confidential === 'on';
+    return {
+      ok: true,
+      subject: `New Prayer Request — ${name}`,
+      replyTo: email || null,
+      text: [
+        'Name: ' + name,
+        'Email: ' + (email || '(not provided)'),
+        'Confidential: ' + (confidential ? 'Yes — the sender asked for this to be kept confidential' : 'No'),
+        '',
+        'Request:',
+        request,
+        '',
+        '---',
+        'Submitted through the prayer form on selahchurchfxbg.com.',
+      ].join('\n'),
+    };
+  }
+
+  return { ok: false, message: 'This form type is not recognized.' };
+}
+
+async function sendFormEmail(apiKey, form) {
+  const email = {
+    from: FORM_FROM,
+    to: [FORM_NOTIFY_EMAIL],
+    subject: form.subject,
+    text: form.text,
+  };
+  if (form.replyTo) email.reply_to = form.replyTo;
+
+  const response = await fetch(RESEND_EMAILS_URL, {
+    method: 'POST',
+    headers: {
+      authorization: `Bearer ${apiKey}`,
+      'content-type': 'application/json',
+    },
+    body: JSON.stringify(email),
+  });
+  if (!response.ok) throw new Error(`Resend HTTP ${response.status}`);
+}
+
+function tokenValue(value) {
+  return typeof value === 'string' ? value.replace(/[\r\n\t]+/g, '').trim() : '';
+}
+
+function oneLine(value, maximumLength) {
+  return value === null || value === undefined
+    ? ''
+    : String(value).replace(/[\r\n\t]+/g, ' ').trim().slice(0, maximumLength);
+}
+
+function multiLine(value, maximumLength) {
+  return value === null || value === undefined
+    ? ''
+    : String(value).replace(/\r\n/g, '\n').trim().slice(0, maximumLength);
+}
+
+function isEmail(email) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
 async function handleManualResync(request, env, ctx) {

@@ -1,4 +1,4 @@
-# Step-by-step: sermon auto-sync + staff dashboard
+# Step-by-step: sermon auto-sync, staff dashboard + forms
 
 This is the build/setup guide for two things added to the site:
 
@@ -9,6 +9,8 @@ This is the build/setup guide for two things added to the site:
    Luke's team can add/edit Events themselves, without a developer, without
    touching code. Built to extend to other content later (team bios, the
    doctrinal statement, etc.) the same way.
+3. **Contact + prayer forms** — a same-origin Cloudflare Worker endpoint that
+   validates Turnstile and sends via Resend from Selah's verified domain.
 
 All the code for both is already written and committed. What's left is
 account-level setup only you or Luke can do — creating API keys, an OAuth
@@ -105,9 +107,8 @@ between you and the `/api/sermons/resync` endpoint.)
 
 ### 1e. Deploy
 
-```bash
-npx wrangler deploy
-```
+Commit and push to `main`. Cloudflare Workers Build deploys this repository
+from GitHub; do not make a manual dashboard upload or direct `wrangler deploy`.
 
 That's it for sermons. The cron trigger (`worker/index.js` runs once a day
 at 10:00 UTC / ~6am Eastern — adjust the `crons` line in `wrangler.jsonc`
@@ -161,9 +162,8 @@ writing) and `branch` matches whichever branch is actually deployed
 
 ### 2d. Deploy (if you haven't already redeployed since Part 1)
 
-```bash
-npx wrangler deploy
-```
+Commit and push to `main`. Cloudflare Workers Build deploys the change from
+GitHub.
 
 ### 2e. Grant repo access
 
@@ -183,6 +183,63 @@ shared account — your call.
 
 Hand off `USER-GUIDE.md` to Luke once this works — that's the doc written
 for him, not for a developer.
+
+---
+
+## Part 3 — Contact and prayer forms (Resend)
+
+The forms are served at `POST /api/forms` on the same domain as the site. The
+Worker validates every Turnstile token, sends a plain-text notification with
+Resend, and sets the visitor's address as `Reply-To`. No Google Apps Script or
+personal Gmail identity is in the delivery path.
+
+### 3a. Verify Selah's sending domain in Resend
+
+1. Sign in to the Resend workspace that should own this church's sending
+   identity. Give a church owner access; the sending domain should not be
+   recoverable only through a personal account.
+2. Add `selahchurchfxbg.com` under **Domains**. Resend will show the exact
+   DKIM/SPF verification records it needs.
+3. In Cloudflare DNS, add each record exactly as Resend gives it, then click
+   **Verify** in Resend. The authoritative nameservers are already Cloudflare.
+   Do not alter Selah's existing Google Workspace MX records.
+4. Once verified, Resend can send as
+   `Selah Church Website <website@selahchurchfxbg.com>`.
+
+### 3b. Create the smallest-scope API key
+
+Create a Resend **sending** API key limited to `selahchurchfxbg.com`. Copy it
+once; it is the value for `RESEND_API_KEY`, and it must never be committed,
+placed in `wrangler.jsonc`, or sent in chat.
+
+### 3c. Set the two Worker secrets
+
+In Cloudflare's Worker settings, add these as encrypted **Secrets** (not plain
+text variables):
+
+| Secret | Value |
+|---|---|
+| `RESEND_API_KEY` | the scoped Resend sending key from step 3b |
+| `TURNSTILE_SECRET` | the existing secret for the `selah-church-forms` widget |
+
+The Turnstile secret currently exists only in the retired Apps Script's Script
+Properties, so retrieve it from the Turnstile widget in Cloudflare if it is not
+already recorded in a secure password manager. Do not weaken the form by
+deploying with Turnstile disabled.
+
+### 3d. Deploy and prove delivery
+
+1. Commit and push the Resend form changes to `main`; Cloudflare Workers Build
+   will deploy them. Do not use the old Apps Script as a fallback once this is
+   live.
+2. Submit one real contact form on `https://selahchurchfxbg.com/contact.html`.
+3. In `info@selahchurchfxbg.com`, inspect the delivered message before calling
+   the work complete: expand the sender to confirm
+   `Selah Church Website <website@selahchurchfxbg.com>`, confirm the visitor is
+   the `Reply-To`, check the body, spam placement, and SPF/DKIM/DMARC results.
+4. Repeat with one prayer request, then delete the two test emails. Keep the
+   old Google Sheet data until Selah decides its retention period; it is no
+   longer part of the live submission path.
 
 ---
 
@@ -209,9 +266,9 @@ No new Worker code, no new OAuth setup — all of that's already shared.
 
 ## Ongoing maintenance notes
 
-- **Rotating the YouTube API key or GitHub OAuth secret**: just run the
-  matching `wrangler secret put` command again with the new value, then
-  `wrangler deploy`. Nothing else changes.
+- **Rotating a Worker secret**: replace it in Cloudflare Worker settings, then
+  commit and push any code changes to `main` so Workers Build creates the
+  production deployment. Nothing else changes.
 - **A series playlist ID changes** (e.g. Selah renames/recreates a
   playlist): update it in `worker/index.js`'s `SERIES_PLAYLISTS`, redeploy.
 - **Something looks stale on `sermons.html`**: check
