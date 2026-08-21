@@ -116,11 +116,11 @@ if you want a different time) will do the first sync automatically. To
 force an immediate first sync instead of waiting:
 
 ```bash
-curl -X POST https://selah-church.thyratechllc.workers.dev/api/sermons/resync \
+curl -X POST https://selahchurchfxbg.com/api/sermons/resync \
   -H "x-resync-secret: <the RESYNC_SECRET you set>"
 ```
 
-Then check `https://selah-church.thyratechllc.workers.dev/api/sermons` in a
+Then check `https://selahchurchfxbg.com/api/sermons` in a
 browser — you should see real JSON with your series and videos, not an
 empty `{"series":[],"latest":null}`.
 
@@ -140,9 +140,9 @@ dashboard's UI hides all of that.
    with his own identity instead of a shared one — either works.)
 2. Fill in:
    - **Application name**: `Selah Church Dashboard`
-   - **Homepage URL**: `https://selah-church.thyratechllc.workers.dev`
+   - **Homepage URL**: `https://selahchurchfxbg.com`
    - **Authorization callback URL**:
-     `https://selah-church.thyratechllc.workers.dev/oauth/callback`
+     `https://selahchurchfxbg.com/oauth/callback`
 3. Register, then **Generate a new client secret**. Copy both the
    **Client ID** and the **Client Secret** — the secret is only shown once.
 
@@ -174,7 +174,7 @@ shared account — your call.
 
 ### 2f. Try it
 
-1. Go to `https://selah-church.thyratechllc.workers.dev/admin`.
+1. Go to `https://selahchurchfxbg.com/admin`.
 2. Click **Login with GitHub**, approve the app.
 3. You should land on the "Events" collection with the 3 seeded
    placeholder events already there. Edit one, click **Publish** — check
@@ -277,5 +277,5 @@ No new Worker code, no new OAuth setup — all of that's already shared.
   the Worker's error log.
 - **Dashboard login fails**: almost always the OAuth callback URL in the
   GitHub OAuth App settings not exactly matching
-  `https://selah-church.thyratechllc.workers.dev/oauth/callback`
+  `https://selahchurchfxbg.com/oauth/callback`
   (protocol, trailing slash, and domain all have to match exactly).

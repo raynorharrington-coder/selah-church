@@ -610,7 +610,7 @@ const FORM_ENDPOINT = '/api/forms';
 /* ---------- Cloudflare Turnstile ----------
    Spam protection for the contact and prayer forms. Widget
    `selah-church-forms` (Managed), scoped to selahchurchfxbg.com, its www form,
-   and the workers.dev subdomain the site currently serves from.
+   and the legacy workers.dev subdomain while it redirects to the canonical host.
 
    The sitekey is PUBLIC — it ships in the page source. The matching secret
    lives only in the Apps Script's Script Properties as TURNSTILE_SECRET.

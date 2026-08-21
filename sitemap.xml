@@ -1,24 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Update to a custom domain if one is connected later -->
+<!-- Canonical production domain -->
 <!-- shop.html is deliberately absent: the page still exists on disk but is
      unlinked from the site, so it shouldn't be advertised to search engines. -->
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>https://selah-church.thyratechllc.workers.dev/</loc></url>
-  <url><loc>https://selah-church.thyratechllc.workers.dev/our-team.html</loc></url>
-  <url><loc>https://selah-church.thyratechllc.workers.dev/our-beliefs.html</loc></url>
-  <url><loc>https://selah-church.thyratechllc.workers.dev/our-beginning.html</loc></url>
-  <url><loc>https://selah-church.thyratechllc.workers.dev/cadre.html</loc></url>
-  <url><loc>https://selah-church.thyratechllc.workers.dev/young-adults.html</loc></url>
-  <url><loc>https://selah-church.thyratechllc.workers.dev/moms-group.html</loc></url>
-  <url><loc>https://selah-church.thyratechllc.workers.dev/shabbat-dinners.html</loc></url>
-  <url><loc>https://selah-church.thyratechllc.workers.dev/serve.html</loc></url>
-  <url><loc>https://selah-church.thyratechllc.workers.dev/students.html</loc></url>
-  <url><loc>https://selah-church.thyratechllc.workers.dev/selah-nursery.html</loc></url>
-  <url><loc>https://selah-church.thyratechllc.workers.dev/selah-kids.html</loc></url>
-  <url><loc>https://selah-church.thyratechllc.workers.dev/sermons.html</loc></url>
-  <url><loc>https://selah-church.thyratechllc.workers.dev/events.html</loc></url>
-  <url><loc>https://selah-church.thyratechllc.workers.dev/give.html</loc></url>
-  <url><loc>https://selah-church.thyratechllc.workers.dev/visit.html</loc></url>
-  <url><loc>https://selah-church.thyratechllc.workers.dev/contact.html</loc></url>
-  <url><loc>https://selah-church.thyratechllc.workers.dev/prayer.html</loc></url>
+  <url><loc>https://selahchurchfxbg.com/</loc></url>
+  <url><loc>https://selahchurchfxbg.com/our-team.html</loc></url>
+  <url><loc>https://selahchurchfxbg.com/our-beliefs.html</loc></url>
+  <url><loc>https://selahchurchfxbg.com/our-beginning.html</loc></url>
+  <url><loc>https://selahchurchfxbg.com/cadre.html</loc></url>
+  <url><loc>https://selahchurchfxbg.com/young-adults.html</loc></url>
+  <url><loc>https://selahchurchfxbg.com/moms-group.html</loc></url>
+  <url><loc>https://selahchurchfxbg.com/shabbat-dinners.html</loc></url>
+  <url><loc>https://selahchurchfxbg.com/serve.html</loc></url>
+  <url><loc>https://selahchurchfxbg.com/students.html</loc></url>
+  <url><loc>https://selahchurchfxbg.com/selah-nursery.html</loc></url>
+  <url><loc>https://selahchurchfxbg.com/selah-kids.html</loc></url>
+  <url><loc>https://selahchurchfxbg.com/sermons.html</loc></url>
+  <url><loc>https://selahchurchfxbg.com/events.html</loc></url>
+  <url><loc>https://selahchurchfxbg.com/give.html</loc></url>
+  <url><loc>https://selahchurchfxbg.com/visit.html</loc></url>
+  <url><loc>https://selahchurchfxbg.com/contact.html</loc></url>
+  <url><loc>https://selahchurchfxbg.com/prayer.html</loc></url>
 </urlset>

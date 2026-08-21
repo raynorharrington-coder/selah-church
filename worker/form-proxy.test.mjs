@@ -61,6 +61,22 @@ try {
   assert.equal(wrongMethod.status, 405);
   assert.equal(wrongMethod.headers.get('allow'), 'POST');
 
+  const wwwRedirect = await worker.fetch(
+    new Request('https://www.selahchurchfxbg.com/contact.html?ref=legacy'),
+    {},
+    {},
+  );
+  assert.equal(wwwRedirect.status, 301);
+  assert.equal(wwwRedirect.headers.get('location'), 'https://selahchurchfxbg.com/contact.html?ref=legacy');
+
+  const workersDevRedirect = await worker.fetch(
+    new Request('https://selah-church.thyratechllc.workers.dev/api/sermons'),
+    {},
+    {},
+  );
+  assert.equal(workersDevRedirect.status, 301);
+  assert.equal(workersDevRedirect.headers.get('location'), 'https://selahchurchfxbg.com/api/sermons');
+
   const missingSecrets = await worker.fetch(
     new Request('https://selah.example/api/forms', { method: 'POST', body: '{}' }),
     {},

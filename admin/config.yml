@@ -10,7 +10,7 @@ backend:
   branch: main
   # This site's own Worker handles the GitHub login handshake — see
   # worker/index.js's /oauth/authorize and /oauth/callback routes.
-  base_url: https://selah-church.thyratechllc.workers.dev
+  base_url: https://selahchurchfxbg.com
   auth_endpoint: oauth/authorize
 
 # Where files uploaded through the dashboard (e.g. an event photo) get

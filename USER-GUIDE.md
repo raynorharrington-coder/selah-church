@@ -15,7 +15,7 @@ is nothing to log in and update for this.
 
 ### Logging in
 
-1. Go to **selah-church.thyratechllc.workers.dev/admin**
+1. Go to **selahchurchfxbg.com/admin**
 2. Click **Login with GitHub**
 3. If it's your first time, approve the app when GitHub asks
 

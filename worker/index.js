@@ -67,10 +67,25 @@ const TURNSTILE_HOSTNAMES = new Set([
 const FORM_FROM = 'Selah Church Website <website@selahchurchfxbg.com>';
 const FORM_NOTIFY_EMAIL = 'info@selahchurchfxbg.com';
 const RESEND_EMAILS_URL = 'https://api.resend.com/emails';
+const CANONICAL_HOSTNAME = 'selahchurchfxbg.com';
+const LEGACY_HOSTNAMES = new Set([
+  'www.selahchurchfxbg.com',
+  'selah-church.thyratechllc.workers.dev',
+]);
 
 export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
+
+    // All public paths have one preferred address. This protects canonical
+    // metadata from being undermined by direct www/workers.dev requests and
+    // preserves the path and query string for old shared links.
+    if (LEGACY_HOSTNAMES.has(url.hostname)) {
+      url.protocol = 'https:';
+      url.hostname = CANONICAL_HOSTNAME;
+      url.port = '';
+      return Response.redirect(url, 301);
+    }
 
     // Cadre Small Groups now has one clear destination. Keep links shared
     // before the navigation change from landing on superseded group details.
