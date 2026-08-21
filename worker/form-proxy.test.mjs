@@ -69,6 +69,16 @@ try {
   assert.equal(wwwRedirect.status, 301);
   assert.equal(wwwRedirect.headers.get('location'), 'https://selahchurchfxbg.com/contact.html?ref=legacy');
 
+  const hostHeaderRedirect = await worker.fetch(
+    new Request('https://selahchurchfxbg.com/contact?ref=legacy', {
+      headers: { host: 'www.selahchurchfxbg.com' },
+    }),
+    {},
+    {},
+  );
+  assert.equal(hostHeaderRedirect.status, 301);
+  assert.equal(hostHeaderRedirect.headers.get('location'), 'https://selahchurchfxbg.com/contact?ref=legacy');
+
   const workersDevRedirect = await worker.fetch(
     new Request('https://selah-church.thyratechllc.workers.dev/api/sermons'),
     {},

@@ -76,11 +76,17 @@ const LEGACY_HOSTNAMES = new Set([
 export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
+    // Cloudflare's static-assets layer can normalize request.url before the
+    // Worker runs. Prefer the original Host header so legacy host redirects
+    // still apply to asset-backed pages as well as API requests.
+    const requestedHostname = (request.headers.get('host') || url.hostname)
+      .toLowerCase()
+      .replace(/:\\d+$/, '');
 
     // All public paths have one preferred address. This protects canonical
     // metadata from being undermined by direct www/workers.dev requests and
     // preserves the path and query string for old shared links.
-    if (LEGACY_HOSTNAMES.has(url.hostname)) {
+    if (LEGACY_HOSTNAMES.has(requestedHostname)) {
       url.protocol = 'https:';
       url.hostname = CANONICAL_HOSTNAME;
       url.port = '';
@@ -149,8 +155,11 @@ async function handleFormsApi(request, env) {
     });
   }
 
-  if (!env.TURNSTILE_SECRET || !env.RESEND_API_KEY) {
-    console.error('Form service is not configured: missing required secret');
+  const missingSecrets = ['TURNSTILE_SECRET', 'RESEND_API_KEY'].filter((name) => !env[name]);
+  if (missingSecrets.length > 0) {
+    // Binding names are safe diagnostic metadata; never log secret values or
+    // form contents. This makes a deployment-scope problem actionable.
+    console.error(`Form service is not configured: ${missingSecrets.join(', ')}`);
     return formJson({ ok: false, result: 'error', message: 'The form service is unavailable right now. Please try again shortly.' }, 503);
   }
 
