@@ -1,7 +1,10 @@
 /* ==========================================================================
    SELAH CHURCH — DESIGN SYSTEM
-   Primary identity: Selah's real logo (assets/branding/), inlined as SVG in
-   the header, footer, and favicon.
+   Primary identity: Selah's real logo, inlined as SVG in the header, footer,
+   and favicon. The source logo pack (RGB/CMYK, PNG/SVG lockups, and the
+   SCF format guide PDF) is NOT in this repo — it lives in OneDrive at
+   Selah-site/media-source/brand/. Moved there 2026-08-21: 86 files the site
+   never served, in a public repo, when the marks it actually uses are inlined.
    ========================================================================== */
 
 /* Self-hosted fonts — no fonts.googleapis.com / fonts.gstatic.com link, so no
