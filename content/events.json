@@ -1,16 +1,3 @@
 {
-  "items": [
-    {
-      "date": "",
-      "title": "Test Event 2",
-      "meta": "6:30 PM at church",
-      "description": "Test Event 2"
-    },
-    {
-      "date": "",
-      "title": "Test Event Meeting with Luke",
-      "meta": "3:30 Friday",
-      "description": "Meeting to go over details of the website"
-    }
-  ]
+  "items": []
 }
