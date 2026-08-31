@@ -89,19 +89,6 @@
       "description": "A monthly dinner expression of Selah Church — cultivating relationships within the church family and honoring the Sabbath around real tables in real homes.",
       "linkHref": "shabbat-dinners.html",
       "linkLabel": "Learn more"
-    },
-    {
-      "title": "Test event",
-      "cadence": "once",
-      "weekday": 0,
-      "weeks": [],
-      "date": "2026-09-02",
-      "startsOn": "",
-      "time": "12:00 PM",
-      "location": "Selah Church",
-      "description": "Test event",
-      "linkHref": "",
-      "linkLabel": ""
     }
   ]
 }
