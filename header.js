@@ -12,10 +12,14 @@ const NAV_SECTIONS = [
     { href: 'our-beginning.html', label: 'Our Story' },
   ] },
   { label: 'Connect', id: 'connect', items: [
+    // Shabbat Dinner Groups sits directly beneath Cadre Small Groups at Luke's
+    // request (2026-08-30) — the two are the same kind of thing, a recurring
+    // gathering in homes, and reading them as a pair is the point. This nav
+    // renders one level deep by design, so "under" is adjacency, not nesting.
     { href: 'cadre.html', label: 'Cadre Small Groups' },
+    { href: 'shabbat-dinners.html', label: 'Shabbat Dinner Groups' },
     { href: 'young-adults.html', label: 'Young Adults' },
     { href: 'moms-group.html', label: 'Mom\'s Group' },
-    { href: 'shabbat-dinners.html', label: 'Shabbat Dinner Groups' },
     { href: 'serve.html', label: 'Serve' },
     { href: 'prayer.html', label: 'Prayer Request' },
   ] },

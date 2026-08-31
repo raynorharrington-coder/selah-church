@@ -1,16 +1,50 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="robots" content="noindex">
-  <base href="/admin/">
-  <title>Selah Church — Staff Dashboard</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Staff Dashboard · Selah Church</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+
+<!-- The site's own stylesheet, deliberately. The preview card in the editor is
+     not a mock-up of an event card — it is an event card, rendered by the same
+     events-core.js and painted by the same CSS the public page uses. That is
+     the only way a preview can be trusted not to drift. dashboard.css loads
+     after it and owns everything that isn't the preview. -->
+<link rel="stylesheet" href="/style.css">
+<link rel="stylesheet" href="dashboard.css">
 </head>
-<body>
-  <!-- Decap CMS loaded from its CDN build — see STEP-BY-STEP.md before
-       editing this file. Config lives in config.yml next to this file,
-       not inline here, so non-developers never need to touch this page. -->
-  <script src="https://unpkg.com/decap-cms@^3/dist/decap-cms.js"></script>
+<body class="dash">
+
+<header class="dash-bar">
+  <div class="dash-bar-inner">
+    <span class="dash-brand">
+      <svg viewBox="0 0 347.47 397.52" role="img" aria-label="Selah Church" class="dash-logo"><path fill="currentColor" d="M273.99,154.43l-97.85-81.43c-1.39-1.16-3.41-1.16-4.8,0l-47.28,39.34v-19.68c0-2.07-1.68-3.75-3.75-3.75s-3.75,1.68-3.75,3.75v25.92l-43.08,35.85c-1.59,1.32-1.81,3.69-.48,5.28,1.32,1.59,3.69,1.81,5.28.48l11.57-9.63v113.09c0,2.07,1.68,3.75,3.75,3.75h160.27c2.07,0,3.75-1.68,3.75-3.75v-113.09l11.57,9.63c.7.58,1.55.87,2.4.87,1.08,0,2.14-.46,2.88-1.35,1.32-1.59,1.11-3.96-.48-5.28ZM150.77,259.91v-72.48h45.92v72.48h-45.92ZM250.12,259.91h-45.92v-76.23c0-2.07-1.68-3.75-3.75-3.75h-53.42c-2.07,0-3.75,1.68-3.75,3.75v76.23h-45.92v-115.58l76.39-63.57,76.39,63.57v115.58Z"/></svg>
+      <span class="dash-brand-text">Selah Church<em>Staff Dashboard</em></span>
+    </span>
+    <div class="dash-account" id="dashAccount"></div>
+  </div>
+</header>
+
+<main class="dash-main" id="dashMain">
+  <div class="dash-loading" id="dashLoading">Loading events…</div>
+</main>
+
+<!-- Only appears once something has actually changed. -->
+<div class="dash-savebar" id="dashSaveBar" hidden>
+  <div class="dash-savebar-inner">
+    <span class="dash-savebar-count" id="dashDirtyCount"></span>
+    <div class="dash-savebar-actions">
+      <button type="button" class="dash-btn dash-btn--quiet" id="dashDiscard">Discard changes</button>
+      <button type="button" class="dash-btn dash-btn--go" id="dashSave">Publish changes</button>
+    </div>
+  </div>
+</div>
+
+<div class="dash-toast" id="dashToast" hidden></div>
+
+<script src="/events-core.js"></script>
+<script src="dashboard.js"></script>
 </body>
 </html>

@@ -49,61 +49,21 @@
 
     <h2 class="sr-only">Upcoming Events</h2>
 
-    <!-- These five cards are the no-JS view: the date block carries the
-         recurrence in words ("2nd / Thu") so the page still tells the truth
-         without scripting. With JS, initEventsData replaces the block with
-         the next real date and re-sorts by which comes soonest. Keep this
-         markup in sync with EVENT_SCHEDULE in script.js. -->
-    <div class="event-list" id="eventList">
-      <div class="event-card">
-        <div class="event-date"><span class="month">Every</span><span class="day">Sun</span></div>
-        <div class="event-info">
-          <h3>Church Gathering</h3>
-          <p>Our weekly gathering as a church family &mdash; worship, teaching from God&rsquo;s Word, and space to pause, reflect, and praise.</p>
-          <span class="event-meta">Every Sunday &middot; 10:30 AM &ndash; 12:00 PM &middot; Selah Church</span>
-        </div>
-        <a href="visit.html" class="btn btn-outline-dark btn-small">Plan your visit</a>
-      </div>
+    <!-- Events render from content/events.json, which the staff dashboard at
+         /admin writes. Nothing about an event is hard-coded here any more:
+         static cards stopped being safe the moment Luke could edit events
+         himself, because a card that disagrees with the dashboard is worse
+         than no card. Without JavaScript the noscript block sends people to
+         Church Center, which this page already calls the source of truth. -->
+    <div class="event-list" id="eventList"></div>
 
-      <div class="event-card">
-        <div class="event-date"><span class="month">1st &amp; 3rd</span><span class="day">Tue</span></div>
-        <div class="event-info">
-          <h3>Cadre</h3>
-          <p>Cadres are designed to help people build authentic relationships, grow in their faith, and walk through life together &mdash; opening God&rsquo;s Word, reflecting on Sunday&rsquo;s sermon, and praying for one another.</p>
-          <span class="event-meta">First &amp; third Tuesday of every month &middot; 6:30 &ndash; 8:30 PM &middot; Selah Church</span>
-        </div>
-        <a href="cadre.html" class="btn btn-outline-dark btn-small">Learn more</a>
-      </div>
-
-      <div class="event-card">
-        <div class="event-date"><span class="month">2nd</span><span class="day">Thu</span></div>
-        <div class="event-info">
-          <h3>Bread</h3>
-          <p>Want to grow in reading God&rsquo;s Word? At Bread we walk through a book of the Bible together and provide a reading plan for the month ahead. Come ready to learn, grow, and be nourished.</p>
-          <span class="event-meta">Second Thursday of every month &middot; 6:30 &ndash; 8:00 PM &middot; Selah Church</span>
-        </div>
-      </div>
-
-      <div class="event-card">
-        <div class="event-date"><span class="month">1st &amp; 3rd</span><span class="day">Thu</span></div>
-        <div class="event-info">
-          <h3>Selah Youth</h3>
-          <p>Middle and high schoolers growing in faith through worship, teaching, fellowship, and fun &mdash; helping students deepen their relationship with God and find a sense of belonging and purpose.</p>
-          <span class="event-meta">First &amp; third Thursday of every month &middot; 6:00 &ndash; 8:00 PM &middot; Selah Church</span>
-        </div>
-        <a href="students.html" class="btn btn-outline-dark btn-small">Learn more</a>
-      </div>
-
-      <div class="event-card">
-        <div class="event-date"><span class="month">4th</span><span class="day">Fri</span></div>
-        <div class="event-info">
-          <h3>Shabbat Dinner</h3>
-          <p>A monthly dinner expression of Selah Church &mdash; cultivating relationships within the church family and honoring the Sabbath around real tables in real homes.</p>
-          <span class="event-meta">Fourth Friday of every month &middot; 6:30 &ndash; 8:30 PM &middot; Hosted in homes</span>
-        </div>
-        <a href="shabbat-dinners.html" class="btn btn-outline-dark btn-small">Learn more</a>
-      </div>
-    </div>
+    <noscript>
+      <p class="calendar-callout">
+        Our events list needs JavaScript to work out the next date for each
+        gathering. You can see everything on our
+        <a href="https://selahchurch.churchcenter.com/calendar?view=month" target="_blank" rel="noopener">Church Center calendar</a>.
+      </p>
+    </noscript>
   </div>
 </section>
 
@@ -111,6 +71,7 @@
 
 <script src="assets/vendor/gsap/gsap.min.js" defer></script>
 <script src="assets/vendor/gsap/ScrollTrigger.min.js" defer></script>
+<script src="events-core.js" defer></script>
 <script src="header.js" defer></script>
 <script src="footer.js" defer></script>
 <script src="script.js" defer></script>

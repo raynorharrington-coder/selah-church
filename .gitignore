@@ -57,3 +57,10 @@ assets/photos/home/hero-worship-band-*.jpg
 assets/photos/home/hero-worship-band.jpg
 assets/photos/home/hero-worship-leader-lyrics-*.jpg
 assets/photos/home/hero-worship-leader-lyrics.jpg
+
+# Colour selection, 2026-08-30 — Luke's readers found the bottom of the page
+# too green and the gold CTA too collegiate. _color-preview.html is generated
+# from index.html by docs/color-options/make-preview.py and is a throwaway.
+# The real changes, once colours are picked, are a scoped .site-footer rule
+# and .btn-gold in style.css. Delete this block when it's decided.
+_color-preview.html

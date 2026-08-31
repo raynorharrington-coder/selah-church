@@ -365,156 +365,42 @@ async function initSermonData() {
   }
 }
 
-/* ---------- Events: generated from Church Center's recurrence rules ----------
-   2026-08-20, Luke via Raynor: the events page no longer reads
-   content/events.json. The /admin dashboard and that file are both left in
-   place and untouched — we're just not sourcing this page from them for now.
-
-   Every Selah event is a standing rhythm, not a one-off, so hard-coded dates
-   would silently rot the moment a month turned over. Instead each event
-   carries the same recurrence rule Church Center publishes, and the next
-   real date is computed in the browser at page load. The page stays correct
-   in six months with nobody touching it.
-
-   Rules and copy were read off selahchurch.churchcenter.com on 2026-08-20 —
-   the recurrence strings ("The second Thursday of every month") and the
-   descriptions are Luke's own words from the calendar, not invented here.
-   If a rhythm changes on Church Center, change it here too: this list is a
-   mirror, and nothing detects drift automatically.
-
-   One deliberate exception to the mirror: Selah Worship Team Night (first
-   Monday) is on Church Center but not here. Removed 2026-08-21 — it is a
-   staff/team rehearsal, not something the public is being invited to, so
-   listing it on a page headed "What's happening at Selah" only invites people
-   to show up to something that isn't for them. Do not re-add it on the next
-   Church Center sync. */
-const EVENT_SCHEDULE = [
-  {
-    title: 'Church Gathering',
-    rule: { weekday: 0 },                    // every Sunday
-    recurrence: 'Every Sunday',
-    shortWhen: { top: 'Every', bottom: 'Sun' },
-    time: '10:30 AM – 12:00 PM',
-    location: 'Selah Church',
-    description: 'Our weekly gathering as a church family — worship, teaching from God’s Word, and space to pause, reflect, and praise.',
-    link: { href: 'visit.html', label: 'Plan your visit' },
-  },
-  {
-    title: 'Cadre',
-    // startsOn: Church Center has no Cadre before 2026-09-01 (August is
-    // blank on the calendar), so the rule alone would invent an Aug 4 / Aug 18
-    // that never happens. Same story for Selah Youth below.
-    rule: { weekday: 2, nths: [1, 3], startsOn: '2026-09-01' },
-    recurrence: 'First & third Tuesday of every month',
-    shortWhen: { top: '1st & 3rd', bottom: 'Tue' },
-    time: '6:30 – 8:30 PM',
-    location: 'Selah Church',
-    description: 'Cadres are designed to help people build authentic relationships, grow in their faith, and walk through life together — opening God’s Word, reflecting on Sunday’s sermon, and praying for one another.',
-    link: { href: 'cadre.html', label: 'Learn more' },
-  },
-  {
-    title: 'Bread',
-    rule: { weekday: 4, nths: [2] },         // second Thursday
-    recurrence: 'Second Thursday of every month',
-    shortWhen: { top: '2nd', bottom: 'Thu' },
-    time: '6:30 – 8:00 PM',
-    location: 'Selah Church',
-    description: 'Want to grow in reading God’s Word? At Bread we walk through a book of the Bible together and provide a reading plan for the month ahead. Come ready to learn, grow, and be nourished.',
-  },
-  {
-    title: 'Selah Youth',
-    rule: { weekday: 4, nths: [1, 3], startsOn: '2026-09-03' },
-    recurrence: 'First & third Thursday of every month',
-    shortWhen: { top: '1st & 3rd', bottom: 'Thu' },
-    time: '6:00 – 8:00 PM',
-    location: 'Selah Church',
-    description: 'Middle and high schoolers growing in faith through worship, teaching, fellowship, and fun — helping students deepen their relationship with God and find a sense of belonging and purpose.',
-    link: { href: 'students.html', label: 'Learn more' },
-  },
-  {
-    title: 'Shabbat Dinner',
-    rule: { weekday: 5, nths: [4] },         // fourth Friday
-    recurrence: 'Fourth Friday of every month',
-    shortWhen: { top: '4th', bottom: 'Fri' },
-    time: '6:30 – 8:30 PM',
-    location: 'Hosted in homes',
-    description: 'A monthly dinner expression of Selah Church — cultivating relationships within the church family and honoring the Sabbath around real tables in real homes.',
-    link: { href: 'shabbat-dinners.html', label: 'Learn more' },
-  },
-];
-
-/* The nth weekday of a month, or null when that month has no nth — a 5th
-   Friday does not exist in most months, and asking for one must not silently
-   roll into the next month. */
-function nthWeekdayOfMonth(year, month, weekday, nth) {
-  const first = new Date(year, month, 1);
-  const shift = (weekday - first.getDay() + 7) % 7;
-  const date = new Date(year, month, 1 + shift + (nth - 1) * 7);
-  return date.getMonth() === month ? date : null;
-}
-
-/* The first occurrence on or after `from`. An event happening *today* still
-   counts as upcoming — nobody wants the page to drop tonight's dinner at
-   9am on the day of it. Monthly rules scan 14 months so a rule that skips
-   some months (a 5th-weekday rule, were one ever added) still resolves. */
-function nextOccurrence(rule, from) {
-  // A series that hasn't begun yet can't occur before its first date.
-  let start = from;
-  if (rule.startsOn) {
-    const seriesStart = new Date(`${rule.startsOn}T00:00:00`);
-    if (seriesStart > start) start = seriesStart;
-  }
-  if (!rule.nths) {
-    const shift = (rule.weekday - start.getDay() + 7) % 7;
-    return new Date(start.getFullYear(), start.getMonth(), start.getDate() + shift);
-  }
-  for (let i = 0; i < 14; i += 1) {
-    const probe = new Date(start.getFullYear(), start.getMonth() + i, 1);
-    const hits = rule.nths
-      .map((n) => nthWeekdayOfMonth(probe.getFullYear(), probe.getMonth(), rule.weekday, n))
-      .filter((d) => d && d >= start)
-      .sort((a, b) => a - b);
-    if (hits.length) return hits[0];
-  }
-  return null;
-}
-
-function eventCardHTML(ev, next) {
-  const month = next
-    ? next.toLocaleDateString('en-US', { month: 'short' }).toUpperCase()
-    : ev.shortWhen.top;
-  const day = next ? String(next.getDate()) : ev.shortWhen.bottom;
-  const meta = [ev.recurrence, ev.time, ev.location].filter(Boolean).join(' · ');
-  const cta = ev.link
-    ? `<a href="${escapeHtml(ev.link.href)}" class="btn btn-outline-dark btn-small">${escapeHtml(ev.link.label)}</a>`
-    : '';
-  return `
-    <div class="event-card">
-      <div class="event-date"><span class="month">${escapeHtml(month)}</span><span class="day">${escapeHtml(day)}</span></div>
-      <div class="event-info">
-        <h3>${escapeHtml(ev.title)}</h3>
-        <p>${escapeHtml(ev.description)}</p>
-        <span class="event-meta">${escapeHtml(meta)}</span>
-      </div>
-      ${cta}
-    </div>`;
-}
-
-function initEventsData() {
+/* ---------- Events ----------
+   The recurrence rules, caption derivation and card markup live in
+   events-core.js, which the staff dashboard loads too so its live preview
+   cannot drift from what the site actually renders. events.html loads that
+   file before this one. Only the page wiring stays here. */
+async function initEventsData() {
   const list = document.getElementById('eventList');
   if (!list) return;
+
+  let items;
+  try {
+    // cache: 'no-cache' revalidates rather than serving a stale copy, so an
+    // edit made in the dashboard shows up on a refresh instead of whenever
+    // the browser next felt like asking.
+    const res = await fetch('content/events.json', { cache: 'no-cache' });
+    if (!res.ok) throw new Error(`events.json ${res.status}`);
+    const data = await res.json();
+    items = Array.isArray(data.items) ? data.items : [];
+  } catch (e) {
+    // Leave whatever the page shipped with in place. events.html renders the
+    // Church Center link, so a failed fetch degrades to "go look at the real
+    // calendar" rather than an empty page under an "Upcoming Events" heading.
+    console.error('events data load failed', e);
+    return;
+  }
 
   // Midnight today, so an event later today still reads as upcoming.
   const now = new Date();
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
-  const cards = EVENT_SCHEDULE
-    .map((ev) => ({ ev, next: nextOccurrence(ev.rule, today) }))
-    .sort((a, b) => {
-      if (!a.next) return 1;
-      if (!b.next) return -1;
-      return a.next - b.next;
-    });
+  const cards = upcomingEvents(items, today);
+
+  if (!cards.length) {
+    list.innerHTML = '';
+    return;
+  }
 
   list.innerHTML = cards.map(({ ev, next }) => eventCardHTML(ev, next)).join('');
 

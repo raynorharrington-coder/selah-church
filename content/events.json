@@ -1,3 +1,82 @@
 {
-  "items": []
+  "items": [
+    {
+      "title": "Church Gathering",
+      "cadence": "weekly",
+      "weekday": 0,
+      "weeks": [],
+      "date": "",
+      "startsOn": "",
+      "time": "10:30 AM – 12:00 PM",
+      "location": "Selah Church",
+      "description": "Our weekly gathering as a church family — worship, teaching from God’s Word, and space to pause, reflect, and praise.",
+      "linkHref": "visit.html",
+      "linkLabel": "Plan your visit"
+    },
+    {
+      "title": "Cadre",
+      "cadence": "monthly",
+      "weekday": 2,
+      "weeks": [1, 3],
+      "date": "",
+      "startsOn": "2026-09-01",
+      "time": "6:30 – 8:30 PM",
+      "location": "Selah Church",
+      "description": "Cadres are designed to help people build authentic relationships, grow in their faith, and walk through life together — opening God’s Word, reflecting on Sunday’s sermon, and praying for one another.",
+      "linkHref": "cadre.html",
+      "linkLabel": "Learn more"
+    },
+    {
+      "title": "Bread",
+      "cadence": "monthly",
+      "weekday": 4,
+      "weeks": [2],
+      "date": "",
+      "startsOn": "",
+      "time": "6:30 – 8:00 PM",
+      "location": "Selah Church",
+      "description": "Want to grow in reading God’s Word? At Bread we walk through a book of the Bible together and provide a reading plan for the month ahead. Come ready to learn, grow, and be nourished.",
+      "linkHref": "",
+      "linkLabel": ""
+    },
+    {
+      "title": "Selah Youth",
+      "cadence": "monthly",
+      "weekday": 4,
+      "weeks": [1, 3],
+      "date": "",
+      "startsOn": "2026-09-03",
+      "time": "6:00 – 8:00 PM",
+      "location": "Selah Church",
+      "description": "Middle and high schoolers growing in faith through worship, teaching, fellowship, and fun — helping students deepen their relationship with God and find a sense of belonging and purpose.",
+      "linkHref": "students.html",
+      "linkLabel": "Learn more"
+    },
+    {
+      "title": "Prayer Room",
+      "cadence": "monthly",
+      "weekday": 3,
+      "weeks": [4],
+      "date": "",
+      "startsOn": "2026-09-01",
+      "time": "",
+      "location": "",
+      "description": "A monthly evening set aside to pray together — space to be still, listen, and pray for our church, our city, and one another.",
+      "linkHref": "",
+      "linkLabel": ""
+    },
+    {
+      "title": "Shabbat Dinner",
+      "cadence": "monthly",
+      "weekday": 5,
+      "weeks": [4],
+      "date": "",
+      "startsOn": "",
+      "time": "6:30 – 8:30 PM",
+      "location": "Hosted in homes",
+      "description": "A monthly dinner expression of Selah Church — cultivating relationships within the church family and honoring the Sabbath around real tables in real homes.",
+      "linkHref": "shabbat-dinners.html",
+      "linkLabel": "Learn more"
+    }
+  ]
 }
