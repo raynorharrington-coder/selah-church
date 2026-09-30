@@ -1042,6 +1042,121 @@ p, li, figcaption {
   .video-facade-out:hover { color: var(--ink); }
 }
 
+/* ---- Thumbnail facade (serve.html, give.html) ----
+   Luke, 2026-09-13: asked for the serving/giving videos to "show up the same
+   way they do on the main page". The homepage sermon block leads with the real
+   video frame under a circular play button; this facade led with an empty
+   cream panel, so the two read as unrelated components. This modifier borrows
+   .sermon-media's proportions and .play-button wholesale.
+
+   The thumbnails are SELF-HOSTED under assets/photos/sermons/ rather than hot-
+   linked from i.ytimg.com. Pulling them from Google would hand every visitor's
+   IP to YouTube on page load and undo the whole point of a click-to-load
+   facade — see AGENTS.md on self-hosting third-party assets. Still no YouTube
+   iframe, cookie, or request until someone actually presses play. */
+.video-facade--thumb {
+  position: relative;
+  padding: 0;
+  overflow: hidden;
+  border: 0;
+  display: block;
+  /* Video-letterbox black, same reasoning as .sermon-media: a replacement
+     thumbnail that isn't exactly 16:9 letterboxes instead of being cropped. */
+  background: var(--ink);
+}
+.video-facade--thumb .video-facade-btn {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  padding: 0;
+  gap: 0;
+}
+.video-facade--thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  transition: transform 0.6s cubic-bezier(.25,.8,.25,1);
+  filter: saturate(1.04) brightness(0.98);
+}
+.video-facade--thumb .video-facade-out {
+  position: absolute;
+  right: 0.5rem;
+  bottom: 0.5rem;
+  z-index: 2;
+  padding: 0 0.8rem;
+  font-size: 0.64rem;
+  color: rgba(247,242,230,0.92);
+  background: rgba(22,35,28,0.55);
+  border-radius: calc(var(--radius) / 2);
+  backdrop-filter: blur(4px);
+  text-decoration: none;
+  /* Stays a 44px tap target via .video-facade-out's min-height — only the
+     horizontal weight comes down, so it reads as the secondary affordance it
+     is next to the play button. */
+}
+
+/* .play-button was drawn for the homepage, where it always sits on dark
+   worship photography: a near-transparent fill plus backdrop-blur borrows its
+   contrast from the image underneath. These sermon title cards are light — a
+   pale wall behind the speaker — so that same fill blurred into a silver
+   smudge and the paper-coloured triangle all but vanished. Geometry, size and
+   hover behaviour stay identical to the homepage; only the fill is re-seated
+   on ink so the control is legible over a thumbnail of any brightness. */
+.video-facade--thumb .play-button::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 260px;
+  height: 260px;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(22,35,28,0.38), transparent 68%);
+  pointer-events: none;
+}
+.video-facade--thumb .play-button span {
+  background: rgba(22,35,28,0.55);
+  border-color: rgba(247,242,230,0.6);
+}
+@media (hover: hover) {
+  .video-facade--thumb .video-facade-btn:hover img { transform: scale(1.06); }
+  .video-facade--thumb .video-facade-btn:hover .play-button span {
+    transform: scale(1.1);
+    background: var(--gold);
+  }
+  .video-facade--thumb .video-facade-out:hover {
+    color: var(--ink);
+    background: var(--gold);
+  }
+}
+/* Without JS the play button is hidden globally (see the html:not(.js) rule
+   further down), which would leave an empty black box — so the YouTube link
+   stops being an overlay and becomes the panel's only, centred content. */
+html:not(.js) .video-facade--thumb {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+html:not(.js) .video-facade--thumb .video-facade-out {
+  position: static;
+  background: none;
+  color: var(--stone);
+  text-decoration: underline;
+}
+/* The button now fills a clipped (overflow:hidden) box, so the base rule's
+   +3px offset would draw the ring outside the facade and get cut off. Inset
+   it instead, same exception the focus-ring comment further down describes. */
+.video-facade--thumb .video-facade-btn:focus-visible {
+  outline: var(--focus-ring);
+  outline-offset: -3px;
+}
+.video-facade--thumb .video-facade-out:focus-visible {
+  outline: var(--focus-ring);
+  outline-offset: 1px;
+}
+
 /* Living: the two most load-bearing photo moments (this and the sermon
    feature panel) resolve into place unhurriedly on scroll instead of
    snapping in, echoing Selah's own worship not running on a fixed
